@@ -2,6 +2,7 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
+import '../text-editor/text-editor';
 import componentCSS from './wordflow.css?inline';
 
 /**
@@ -30,7 +31,17 @@ export class PromptLetWordflow extends LitElement {
 
   // ===== Templates and Styles ======
   render() {
-    return html` <div class="wordflow">Wordflow</div> `;
+    return html`
+      <div class="wordflow">
+        <div class="left-panel"></div>
+        <div class="center-panel">
+          <div class="editor-content">
+            <promptlet-text-editor></promptlet-text-editor>
+          </div>
+        </div>
+        <div class="right-panel"></div>
+      </div>
+    `;
   }
 
   static styles = [

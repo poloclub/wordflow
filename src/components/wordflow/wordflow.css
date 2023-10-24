@@ -1,11 +1,44 @@
 .wordflow {
   width: 100%;
-  height: 100%;
+  height: 100vh;
 
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-
   box-sizing: border-box;
+
+  background-color: var(--blue-gray-50);
+}
+
+.left-panel {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.right-panel {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.center-panel {
+  display: flex;
+  flex: 0 1 auto;
+  width: 70ch;
+  height: 100%;
+
+  padding: 50px 50px 0 50px;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.editor-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  promptlet-text-editor {
+    width: 100%;
+    height: 100%;
+  }
 }
