@@ -4,6 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
+import Highlight from '@tiptap/extension-highlight';
 
 import componentCSS from './text-editor.css?inline';
 
@@ -46,39 +47,19 @@ export class PromptLetTextEditor extends LitElement {
       text: false
     });
 
+    const myHighlight = Highlight.configure({
+      multicolor: true
+    });
+
+    const defaultText =
+      '<p>To develop and deploy trustworthy AI systems that benefit everyone, there is an urgent need to have the capability to thoroughly vet and rectify AI models. First, we need to explain what AI models have learned and how they make predictions. After gaining an understanding of these models and their potential impacts, it is essential to ensure that they have acquired the correct knowledge and that their behaviors align with human values. As these solutions to AI explainability and human agency emerge, ensuring their accessibility and ease of adoption by AI developers is of paramount importance. After all, responsible AI techniques are valuable only when AI developers actively embrace them.</p>';
+
     this.editor = new Editor({
       element: this.editorElement,
-      extensions: [myStarterKit, myText],
+      extensions: [myStarterKit, myText, myHighlight],
       content: `
-            <h2>
-              Hi there,
-            </h2>
-            <p>
-                    this is a <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you'd probably expect from a text editor. But wait until you see the lists:
-            </p>
-            <ul>
-              <li>
-                That's a bullet list with one …
-              </li>
-              <li>
-                … or two list items.
-              </li>
-            </ul>
-            <p>
-              Isn't that great? And all of that is editable. But wait, there's more. Let's try a code block:
-            </p>
-            <pre><code class="language-css">body {
-        display: none;
-      }</code></pre>
-            <p>
-              I know, I know, this is impressive. It's only the tip of the iceberg though. Give it a try and click a little bit around. Don't forget to check the other examples too.
-            </p>
-            <blockquote>
-              Wow, that's amazing. Good work, boy! 👏
-              <br />
-              — Mom
-            </blockquote>
-          `,
+        ${defaultText}
+      `,
       autofocus: true
     });
   }
@@ -93,10 +74,50 @@ export class PromptLetTextEditor extends LitElement {
   initData = async () => {};
 
   // ===== Event Methods ======
+  highlightClicked(e: MouseEvent) {
+    e.preventDefault();
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    this.editor.chain().focus().toggleHighlight({ color: '#ffc078' }).run();
+    console.log('clicked');
+  }
+
+  dehighlightClicked(e: MouseEvent) {
+    e.preventDefault();
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    this.editor
+      .chain()
+      .focus()
+      .unsetMark('highlight', { extendEmptyMarkRange: true })
+      .run();
+  }
 
   // ===== Templates and Styles ======
   render() {
-    return html` <div class="text-editor"></div> `;
+    return html` <div class="text-editor-container">
+      <div class="text-editor"></div>
+      <div class="control-panel">
+        <button
+          class="control-button"
+          @click=${(e: MouseEvent) => this.highlightClicked(e)}
+        >
+          Highlight
+        </button>
+        <button
+          class="control-button"
+          @click=${(e: MouseEvent) => this.dehighlightClicked(e)}
+        >
+          Dehighlight
+        </button>
+      </div>
+    </div>`;
   }
 
   static styles = [
