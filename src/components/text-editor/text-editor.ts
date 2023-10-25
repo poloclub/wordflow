@@ -2,6 +2,7 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Editor } from '@tiptap/core';
+import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
 
 import componentCSS from './text-editor.css?inline';
@@ -33,10 +34,64 @@ export class PromptLetTextEditor extends LitElement {
       return;
     }
 
+    this.editorElement.addEventListener('keydown', (e: KeyboardEvent) => {
+      e.preventDefault();
+    });
+
+    // Register keyboard shortcuts
+    const myText = Text.extend({
+      addKeyboardShortcuts() {
+        return {
+          // // cmd + -> | Move to the end of the line
+          // 'Mod-ArrowRight': () => {
+          //   return this.editor.chain().selectTextblockEnd().run();
+          // },
+          // // cmd + <- | Move to the start of the line
+          // 'Mod-ArrowLeft': () => {
+          //   return this.editor.chain().selectTextblockStart().run();
+          // }
+        };
+      }
+    });
+
+    // Customize the starterkit extension to exclude customized extensions
+    const myStarterKit = StarterKit.configure({
+      text: false
+    });
+
     this.editor = new Editor({
       element: this.editorElement,
-      extensions: [StarterKit],
-      content: '<p>Hello! Jay here.</p>',
+      extensions: [myStarterKit, myText],
+      content: `
+            <h2>
+              Hi there,
+            </h2>
+            <p>
+              this is a <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
+            </p>
+            <ul>
+              <li>
+                That’s a bullet list with one …
+              </li>
+              <li>
+                … or two list items.
+              </li>
+            </ul>
+            <p>
+              Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
+            </p>
+            <pre><code class="language-css">body {
+        display: none;
+      }</code></pre>
+            <p>
+              I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
+            </p>
+            <blockquote>
+              Wow, that’s amazing. Good work, boy! 👏
+              <br />
+              — Mom
+            </blockquote>
+          `,
       autofocus: true
     });
   }

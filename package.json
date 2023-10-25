@@ -13,6 +13,9 @@
   },
   "devDependencies": {
     "@tiptap/core": "^2.1.12",
+    "@tiptap/extension-document": "^2.1.12",
+    "@tiptap/extension-paragraph": "^2.1.12",
+    "@tiptap/extension-text": "^2.1.12",
     "@tiptap/pm": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
     "typescript": "^5.2.2",
