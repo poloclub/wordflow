@@ -7,6 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 
 import componentCSS from './text-editor.css?inline';
+import { style } from '../../../node_modules/@tiptap/core/src/style';
 
 /**
  * Text editor element.
@@ -102,7 +103,7 @@ export class PromptLetTextEditor extends LitElement {
   // ===== Templates and Styles ======
   render() {
     return html` <div class="text-editor-container">
-      <div class="text-editor"></div>
+      <div class="text-editor" style="white-space: break-spaces;"></div>
       <div class="control-panel">
         <button
           class="control-button"
@@ -123,6 +124,7 @@ export class PromptLetTextEditor extends LitElement {
   static styles = [
     css`
       ${unsafeCSS(componentCSS)}
+      ${unsafeCSS(style)}
     `
   ];
 }
