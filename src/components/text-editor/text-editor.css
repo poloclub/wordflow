@@ -58,3 +58,30 @@ button {
     background-color: color-mix(in lab, var(--blue-300), black 5%);
   }
 }
+
+.collapse-item {
+  position: relative;
+  display: inline;
+
+  /* &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 2px);
+    height: 2px;
+    background-color: white;
+  } */
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 2px);
+    height: 1px;
+    background-color: var(--gray-700);
+  }
+}

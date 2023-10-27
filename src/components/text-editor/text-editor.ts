@@ -6,6 +6,7 @@ import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import { EditHighlight } from './edit-highlight';
+import { Collapse } from './collapsed-node';
 import { diffWords } from 'diff';
 
 import { diff_wordMode_ } from './text-diff';
@@ -73,10 +74,6 @@ export class PromptLetTextEditor extends LitElement {
       text: false
     });
 
-    const myHighlight = Highlight.configure({
-      multicolor: true
-    });
-
     const myEditHighlight = EditHighlight.configure({
       multicolor: true
     });
@@ -85,7 +82,7 @@ export class PromptLetTextEditor extends LitElement {
 
     this.editor = new Editor({
       element: this.editorElement,
-      extensions: [myStarterKit, myText, myEditHighlight],
+      extensions: [myStarterKit, myText, myEditHighlight, Collapse],
       content: `
         ${defaultText}
       `,
@@ -174,7 +171,12 @@ export class PromptLetTextEditor extends LitElement {
           // Case 2: delete old => show icon
           // Check if the deleted text is not replaced by new text
           if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
-            diffText += `<mark data-color="${DELETED_COLOR}" data-origin="">[...]</mark> `;
+            diffText += `<span data-type="collapse" deleted-text="${diff[1]}"></span>`;
+
+            // Add a space if the deleted text is replaced by '...'
+            if (diff[1].length > 2) {
+              diffText += ' ';
+            }
           }
           break;
         }
