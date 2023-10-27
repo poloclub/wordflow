@@ -24,7 +24,7 @@ export class PromptLet<FTName | pascalcase> extends LitElement {
   willUpdate(changedProperties: PropertyValues<this>) {}
 
   // ===== Custom Methods ======
-  initData = async () => {};
+  async initData() {};
 
   // ===== Event Methods ======
 
