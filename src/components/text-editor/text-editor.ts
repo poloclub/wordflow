@@ -15,8 +15,10 @@ import { style } from '../../../node_modules/@tiptap/core/src/style';
 
 const OLD_TEXT =
   'To develop and deploy trustworthy AI systems that benefit everyone, there is an urgent need to have the capability to thoroughly vet and rectify AI models.';
+// const NEW_TEXT =
+//   'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet AI models. This is cool.';
 const NEW_TEXT =
-  'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models.';
+  'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is cool.';
 
 const DELETED_COLOR = config.colors['red-100'];
 const ADDED_COLOR = config.colors['blue-100'];
@@ -135,32 +137,56 @@ export class PromptLetTextEditor extends LitElement {
     // const differences = this.diffParagraph(oldText, newText);
     const differences = diff_wordMode_(oldText, newText);
 
-    // Organize the text to highlight the newly-added text and keep track of their
-    // original text
+    // Organize the text to highlight the new text and keep track of their
+    // old text
+    // Case 1: delete old, add new => show add
+    // Case 2: delete old => show icon
+    // Case 3: add new => show new
+    // Note that diff-match-patch use -1, 0, 1 to encode delete, no change, and add.
+    // We can add these numbers to distinguish the three cases above.
     console.log(differences);
     let diffText = '';
-    let sameText = '';
-    let pendingText = '';
-    let pendingReplacedText = '';
-    let pendingMode: 'add' | 'delete' | null = null;
-    const mergeGapSize = 2;
-
+    let lastDeletedText = '';
     const replaceMap = new Map<string, string>();
 
-    for (const diff of differences) {
+    for (const [i, diff] of differences.entries()) {
       switch (diff[0]) {
         case 0: {
+          // No change
           diffText += diff[1];
           break;
         }
 
         case -1: {
-          diffText += `<mark data-color="${DELETED_COLOR}">${diff[1]}</mark> `;
+          // Deleted
+          lastDeletedText = diff[1];
+
+          // Case 2: delete old => show icon
+          // Check if the deleted text is not replaced by new text
+          if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
+            diffText += `<mark data-color="${DELETED_COLOR}">DEL</mark> `;
+          }
           break;
         }
 
         case 1: {
+          // Added
           diffText += `<mark data-color="${ADDED_COLOR}">${diff[1]}</mark> `;
+
+          // Case 1: delete old, add new => show add
+          // Also record the original old text
+          if (i >= 1 && differences[i - 1][0] === -1) {
+            replaceMap.set(diff[1], lastDeletedText);
+            lastDeletedText = '';
+          }
+
+          // Case 3: add new => show new
+          // Add empty string as the old text
+          if (i >= 1 && differences[i - 1][0] === 0) {
+            replaceMap.set(diff[1], '');
+            lastDeletedText = '';
+          }
+
           break;
         }
 
