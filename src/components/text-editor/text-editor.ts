@@ -4,7 +4,6 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
-import Highlight from '@tiptap/extension-highlight';
 import { EditHighlight } from './edit-highlight';
 import { Collapse } from './collapsed-node';
 import { diffWords } from 'diff';
@@ -26,7 +25,6 @@ const OLD_TEXT =
 const NEW_TEXT =
   'To develop deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is cool.';
 
-const DELETED_COLOR = config.customColors.deletedColor;
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
 
@@ -42,14 +40,14 @@ export class PromptLetTextEditor extends LitElement {
   @query('.text-editor')
   editorElement: HTMLElement | undefined;
 
+  @query('.select-menu')
+  selectMenuElement: HTMLElement | undefined;
+
   initialText = OLD_TEXT;
 
   // ===== Lifecycle Methods ======
   constructor() {
     super();
-
-    const result = diff_wordMode_(OLD_TEXT, NEW_TEXT);
-    console.log(result);
   }
 
   firstUpdated() {
@@ -57,8 +55,13 @@ export class PromptLetTextEditor extends LitElement {
   }
 
   initEditor() {
-    if (this.editorElement === undefined) {
-      console.error('Text editor element is not added to DOM yet!');
+    if (
+      this.editorElement === undefined ||
+      this.selectMenuElement === undefined
+    ) {
+      console.error(
+        'Text editor / select menu element is not added to DOM yet!'
+      );
       return;
     }
 
@@ -113,7 +116,6 @@ export class PromptLetTextEditor extends LitElement {
     }
 
     this.editor.chain().focus().toggleHighlight({ color: '#ffc078' }).run();
-    console.log('clicked');
   }
 
   dehighlightButtonClicked(e: MouseEvent) {
@@ -151,7 +153,6 @@ export class PromptLetTextEditor extends LitElement {
     // Case 3: add new => show new
     // Note that diff-match-patch use -1, 0, 1 to encode delete, no change, and add.
     // We can add these numbers to distinguish the three cases above.
-    console.log(differences);
     let diffText = '';
     let lastDeletedText = '';
     const replaceMap = new Map<string, string>();
@@ -172,11 +173,6 @@ export class PromptLetTextEditor extends LitElement {
           // Check if the deleted text is not replaced by new text
           if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
             diffText += `<span data-type="collapse" deleted-text="${diff[1]}"></span>`;
-
-            // Add a space if the deleted text is replaced by '...'
-            if (diff[1].length > 2) {
-              diffText += ' ';
-            }
           }
           break;
         }
@@ -224,7 +220,6 @@ export class PromptLetTextEditor extends LitElement {
       const attributes = this.editor.getAttributes(
         'edit-highlight'
       ) as EditHighlightAttributes;
-      console.log(attributes);
     }
   }
 

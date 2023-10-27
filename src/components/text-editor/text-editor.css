@@ -29,12 +29,12 @@
 
 .control-panel {
   position: absolute;
-  left: 100%;
-  top: 50px;
-  transform: translate(10px, 1rem);
+  left: 50%;
+  top: 10px;
+  transform: translate(-50%, 0px);
 
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   gap: 10px;
 }
 
@@ -62,17 +62,7 @@ button {
 .collapse-item {
   position: relative;
   display: inline;
-
-  /* &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: calc(100% + 2px);
-    height: 2px;
-    background-color: white;
-  } */
+  color: var(--gray-700);
 
   &::after {
     content: '';
