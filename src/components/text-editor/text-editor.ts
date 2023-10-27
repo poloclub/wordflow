@@ -5,11 +5,16 @@ import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
+import { EditHighlight } from './edit-highlight';
 import { diffWords } from 'diff';
 
 import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
 
+// Types
+import type { EditHighlightAttributes } from './edit-highlight';
+
+// CSS
 import componentCSS from './text-editor.css?inline';
 import { style } from '../../../node_modules/@tiptap/core/src/style';
 
@@ -18,10 +23,11 @@ const OLD_TEXT =
 // const NEW_TEXT =
 //   'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet AI models. This is cool.';
 const NEW_TEXT =
-  'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is cool.';
+  'To develop deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is cool.';
 
-const DELETED_COLOR = config.colors['red-100'];
-const ADDED_COLOR = config.colors['blue-100'];
+const DELETED_COLOR = config.customColors.deletedColor;
+const ADDED_COLOR = config.customColors.addedColor;
+const REPLACED_COLOR = config.customColors.replacedColor;
 
 /**
  * Text editor element.
@@ -71,11 +77,15 @@ export class PromptLetTextEditor extends LitElement {
       multicolor: true
     });
 
+    const myEditHighlight = EditHighlight.configure({
+      multicolor: true
+    });
+
     const defaultText = `<p>${this.initialText}</p>`;
 
     this.editor = new Editor({
       element: this.editorElement,
-      extensions: [myStarterKit, myText, myHighlight],
+      extensions: [myStarterKit, myText, myEditHighlight],
       content: `
         ${defaultText}
       `,
@@ -119,7 +129,7 @@ export class PromptLetTextEditor extends LitElement {
     this.editor
       .chain()
       .focus()
-      .unsetMark('highlight', { extendEmptyMarkRange: true })
+      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
       .run();
   }
 
@@ -164,18 +174,18 @@ export class PromptLetTextEditor extends LitElement {
           // Case 2: delete old => show icon
           // Check if the deleted text is not replaced by new text
           if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
-            diffText += `<mark data-color="${DELETED_COLOR}">DEL</mark> `;
+            diffText += `<mark data-color="${DELETED_COLOR}" data-origin="">[...]</mark> `;
           }
           break;
         }
 
         case 1: {
           // Added
-          diffText += `<mark data-color="${ADDED_COLOR}">${diff[1]}</mark> `;
 
           // Case 1: delete old, add new => show add
           // Also record the original old text
           if (i >= 1 && differences[i - 1][0] === -1) {
+            diffText += `<mark data-color="${REPLACED_COLOR}" data-origin="${lastDeletedText}">${diff[1]}</mark> `;
             replaceMap.set(diff[1], lastDeletedText);
             lastDeletedText = '';
           }
@@ -183,6 +193,7 @@ export class PromptLetTextEditor extends LitElement {
           // Case 3: add new => show new
           // Add empty string as the old text
           if (i >= 1 && differences[i - 1][0] === 0) {
+            diffText += `<mark data-color="${ADDED_COLOR}" data-origin="${lastDeletedText}">${diff[1]}</mark> `;
             replaceMap.set(diff[1], '');
             lastDeletedText = '';
           }
@@ -197,6 +208,22 @@ export class PromptLetTextEditor extends LitElement {
     }
     diffText = `<p>${diffText}</p>`;
     this.editor.commands.setContent(diffText);
+  }
+
+  selectButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    if (this.editor.isActive('edit-highlight')) {
+      const attributes = this.editor.getAttributes(
+        'edit-highlight'
+      ) as EditHighlightAttributes;
+      console.log(attributes);
+    }
   }
 
   // ===== Templates and Styles ======
@@ -221,6 +248,12 @@ export class PromptLetTextEditor extends LitElement {
           @click=${(e: MouseEvent) => this.improveButtonClicked(e)}
         >
           Improve
+        </button>
+        <button
+          class="control-button"
+          @click=${(e: MouseEvent) => this.selectButtonClicked(e)}
+        >
+          Select
         </button>
       </div>
     </div>`;
