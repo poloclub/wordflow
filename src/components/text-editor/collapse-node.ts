@@ -36,11 +36,8 @@ export const Collapse = Node.create<CollapsedOptions>({
   },
 
   group: 'inline',
-
   inline: true,
-
-  selectable: false,
-
+  selectable: true,
   atom: true,
 
   addAttributes() {

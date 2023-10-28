@@ -5,8 +5,8 @@ import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
 import { EditHighlight } from './edit-highlight';
-import { Collapse } from './collapsed-node';
-import { diffWords } from 'diff';
+import { Collapse } from './collapse-node';
+import { SidebarMenu } from './sidebar-menu-plugin';
 
 import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
@@ -52,6 +52,11 @@ export class PromptLetTextEditor extends LitElement {
 
   firstUpdated() {
     this.initEditor();
+
+    setTimeout(() => {
+      const e = new Event('click') as MouseEvent;
+      this.improveButtonClicked(e);
+    }, 1000);
   }
 
   initEditor() {
@@ -81,11 +86,21 @@ export class PromptLetTextEditor extends LitElement {
       multicolor: true
     });
 
+    const mySidebarMenu = SidebarMenu.configure({
+      element: this.selectMenuElement
+    });
+
     const defaultText = `<p>${this.initialText}</p>`;
 
     this.editor = new Editor({
       element: this.editorElement,
-      extensions: [myStarterKit, myText, myEditHighlight, Collapse],
+      extensions: [
+        myStarterKit,
+        myText,
+        myEditHighlight,
+        Collapse,
+        mySidebarMenu
+      ],
       content: `
         ${defaultText}
       `,
@@ -102,10 +117,7 @@ export class PromptLetTextEditor extends LitElement {
   // ===== Custom Methods ======
   async initData() {}
 
-  diffParagraph(oldText: string, newText: string) {
-    const differences = diffWords(oldText, newText);
-    return differences;
-  }
+  diffParagraph(oldText: string, newText: string) {}
 
   // ===== Event Methods ======
   highlightButtonClicked(e: MouseEvent) {
@@ -253,6 +265,8 @@ export class PromptLetTextEditor extends LitElement {
           Select
         </button>
       </div>
+
+      <div class="select-menu">Menu</div>
     </div>`;
   }
 

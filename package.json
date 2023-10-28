@@ -12,11 +12,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tiptap/extension-bubble-menu": "^2.1.12",
     "lit": "^3.0.0"
   },
   "devDependencies": {
+    "@floating-ui/dom": "^1.5.3",
     "@tiptap/core": "^2.1.12",
+    "@tiptap/extension-bubble-menu": "^2.1.12",
     "@tiptap/extension-document": "^2.1.12",
     "@tiptap/extension-highlight": "^2.1.12",
     "@tiptap/extension-paragraph": "^2.1.12",
@@ -36,6 +37,7 @@
     "eslint-plugin-wc": "^2.0.4",
     "gh-pages": "^6.0.0",
     "prettier": "^3.0.3",
+    "tippy.js": "^6.3.7",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
     "vite-plugin-dts": "^3.6.1",

@@ -1,0 +1,14 @@
+.sidebar-menu {
+  width: 250px;
+  height: 100px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  box-sizing: border-box;
+  background-color: white;
+
+  border-radius: 5px;
+}
