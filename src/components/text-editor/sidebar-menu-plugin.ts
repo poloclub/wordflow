@@ -99,7 +99,7 @@ export class SidebarMenuView {
   async update(view: EditorView, oldState?: EditorState) {
     const { state } = view;
     const { doc, selection } = state;
-    const { $from, $to } = selection;
+    const { $from } = selection;
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
@@ -124,18 +124,29 @@ export class SidebarMenuView {
     // or the collapse node in the selection
     if (this.editor.isActive('edit-highlight')) {
       const mark = $from.marks()[0];
-      const markDom = this.editor.options.element.querySelector(
+      const markElement = this.editor.options.element.querySelector(
         `mark#${mark.attrs.id}`
       );
 
-      if (markDom === null) {
+      if (markElement === null) {
         throw Error(`Can't find mark#${mark.attrs.id}`);
       }
-      updatePopperPopover(rightPopperBoxElement, markDom, 'right');
-    }
+      updatePopperPopover(rightPopperBoxElement, markElement, 'right');
+    } else if (this.editor.isActive('collapse')) {
+      const node = $from.nodeAfter;
+      if (node === null) {
+        throw Error(`Can't find node at ${$from.pos}`);
+      }
 
-    // const rightPopperBoxElement = await this.rightPopperBox;
-    // updatePopperPopover(rightPopperBoxElement, virtualAnchor, 'right');
+      const nodeElement = this.editor.options.element.querySelector(
+        `span.collapse-item#${node.attrs.id}`
+      );
+
+      if (nodeElement === null) {
+        throw Error(`Can't find span#${node.attrs.id}`);
+      }
+      updatePopperPopover(rightPopperBoxElement, nodeElement, 'right');
+    }
 
     this.show();
   }

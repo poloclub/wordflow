@@ -6,6 +6,7 @@ import { config } from '../../config/config';
 export interface CollapseAttributes {
   'deleted-text': string;
   class: string;
+  id: string;
 }
 
 export type CollapsedOptions = {
@@ -23,7 +24,7 @@ export const Collapse = Node.create<CollapsedOptions>({
 
   addOptions() {
     return {
-      HTMLAttributes: { 'deleted-text': '', class: 'collapse-item' },
+      HTMLAttributes: { 'deleted-text': '', class: 'collapse-item', id: '' },
       renderLabel({ options, node }) {
         const deletedText = node.attrs['deleted-text'] as string;
         if (deletedText.length <= 2) {
@@ -49,6 +50,16 @@ export const Collapse = Node.create<CollapsedOptions>({
           return {
             class: attributes.class,
             'deleted-text': attributes['deleted-text']
+          };
+        }
+      },
+      id: {
+        default: null,
+        parseHTML: element => element.getAttribute('id'),
+        renderHTML: (attributes: CollapseAttributes) => {
+          return {
+            class: attributes.class,
+            id: attributes['id']
           };
         }
       }

@@ -47,6 +47,7 @@ export class PromptLetTextEditor extends LitElement {
   editor: Editor | null = null;
   initialText = OLD_TEXT;
   curEditHighlightMarkID = 0;
+  curCollapseNodeID = 0;
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -191,7 +192,11 @@ export class PromptLetTextEditor extends LitElement {
           // Case 2: delete old => show icon
           // Check if the deleted text is not replaced by new text
           if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
-            diffText += `<span data-type="collapse" deleted-text="${diff[1]}"></span>`;
+            diffText += `<span
+              id="collapse-${this.curCollapseNodeID++}"
+              data-type="collapse"
+              deleted-text="${diff[1]}"
+            ></span>`;
           }
           break;
         }
