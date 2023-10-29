@@ -1,7 +1,12 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import {
+  customElement,
+  property,
+  state,
+  query,
+  queryAsync
+} from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
@@ -14,10 +19,28 @@ import componentCSS from './wordflow.css?inline';
 @customElement('promptlet-wordflow')
 export class PromptLetWordflow extends LitElement {
   // ===== Class properties ======
+  @state()
+  leftPopperBox: HTMLElement | undefined;
+
+  @queryAsync('#right-popper-box')
+  rightPopperBox: Promise<HTMLElement> | undefined;
+
+  // @state()
+  // rightPopperBox: HTMLElement | undefined;
 
   // ===== Lifecycle Methods ======
   constructor() {
     super();
+  }
+
+  firstUpdated() {
+    // this.rightPopperBox = this.renderRoot.querySelector(
+    //   '#right-popper-box'
+    // ) as HTMLElement;
+    // this.leftPopperBox = this.renderRoot.querySelector(
+    //   '#left-popper-box'
+    // ) as HTMLElement;
+    console.log(this.rightPopperBox);
   }
 
   /**
@@ -36,19 +59,21 @@ export class PromptLetWordflow extends LitElement {
     return html`
       <div class="wordflow">
         <div class="left-panel">
-          <div class="popper-box">
-            <promptlet-sidebar-menu
+          <div class="popper-box" id="left-popper-box">
+            <!-- <promptlet-sidebar-menu
               id="left-sidebar-menu"
-            ></promptlet-sidebar-menu>
+            ></promptlet-sidebar-menu> -->
           </div>
         </div>
         <div class="center-panel">
           <div class="editor-content">
-            <promptlet-text-editor></promptlet-text-editor>
+            <promptlet-text-editor
+              .rightPopperBox=${this.rightPopperBox}
+            ></promptlet-text-editor>
           </div>
         </div>
         <div class="right-panel">
-          <div class="popper-box">
+          <div class="popper-box" id="right-popper-box">
             <promptlet-sidebar-menu
               id="right-sidebar-menu"
             ></promptlet-sidebar-menu>
@@ -70,31 +95,3 @@ declare global {
     'promptlet-wordflow': PromptLetWordflow;
   }
 }
-
-/**
- * Update the popper tooltip for the highlighted prompt point
- * @param tooltip Tooltip element
- * @param anchor Anchor point for the tooltip
- * @param point The prompt point
- */
-const updatePopperPopover = (
-  tooltip: HTMLElement,
-  anchor: HTMLElement,
-  text: string,
-  placement: 'bottom' | 'left' | 'top' | 'right'
-) => {
-  const contentElement = tooltip.querySelector(
-    '.popper-content'
-  )! as HTMLElement;
-  contentElement.innerHTML = text;
-  const arrowElement = tooltip.querySelector('.popper-arrow')! as HTMLElement;
-
-  arrowElement.classList.add('hidden');
-  computePosition(anchor, tooltip, {
-    placement: placement,
-    middleware: [offset(6), flip(), shift()]
-  }).then(({ x, y }) => {
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-  });
-};

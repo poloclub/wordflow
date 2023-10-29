@@ -23,7 +23,7 @@ const OLD_TEXT =
 // const NEW_TEXT =
 //   'To develop and deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet AI models. This is cool.';
 const NEW_TEXT =
-  'To develop deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is cool.';
+  'To develop deploy trustworthy AI systems that benefit everyone, we urgently need the capability to thoroughly vet and rectify AI models. This is very cool and super awesome.';
 
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
@@ -35,7 +35,8 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 @customElement('promptlet-text-editor')
 export class PromptLetTextEditor extends LitElement {
   // ===== Class properties ======
-  editor: Editor | null = null;
+  @property({ attribute: false })
+  rightPopperBox: Promise<HTMLElement> | undefined;
 
   @query('.text-editor')
   editorElement: HTMLElement | undefined;
@@ -43,7 +44,9 @@ export class PromptLetTextEditor extends LitElement {
   @query('.select-menu')
   selectMenuElement: HTMLElement | undefined;
 
+  editor: Editor | null = null;
   initialText = OLD_TEXT;
+  curEditHighlightMarkID = 0;
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -87,7 +90,7 @@ export class PromptLetTextEditor extends LitElement {
     });
 
     const mySidebarMenu = SidebarMenu.configure({
-      element: this.selectMenuElement
+      rightPopperBox: this.rightPopperBox
     });
 
     const defaultText = `<p>${this.initialText}</p>`;
@@ -112,7 +115,11 @@ export class PromptLetTextEditor extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    if (changedProperties.has('rightPopperBox')) {
+      console.log(this.rightPopperBox);
+    }
+  }
 
   // ===== Custom Methods ======
   async initData() {}
@@ -195,7 +202,11 @@ export class PromptLetTextEditor extends LitElement {
           // Case 1: delete old, add new => show add
           // Also record the original old text
           if (i >= 1 && differences[i - 1][0] === -1) {
-            diffText += `<mark data-color="${REPLACED_COLOR}" data-origin="${lastDeletedText}">${diff[1]}</mark> `;
+            diffText += `<mark
+              id="edit-highlight-${this.curEditHighlightMarkID++}"
+              data-color="${REPLACED_COLOR}"
+              data-origin="${lastDeletedText}"
+            >${diff[1]}</mark> `;
             replaceMap.set(diff[1], lastDeletedText);
             lastDeletedText = '';
           }
@@ -203,7 +214,11 @@ export class PromptLetTextEditor extends LitElement {
           // Case 3: add new => show new
           // Add empty string as the old text
           if (i >= 1 && differences[i - 1][0] === 0) {
-            diffText += `<mark data-color="${ADDED_COLOR}" data-origin="${lastDeletedText}">${diff[1]}</mark> `;
+            diffText += `<mark
+              id="edit-highlight-${this.curEditHighlightMarkID++}"
+              data-color="${ADDED_COLOR}"
+              data-origin="${lastDeletedText}"
+            >${diff[1]}</mark> `;
             replaceMap.set(diff[1], '');
             lastDeletedText = '';
           }
@@ -265,8 +280,6 @@ export class PromptLetTextEditor extends LitElement {
           Select
         </button>
       </div>
-
-      <div class="select-menu">Menu</div>
     </div>`;
   }
 

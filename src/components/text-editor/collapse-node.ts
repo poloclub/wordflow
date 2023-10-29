@@ -64,7 +64,6 @@ export const Collapse = Node.create<CollapsedOptions>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    console.log(HTMLAttributes, this);
     return [
       'span',
       mergeAttributes(

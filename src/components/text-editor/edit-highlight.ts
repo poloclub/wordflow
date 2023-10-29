@@ -8,6 +8,7 @@ import {
 export interface EditHighlightAttributes {
   color: string;
   origin: string;
+  id: string;
 }
 
 export interface HighlightOptions {
@@ -45,7 +46,8 @@ export const EditHighlight = Mark.create<HighlightOptions>({
       multicolor: true,
       HTMLAttributes: {
         color: '',
-        origin: ''
+        origin: '',
+        id: ''
       }
     };
   },
@@ -72,8 +74,16 @@ export const EditHighlight = Mark.create<HighlightOptions>({
         parseHTML: element => element.getAttribute('data-origin'),
         renderHTML: attributes => {
           return {
-            'data-origin': attributes.origin as string,
-            style: ''
+            'data-origin': attributes.origin as string
+          };
+        }
+      },
+      id: {
+        default: '',
+        parseHTML: element => element.getAttribute('id'),
+        renderHTML: attributes => {
+          return {
+            id: attributes.id as string
           };
         }
       }

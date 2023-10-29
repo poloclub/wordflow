@@ -2,13 +2,16 @@ import { Extension } from '@tiptap/core';
 import { Editor, posToDOMRect } from '@tiptap/core';
 import { EditorState, Plugin, PluginKey } from '@tiptap/pm/state';
 import { EditorView } from '@tiptap/pm/view';
-import tippy, { Instance, Props } from 'tippy.js';
+import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
+
+interface VirtualElement {
+  getBoundingClientRect: () => DOMRect;
+}
 
 export interface SidebarMenuPluginProps {
   pluginKey: PluginKey | string;
   editor: Editor;
-  element: HTMLElement;
-  tippyOptions?: Partial<Props>;
+  rightPopperBox: Promise<HTMLElement> | null;
   shouldShow?:
     | ((props: {
         editor: Editor;
@@ -25,17 +28,14 @@ export type SidebarMenuViewProps = SidebarMenuPluginProps & {
 
 export class SidebarMenuView {
   editor: Editor;
-  element: HTMLElement;
+  rightPopperBox: Promise<HTMLElement>;
   view: EditorView;
   preventHide = false;
-  tippy: Instance | undefined;
-  tippyOptions?: Partial<Props>;
 
   shouldShow: Exclude<SidebarMenuPluginProps['shouldShow'], null> = props => {
     const editor = props.editor;
 
     if (editor.isActive('edit-highlight') || editor.isActive('collapse')) {
-      console.log('active');
       return true;
     } else {
       return false;
@@ -44,33 +44,25 @@ export class SidebarMenuView {
 
   constructor({
     editor,
-    element,
+    rightPopperBox,
     view,
-    tippyOptions = {},
     shouldShow
   }: SidebarMenuViewProps) {
+    if (!rightPopperBox) {
+      throw Error('rightPopperBox is not given.');
+    }
+
     this.editor = editor;
-    this.element = element;
     this.view = view;
+    this.rightPopperBox = rightPopperBox;
 
     if (shouldShow) {
       this.shouldShow = shouldShow;
     }
 
-    this.element.addEventListener('mousedown', this.mousedownHandler, {
-      capture: true
-    });
     this.editor.on('focus', this.focusHandler);
     this.editor.on('blur', this.blurHandler);
-    this.tippyOptions = tippyOptions;
-    // Detaches menu content from its current parent
-    this.element.remove();
-    this.element.style.visibility = 'visible';
   }
-
-  mousedownHandler = () => {
-    this.preventHide = true;
-  };
 
   focusHandler = () => {
     // we use `setTimeout` to make sure `selection` is already updated
@@ -84,12 +76,13 @@ export class SidebarMenuView {
       return;
     }
 
-    if (
-      event?.relatedTarget &&
-      this.element.parentNode?.contains(event.relatedTarget as Node)
-    ) {
-      return;
-    }
+    // Do not hide if the user shifts focus to the menu
+    // if (
+    //   event?.relatedTarget &&
+    //   this.element.parentNode?.contains(event.relatedTarget as Node)
+    // ) {
+    //   return;
+    // }
 
     this.hide();
   };
@@ -101,43 +94,18 @@ export class SidebarMenuView {
   createTooltip() {
     const { element: editorElement } = this.editor.options;
     const editorIsAttached = !!editorElement.parentElement;
-
-    if (this.tippy || !editorIsAttached) {
-      return;
-    }
-
-    this.tippy = tippy(editorElement, {
-      duration: 0,
-      getReferenceClientRect: null,
-      content: this.element,
-      interactive: true,
-      trigger: 'manual',
-      placement: 'right',
-      hideOnClick: 'toggle',
-      ...this.tippyOptions
-    });
-
-    // maybe we have to hide tippy on its own blur event as well
-    if (this.tippy.popper.firstChild) {
-      (this.tippy.popper.firstChild as HTMLElement).addEventListener(
-        'blur',
-        this.tippyBlurHandler
-      );
-    }
   }
 
-  update(view: EditorView, oldState?: EditorState) {
+  async update(view: EditorView, oldState?: EditorState) {
     const { state } = view;
     const { doc, selection } = state;
-    const { from, to } = selection;
+    const { $from, $to } = selection;
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
     if (isSame) {
       return;
     }
-
-    this.createTooltip();
 
     const shouldShow = this.shouldShow?.({
       editor: this.editor,
@@ -148,42 +116,72 @@ export class SidebarMenuView {
 
     if (!shouldShow) {
       this.hide();
-
       return;
     }
 
-    this.tippy?.setProps({
-      getReferenceClientRect:
-        this.tippyOptions?.getReferenceClientRect ||
-        (() => posToDOMRect(view, from, to))
-    });
+    const rightPopperBoxElement = await this.rightPopperBox;
+    // Depending on the active element, we need to get the edit-highlight mark
+    // or the collapse node in the selection
+    if (this.editor.isActive('edit-highlight')) {
+      const mark = $from.marks()[0];
+      const markDom = this.editor.options.element.querySelector(
+        `mark#${mark.attrs.id}`
+      );
+
+      if (markDom === null) {
+        throw Error(`Can't find mark#${mark.attrs.id}`);
+      }
+      updatePopperPopover(rightPopperBoxElement, markDom, 'right');
+    }
+
+    // const rightPopperBoxElement = await this.rightPopperBox;
+    // updatePopperPopover(rightPopperBoxElement, virtualAnchor, 'right');
 
     this.show();
   }
 
   show() {
-    this.tippy?.show();
+    // this.tippy?.show();
   }
 
   hide() {
-    this.tippy?.hide();
+    // this.tippy?.hide();
   }
 
   destroy() {
-    if (this.tippy?.popper.firstChild) {
-      (this.tippy.popper.firstChild as HTMLElement).removeEventListener(
-        'blur',
-        this.tippyBlurHandler
-      );
-    }
-    this.tippy?.destroy();
-    this.element.removeEventListener('mousedown', this.mousedownHandler, {
-      capture: true
-    });
+    // if (this.tippy?.popper.firstChild) {
+    //   (this.tippy.popper.firstChild as HTMLElement).removeEventListener(
+    //     'blur',
+    //     this.tippyBlurHandler
+    //   );
+    // }
+    // this.tippy?.destroy();
+    // this.element.removeEventListener('mousedown', this.mousedownHandler, {
+    //   capture: true
+    // });
     this.editor.off('focus', this.focusHandler);
     this.editor.off('blur', this.blurHandler);
   }
 }
+
+/**
+ * Update the popper for the highlighted prompt point
+ * @param popperElement Popper element
+ * @param anchor Anchor point for the popper element
+ */
+const updatePopperPopover = (
+  popperElement: HTMLElement,
+  anchor: Element | VirtualElement,
+  placement: 'bottom' | 'left' | 'top' | 'right'
+) => {
+  computePosition(anchor, popperElement, {
+    placement: placement,
+    middleware: [offset(6), flip(), shift()]
+  }).then(({ x, y }) => {
+    popperElement.style.left = `${x}px`;
+    popperElement.style.top = `${y}px`;
+  });
+};
 
 export const SidebarMenuPlugin = (options: SidebarMenuPluginProps) => {
   return new Plugin({
@@ -198,24 +196,22 @@ export const SidebarMenuPlugin = (options: SidebarMenuPluginProps) => {
 export type SidebarMenuOptions = Omit<
   SidebarMenuPluginProps,
   'editor' | 'element'
-> & {
-  element: HTMLElement | null;
-};
+>;
 
 export const SidebarMenu = Extension.create<SidebarMenuOptions>({
   name: 'sidebar-menu',
 
   addOptions() {
     return {
-      element: null,
       tippyOptions: {},
       pluginKey: 'sidebar-menu',
+      rightPopperBox: null,
       shouldShow: null
     };
   },
 
   addProseMirrorPlugins() {
-    if (!this.options.element) {
+    if (!this.options.rightPopperBox) {
       return [];
     }
 
@@ -223,9 +219,8 @@ export const SidebarMenu = Extension.create<SidebarMenuOptions>({
       SidebarMenuPlugin({
         pluginKey: this.options.pluginKey,
         editor: this.editor,
-        element: this.options.element,
-        tippyOptions: this.options.tippyOptions,
-        shouldShow: this.options.shouldShow
+        shouldShow: this.options.shouldShow,
+        rightPopperBox: this.options.rightPopperBox
       })
     ];
   }
