@@ -70,7 +70,7 @@ export class SidebarMenuView {
     setTimeout(() => this.update(this.editor.view));
   };
 
-  blurHandler = ({ event }: { event: FocusEvent }) => {
+  blurHandler = async ({ event }: { event: FocusEvent }) => {
     if (this.preventHide) {
       this.preventHide = false;
 
@@ -78,24 +78,16 @@ export class SidebarMenuView {
     }
 
     // Do not hide if the user shifts focus to the menu
-    // if (
-    //   event?.relatedTarget &&
-    //   this.element.parentNode?.contains(event.relatedTarget as Node)
-    // ) {
-    //   return;
-    // }
+    const rightPopperBox = await this.popperOptions.rightPopperBox;
+    if (
+      event?.relatedTarget &&
+      rightPopperBox.parentNode?.contains(event.relatedTarget as Node)
+    ) {
+      return;
+    }
 
     this.hide();
   };
-
-  tippyBlurHandler = (event: FocusEvent) => {
-    this.blurHandler({ event });
-  };
-
-  createTooltip() {
-    const { element: editorElement } = this.editor.options;
-    const editorIsAttached = !!editorElement.parentElement;
-  }
 
   async update(view: EditorView, oldState?: EditorState) {
     const { state } = view;
@@ -174,25 +166,17 @@ export class SidebarMenuView {
     this.show();
   }
 
-  show() {
-    // this.tippy?.show();
+  async show() {
+    const rightPopperBoxElement = await this.popperOptions.rightPopperBox;
+    rightPopperBoxElement.classList.remove('hidden');
   }
 
-  hide() {
-    // this.tippy?.hide();
+  async hide() {
+    const rightPopperBoxElement = await this.popperOptions.rightPopperBox;
+    rightPopperBoxElement.classList.add('hidden');
   }
 
   destroy() {
-    // if (this.tippy?.popper.firstChild) {
-    //   (this.tippy.popper.firstChild as HTMLElement).removeEventListener(
-    //     'blur',
-    //     this.tippyBlurHandler
-    //   );
-    // }
-    // this.tippy?.destroy();
-    // this.element.removeEventListener('mousedown', this.mousedownHandler, {
-    //   capture: true
-    // });
     this.editor.off('focus', this.focusHandler);
     this.editor.off('blur', this.blurHandler);
   }

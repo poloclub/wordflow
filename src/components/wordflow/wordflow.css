@@ -61,13 +61,11 @@
   text-align: center;
 
   opacity: 1;
-  transform: scale(1);
   transition:
     opacity 150ms,
     transform 150ms;
 
   &.hidden {
     opacity: 0;
-    transform: scale(0.8);
   }
 }
