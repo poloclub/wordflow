@@ -13,7 +13,7 @@ interface VirtualElement {
 
 export interface PopperOptions {
   containerBBox: DOMRect;
-  rightPopperBox: Promise<HTMLElement>;
+  popperSidebarBox: Promise<HTMLElement>;
 }
 
 type ShouldShow = (props: {
@@ -38,6 +38,7 @@ export class SidebarMenuView {
   popperOptions: PopperOptions;
   view: EditorView;
   preventHide = false;
+  curShownActiveID: string | null = null;
 
   shouldShow: ShouldShow = props => {
     const editor = props.editor;
@@ -51,7 +52,6 @@ export class SidebarMenuView {
 
   constructor(props: SidebarMenuViewProps) {
     const { editor, popperOptions, view } = props;
-    console.log(props);
 
     if (popperOptions === undefined) {
       throw Error('popperOptions is null');
@@ -78,10 +78,10 @@ export class SidebarMenuView {
     }
 
     // Do not hide if the user shifts focus to the menu
-    const rightPopperBox = await this.popperOptions.rightPopperBox;
+    const popperSidebarBox = await this.popperOptions.popperSidebarBox;
     if (
       event?.relatedTarget &&
-      rightPopperBox.parentNode?.contains(event.relatedTarget as Node)
+      popperSidebarBox.parentNode?.contains(event.relatedTarget as Node)
     ) {
       return;
     }
@@ -124,20 +124,26 @@ export class SidebarMenuView {
       boxPosition = 'left';
     }
 
-    const rightPopperBoxElement = await this.popperOptions.rightPopperBox;
-    // Depending on the active element, we need to get the edit-highlight mark
+    const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
+    // Depending on the active element, we need to get the edit-highlight node
     // or the collapse node in the selection
     if (this.editor.isActive('edit-highlight')) {
       const mark = $from.marks()[0];
+      // Skip the update if the user selects the same element
+      if (mark.attrs.id === this.curShownActiveID) {
+        return;
+      }
+
       const markElement = this.editor.options.element.querySelector(
         `mark#${mark.attrs.id}`
       );
+      this.curShownActiveID = mark.attrs.id as string;
 
       if (markElement === null) {
         throw Error(`Can't find mark#${mark.attrs.id}`);
       }
       updatePopperPopover(
-        rightPopperBoxElement,
+        popperSidebarBoxElement,
         markElement,
         this.popperOptions.containerBBox,
         boxPosition
@@ -148,15 +154,21 @@ export class SidebarMenuView {
         throw Error(`Can't find node at ${$from.pos}`);
       }
 
+      // Skip the update if the user selects the same element
+      if (node.attrs.id === this.curShownActiveID) {
+        return;
+      }
+
       const nodeElement = this.editor.options.element.querySelector(
         `span.collapse-item#${node.attrs.id}`
       );
+      this.curShownActiveID = node.attrs.id as string;
 
       if (nodeElement === null) {
         throw Error(`Can't find span#${node.attrs.id}`);
       }
       updatePopperPopover(
-        rightPopperBoxElement,
+        popperSidebarBoxElement,
         nodeElement,
         this.popperOptions.containerBBox,
         boxPosition
@@ -167,13 +179,14 @@ export class SidebarMenuView {
   }
 
   async show() {
-    const rightPopperBoxElement = await this.popperOptions.rightPopperBox;
-    rightPopperBoxElement.classList.remove('hidden');
+    const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
+    popperSidebarBoxElement.classList.remove('hidden');
   }
 
   async hide() {
-    const rightPopperBoxElement = await this.popperOptions.rightPopperBox;
-    rightPopperBoxElement.classList.add('hidden');
+    this.curShownActiveID = null;
+    const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
+    popperSidebarBoxElement.classList.add('hidden');
   }
 
   destroy() {
@@ -235,7 +248,7 @@ export const SidebarMenu = Extension.create<SidebarMenuOptions>({
   addOptions() {
     const getDefaultPopperOptions = () => {
       const phantomElement = document.createElement('div');
-      const rightPopperBox = Promise.resolve(phantomElement);
+      const popperSidebarBox = Promise.resolve(phantomElement);
       const containerBBox: DOMRect = {
         x: 0,
         y: 0,
@@ -249,7 +262,7 @@ export const SidebarMenu = Extension.create<SidebarMenuOptions>({
       };
       const defaultPopperOption: PopperOptions = {
         containerBBox,
-        rightPopperBox
+        popperSidebarBox
       };
       return defaultPopperOption;
     };

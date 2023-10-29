@@ -37,7 +37,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 export class PromptLetTextEditor extends LitElement {
   // ===== Class properties ======
   @property({ attribute: false })
-  rightPopperBox: Promise<HTMLElement> | undefined;
+  popperSidebarBox: Promise<HTMLElement> | undefined;
 
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
@@ -83,7 +83,7 @@ export class PromptLetTextEditor extends LitElement {
       this.editorElement === undefined ||
       this.selectMenuElement === undefined ||
       this.containerElement === undefined ||
-      this.rightPopperBox === undefined
+      this.popperSidebarBox === undefined
     ) {
       console.error(
         'Text editor / select menu element is not added to DOM yet!'
@@ -111,13 +111,12 @@ export class PromptLetTextEditor extends LitElement {
     });
 
     const popperOptions: PopperOptions = {
-      rightPopperBox: this.rightPopperBox,
+      popperSidebarBox: this.popperSidebarBox,
       containerBBox: this.containerBBox
     };
     const mySidebarMenu = SidebarMenu.configure({
       popperOptions
     });
-    console.log(mySidebarMenu);
 
     const defaultText = `<p>${this.initialText}</p>`;
 
@@ -141,11 +140,7 @@ export class PromptLetTextEditor extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {
-    if (changedProperties.has('rightPopperBox')) {
-      console.log(this.rightPopperBox);
-    }
-  }
+  willUpdate(changedProperties: PropertyValues<this>) {}
 
   // ===== Custom Methods ======
   async initData() {}

@@ -19,11 +19,8 @@ import componentCSS from './wordflow.css?inline';
 @customElement('promptlet-wordflow')
 export class PromptLetWordflow extends LitElement {
   // ===== Class properties ======
-  @state()
-  leftPopperBox: HTMLElement | undefined;
-
-  @queryAsync('#right-popper-box')
-  rightPopperBox: Promise<HTMLElement> | undefined;
+  @queryAsync('#popper-sidebar-box')
+  popperSidebarBox: Promise<HTMLElement> | undefined;
 
   // @state()
   // rightPopperBox: HTMLElement | undefined;
@@ -33,15 +30,7 @@ export class PromptLetWordflow extends LitElement {
     super();
   }
 
-  firstUpdated() {
-    // this.rightPopperBox = this.renderRoot.querySelector(
-    //   '#right-popper-box'
-    // ) as HTMLElement;
-    // this.leftPopperBox = this.renderRoot.querySelector(
-    //   '#left-popper-box'
-    // ) as HTMLElement;
-    console.log(this.rightPopperBox);
-  }
+  firstUpdated() {}
 
   /**
    * This method is called before new DOM is updated and rendered
@@ -58,26 +47,20 @@ export class PromptLetWordflow extends LitElement {
   render() {
     return html`
       <div class="wordflow">
-        <div class="left-panel">
-          <div class="popper-box" id="left-popper-box">
-            <!-- <promptlet-sidebar-menu
-              id="left-sidebar-menu"
-            ></promptlet-sidebar-menu> -->
-          </div>
-        </div>
+        <div class="left-panel"></div>
         <div class="center-panel">
           <div class="editor-content">
             <promptlet-text-editor
-              .rightPopperBox=${this.rightPopperBox}
+              .popperSidebarBox=${this.popperSidebarBox}
             ></promptlet-text-editor>
           </div>
         </div>
-        <div class="right-panel">
-          <div class="popper-box" id="right-popper-box">
-            <promptlet-sidebar-menu
-              id="right-sidebar-menu"
-            ></promptlet-sidebar-menu>
-          </div>
+        <div class="right-panel"></div>
+
+        <div class="popper-box hidden" id="popper-sidebar-box">
+          <promptlet-sidebar-menu
+            id="right-sidebar-menu"
+          ></promptlet-sidebar-menu>
         </div>
       </div>
     `;
