@@ -1,5 +1,5 @@
 const layout = {
-  searchLimit: 5000
+  sidebarMenuXOffset: 10
 };
 
 const time = {

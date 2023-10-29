@@ -13,6 +13,7 @@ import { config } from '../../config/config';
 
 // Types
 import type { EditHighlightAttributes } from './edit-highlight';
+import type { PopperOptions } from './sidebar-menu-plugin';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -38,6 +39,9 @@ export class PromptLetTextEditor extends LitElement {
   @property({ attribute: false })
   rightPopperBox: Promise<HTMLElement> | undefined;
 
+  @query('.text-editor-container')
+  containerElement: HTMLElement | undefined;
+
   @query('.text-editor')
   editorElement: HTMLElement | undefined;
 
@@ -46,8 +50,19 @@ export class PromptLetTextEditor extends LitElement {
 
   editor: Editor | null = null;
   initialText = OLD_TEXT;
-  curEditHighlightMarkID = 0;
-  curCollapseNodeID = 0;
+  curEditID = 0;
+
+  containerBBox: DOMRect = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    bottom: 0,
+    left: 0,
+    top: 0,
+    right: 0,
+    toJSON: () => ''
+  };
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -66,13 +81,18 @@ export class PromptLetTextEditor extends LitElement {
   initEditor() {
     if (
       this.editorElement === undefined ||
-      this.selectMenuElement === undefined
+      this.selectMenuElement === undefined ||
+      this.containerElement === undefined ||
+      this.rightPopperBox === undefined
     ) {
       console.error(
         'Text editor / select menu element is not added to DOM yet!'
       );
       return;
     }
+
+    // Store the x position of th left and right border of the container element
+    this.containerBBox = this.containerElement.getBoundingClientRect();
 
     // Register keyboard shortcuts
     const myText = Text.extend({
@@ -81,7 +101,7 @@ export class PromptLetTextEditor extends LitElement {
       }
     });
 
-    // Customize the starterkit extension to exclude customized extensions
+    // Customize the StarterKit extension to exclude customized extensions
     const myStarterKit = StarterKit.configure({
       text: false
     });
@@ -90,9 +110,14 @@ export class PromptLetTextEditor extends LitElement {
       multicolor: true
     });
 
+    const popperOptions: PopperOptions = {
+      rightPopperBox: this.rightPopperBox,
+      containerBBox: this.containerBBox
+    };
     const mySidebarMenu = SidebarMenu.configure({
-      rightPopperBox: this.rightPopperBox
+      popperOptions
     });
+    console.log(mySidebarMenu);
 
     const defaultText = `<p>${this.initialText}</p>`;
 
@@ -193,7 +218,7 @@ export class PromptLetTextEditor extends LitElement {
           // Check if the deleted text is not replaced by new text
           if (i + 1 >= differences.length || differences[i + 1][0] === 0) {
             diffText += `<span
-              id="collapse-${this.curCollapseNodeID++}"
+              id="collapse-${this.curEditID++}"
               data-type="collapse"
               deleted-text="${diff[1]}"
             ></span>`;
@@ -208,7 +233,7 @@ export class PromptLetTextEditor extends LitElement {
           // Also record the original old text
           if (i >= 1 && differences[i - 1][0] === -1) {
             diffText += `<mark
-              id="edit-highlight-${this.curEditHighlightMarkID++}"
+              id="edit-highlight-${this.curEditID++}"
               data-color="${REPLACED_COLOR}"
               data-origin="${lastDeletedText}"
             >${diff[1]}</mark> `;
@@ -220,7 +245,7 @@ export class PromptLetTextEditor extends LitElement {
           // Add empty string as the old text
           if (i >= 1 && differences[i - 1][0] === 0) {
             diffText += `<mark
-              id="edit-highlight-${this.curEditHighlightMarkID++}"
+              id="edit-highlight-${this.curEditID++}"
               data-color="${ADDED_COLOR}"
               data-origin="${lastDeletedText}"
             >${diff[1]}</mark> `;
