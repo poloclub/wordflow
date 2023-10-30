@@ -1,6 +1,12 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { diff_wordMode_ } from './text-diff';
+import { config } from '../../config/config';
+import { textGenGpt } from '../../llms/gpt';
+import '../modal-auth/modal-auth';
+
+// Editor
 import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import StarterKit from '@tiptap/starter-kit';
@@ -8,12 +14,11 @@ import { EditHighlight } from './edit-highlight';
 import { Collapse } from './collapse-node';
 import { SidebarMenu } from './sidebar-menu-plugin';
 
-import { diff_wordMode_ } from './text-diff';
-import { config } from '../../config/config';
-
 // Types
+import type { SimpleEventMessage } from '../../types/common-types';
 import type { EditHighlightAttributes } from './edit-highlight';
 import type { PopperOptions } from './sidebar-menu-plugin';
+import type { TextGenMessage } from '../../llms/gpt';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -72,10 +77,10 @@ export class PromptLetTextEditor extends LitElement {
   firstUpdated() {
     this.initEditor();
 
-    setTimeout(() => {
-      const e = new Event('click') as MouseEvent;
-      this.improveButtonClicked(e);
-    }, 1000);
+    // setTimeout(() => {
+    //   const e = new Event('click') as MouseEvent;
+    //   this.improveButtonClicked(e);
+    // }, 1000);
   }
 
   initEditor() {
@@ -145,45 +150,7 @@ export class PromptLetTextEditor extends LitElement {
   // ===== Custom Methods ======
   async initData() {}
 
-  diffParagraph(oldText: string, newText: string) {}
-
-  // ===== Event Methods ======
-  highlightButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-    if (this.editor === null) {
-      console.error('Editor is not initialized yet.');
-      return;
-    }
-
-    this.editor.chain().focus().toggleHighlight({ color: '#ffc078' }).run();
-  }
-
-  dehighlightButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-    if (this.editor === null) {
-      console.error('Editor is not initialized yet.');
-      return;
-    }
-
-    this.editor
-      .chain()
-      .focus()
-      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
-      .run();
-  }
-
-  improveButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-
-    if (this.editor === null) {
-      console.warn('Editor is not initialized');
-      return;
-    }
-
-    // Get the word-level differences
-    const oldText = this.editor.getText();
-    const newText = NEW_TEXT;
-    // const differences = this.diffParagraph(oldText, newText);
+  diffParagraph(oldText: string, newText: string) {
     const differences = diff_wordMode_(oldText, newText);
 
     // Organize the text to highlight the new text and keep track of their
@@ -262,9 +229,51 @@ export class PromptLetTextEditor extends LitElement {
     // If the paragraph ends with a mark element, add a trailing space to exit
     // the mark
     if (diffText.slice(-7) === '</mark>') {
-      // diffText += '&nbsp;';
+      diffText += '&nbsp;';
     }
+
+    return diffText;
+  }
+
+  // ===== Event Methods ======
+  highlightButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    this.editor.chain().focus().toggleHighlight({ color: '#ffc078' }).run();
+  }
+
+  dehighlightButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    this.editor
+      .chain()
+      .focus()
+      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
+      .run();
+  }
+
+  improveButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+
+    if (this.editor === null) {
+      console.warn('Editor is not initialized');
+      return;
+    }
+
+    // Get the word-level differences
+    const oldText = this.editor.getText();
+    const newText = NEW_TEXT;
+    let diffText = this.diffParagraph(oldText, newText);
     diffText = `<p>${diffText}</p>`;
+
     this.editor.commands.setContent(diffText);
   }
 
@@ -313,6 +322,11 @@ export class PromptLetTextEditor extends LitElement {
           Select
         </button>
       </div>
+
+      <promptlet-modal-auth
+        class="modal"
+        @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => console.log(e)}
+      ></promptlet-modal-auth>
     </div>`;
   }
 
