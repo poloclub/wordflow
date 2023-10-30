@@ -7,6 +7,7 @@ import type { TextGenMessage } from '../../llms/palm';
 import componentCSS from './modal-auth.css?inline';
 
 const USE_CACHE = true;
+const SUCCESS_MESSAGE = 'API key added.';
 
 type Model = 'palm' | 'gpt';
 
@@ -29,7 +30,10 @@ export class PromptletModalAuth extends LitElement {
   modalElement!: HTMLElement | null;
 
   @state()
-  message = 'Verifying...';
+  modelSetMap: Record<Model, boolean>;
+
+  @state()
+  modelMessageMap: Record<Model, string>;
 
   textGenWorkerRequestID = 1;
 
@@ -37,28 +41,33 @@ export class PromptletModalAuth extends LitElement {
   constructor() {
     super();
 
-    // this.textGenWorker = new TextGenWorkerInline();
-    // this.textGenWorker.onmessage = (e: MessageEvent<TextGenWorkerMessage>) =>
-    //   this.textGenWorkerMessageHandler(e);
+    this.modelSetMap = {
+      palm: false,
+      gpt: false
+    };
+
+    this.modelMessageMap = {
+      palm: 'Verifying...',
+      gpt: 'Verifying...'
+    };
   }
 
   connectedCallback(): void {
     super.connectedCallback();
 
     this.updateComplete.then(_ => {
-      // Check if the user has already entered the API key. Show the modal if
-      // there is no API key found.
-      const checkIfAPIAdded = (model: Model) => {
+      // Check if the user has already entered the API key.
+      const models: Model[] = ['palm', 'gpt'];
+
+      for (const model of models) {
         const apiKey = USE_CACHE
           ? localStorage.getItem(`${model}APIKey`)
           : null;
 
         if (apiKey === null) {
-          setTimeout(() => {
-            this.modalElement?.classList.add('displayed');
-          }, 300);
-          return false;
+          this.modelSetMap[model] = false;
         } else {
+          this.modelSetMap[model] = true;
           const event = new CustomEvent<ModelAuthMessage>('api-key-added', {
             detail: {
               model,
@@ -66,14 +75,18 @@ export class PromptletModalAuth extends LitElement {
             }
           });
           this.dispatchEvent(event);
-          return true;
+          break;
         }
-      };
+      }
 
-      // Try PaLM first
-      const resultPalm = checkIfAPIAdded('palm');
-      if (!resultPalm) {
-        checkIfAPIAdded('gpt');
+      this.requestUpdate();
+
+      // Show the modal if there is no API key found.
+      const atLeastOneModelSet = Object.values(this.modelSetMap).some(d => d);
+      if (!atLeastOneModelSet) {
+        setTimeout(() => {
+          this.modalElement?.classList.add('displayed');
+        }, 300);
       }
     });
   }
@@ -90,15 +103,25 @@ export class PromptletModalAuth extends LitElement {
   // ===== Custom Methods ======
   initData = async () => {};
 
-  authVerificationFailed = (messageElement: HTMLElement, message: string) => {
+  authVerificationFailed = (
+    model: Model,
+    messageElement: HTMLElement,
+    message: string
+  ) => {
     // Show the error message in the auth dialog
     messageElement.classList.remove('loading');
+    messageElement.classList.remove('success');
     messageElement.classList.add('error');
-    this.message = 'Invalid, try a different key';
+    this.modelMessageMap[model] = 'Invalid, try a different key';
+    this.requestUpdate();
     console.error(message);
   };
 
-  authVerificationSucceeded = (model: Model, apiKey: string) => {
+  authVerificationSucceeded = (
+    model: Model,
+    messageElement: HTMLElement,
+    apiKey: string
+  ) => {
     // Add the api key to the local storage
     if (USE_CACHE) {
       localStorage.setItem(`${model}APIKey`, apiKey);
@@ -111,9 +134,12 @@ export class PromptletModalAuth extends LitElement {
       }
     });
     this.dispatchEvent(event);
-
-    // Remove the auth dialog window
-    this.modalElement?.classList.remove('displayed');
+    this.modelSetMap[model] = true;
+    this.modelMessageMap[model] = SUCCESS_MESSAGE;
+    messageElement.classList.remove('loading');
+    messageElement.classList.remove('error');
+    messageElement.classList.add('success');
+    this.requestUpdate();
   };
 
   // ===== Event Methods ======
@@ -136,22 +162,45 @@ export class PromptletModalAuth extends LitElement {
 
     // Start to verify the given key
     messageElement.classList.remove('error');
+    messageElement.classList.remove('success');
     messageElement.classList.add('displayed');
     messageElement.classList.add('loading');
-    this.message = 'Verifying';
+    this.modelMessageMap[model] = 'Verifying';
+    this.requestUpdate();
 
     const requestID = `auth-${this.textGenWorkerRequestID++}`;
     const prompt = 'The color of sky is';
     const temperature = 0.8;
 
-    textGenPalm(apiKey, requestID, prompt, temperature, false).then(value => {
-      console.log(value);
-      this.textGenMessageHandler(model, messageElement, value);
-    });
+    switch (model) {
+      case 'palm': {
+        textGenPalm(apiKey, requestID, prompt, temperature, false).then(
+          value => {
+            this.textGenMessageHandler(model, messageElement, value);
+          }
+        );
+        break;
+      }
+
+      case 'gpt': {
+        textGenGpt(apiKey, requestID, prompt, temperature, false).then(
+          value => {
+            console.log(value);
+            this.textGenMessageHandler(model, messageElement, value);
+          }
+        );
+        break;
+      }
+
+      default: {
+        console.error(`Unknown model ${model}`);
+      }
+    }
   };
 
   doneButtonClicked = () => {
-    console.log('done');
+    // Remove the auth dialog window
+    this.modalElement?.classList.remove('displayed');
   };
 
   textGenMessageHandler = (
@@ -164,7 +213,11 @@ export class PromptletModalAuth extends LitElement {
         // If the textGen is initialized in the auth function, add the api key
         // to the local storage
         if (message.payload.requestID.includes('auth')) {
-          this.authVerificationSucceeded(model, message.payload.apiKey);
+          this.authVerificationSucceeded(
+            model,
+            messageElement,
+            message.payload.apiKey
+          );
         }
         break;
       }
@@ -172,7 +225,11 @@ export class PromptletModalAuth extends LitElement {
       case 'error': {
         // Error handling for the PaLM API calls
         if (message.payload.originalCommand === 'startTextGen') {
-          this.authVerificationFailed(messageElement, message.payload.message);
+          this.authVerificationFailed(
+            model,
+            messageElement,
+            message.payload.message
+          );
         }
         break;
       }
@@ -186,6 +243,14 @@ export class PromptletModalAuth extends LitElement {
 
   // ===== Templates and Styles ======
   render() {
+    const getInputButtonLabel = (model: Model) => {
+      if (this.modelSetMap[model]) {
+        return 'Edit';
+      } else {
+        return 'Add';
+      }
+    };
+
     return html`
       <div class="modal-auth">
         <div class="dialog-window">
@@ -206,10 +271,12 @@ export class PromptletModalAuth extends LitElement {
                   class="primary"
                   @click="${() => this.submitButtonClicked('palm')}"
                 >
-                  Add
+                  ${getInputButtonLabel('palm')}
                 </button>
               </div>
-              <div class="message" id="message-palm">${this.message}</div>
+              <div class="message" id="message-palm">
+                ${this.modelMessageMap['palm']}
+              </div>
             </div>
 
             <div class="row">
@@ -226,17 +293,19 @@ export class PromptletModalAuth extends LitElement {
                   class="primary"
                   @click="${() => this.submitButtonClicked('gpt')}"
                 >
-                  Add
+                  ${getInputButtonLabel('gpt')}
                 </button>
               </div>
-              <div class="message" id="message-gpt">${this.message}</div>
+              <div class="message" id="message-gpt">
+                ${this.modelMessageMap['gpt']}
+              </div>
             </div>
           </div>
 
           <div class="footer">
             <button
               class="primary"
-              ?disabled=${true}
+              ?disabled=${!Object.values(this.modelSetMap).some(d => d)}
               @click="${() => this.doneButtonClicked()}"
             >
               Done

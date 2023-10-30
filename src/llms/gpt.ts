@@ -38,8 +38,9 @@ export const textGenGpt = async (
   requestID: string,
   prompt: string,
   temperature: number,
-  stopSequences: string[],
-  detail: string
+  useCache: boolean = true,
+  stopSequences: string[] = [],
+  detail: string = ''
 ) => {
   // Compile the prompt into a chat format
   const message: ChatMessage = {
@@ -56,7 +57,7 @@ export const textGenGpt = async (
 
   // Check if the model output is cached
   const cachedValue = localStorage.getItem('[gpt]' + prompt);
-  if (cachedValue !== null) {
+  if (useCache && cachedValue !== null) {
     console.log('Use cached output (text gen)');
     await new Promise(resolve => setTimeout(resolve, 1000));
     const message: TextGenMessage = {
