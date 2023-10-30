@@ -1,6 +1,6 @@
 .sidebar-menu {
   width: 250px;
-  padding: 10px 10px;
+  padding: 10px 12px;
 
   display: flex;
   flex-flow: column;
@@ -135,7 +135,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border-radius: 5px;
+  border-radius: 4px;
   font-weight: 500;
 
   cursor: pointer;
@@ -146,7 +146,7 @@ button {
   }
 
   &:hover {
-    background-color: color-mix(in lab, var(--blue-gray-400), white 6%);
+    background-color: color-mix(in lab, var(--blue-gray-400), white 8%);
   }
 
   &:active {

@@ -230,7 +230,8 @@ export class PromptLetTextEditor extends LitElement {
             diffText += `<mark
               id="edit-highlight-${this.curEditID++}"
               data-color="${REPLACED_COLOR}"
-              data-origin="${lastDeletedText}"
+              data-old-text="${lastDeletedText}"
+              data-new-text="${diff[1]}"
             >${diff[1]}</mark>`;
             replaceMap.set(diff[1], lastDeletedText);
             lastDeletedText = '';
@@ -242,7 +243,8 @@ export class PromptLetTextEditor extends LitElement {
             diffText += `<mark
               id="edit-highlight-${this.curEditID++}"
               data-color="${ADDED_COLOR}"
-              data-origin="${lastDeletedText}"
+              data-old-text="${lastDeletedText}"
+              data-new-text="${diff[1]}"
             >${diff[1]}</mark>`;
             replaceMap.set(diff[1], '');
             lastDeletedText = '';

@@ -44,6 +44,8 @@ export class SidebarMenuView {
   preventHide = false;
   curShownActiveID: string | null = null;
   mode: Mode = 'add';
+  oldText = '';
+  newText = '';
 
   shouldShow: ShouldShow = props => {
     const editor = props.editor;
@@ -140,10 +142,13 @@ export class SidebarMenuView {
         return;
       }
 
+      this.oldText = markAttribute.oldText;
+      this.newText = markAttribute.newText;
+
       // Determine the mode of this edit
       // If there no original text => add
       // If there is original text => replace
-      if (markAttribute.origin.length === 0) {
+      if (markAttribute.oldText.length === 0) {
         this.mode = 'add';
       } else {
         this.mode = 'replace';
@@ -156,39 +161,38 @@ export class SidebarMenuView {
       if (markElement === null) {
         throw Error(`Can't find mark#${mark.attrs.id}`);
       }
-      updatePopperPopover(
+      this.updatePopperPopover(
         popperSidebarBoxElement,
         markElement,
-        this.popperOptions.containerBBox,
-        boxPosition,
-        this.mode
+        boxPosition
       );
     } else if (this.editor.isActive('collapse')) {
       const node = $from.nodeAfter;
       if (node === null) {
         throw Error(`Can't find node at ${$from.pos}`);
       }
+      const nodeAttrs = node.attrs as CollapseAttributes;
       this.mode = 'delete';
+      this.oldText = nodeAttrs['deleted-text'];
+      this.newText = '';
 
       // Skip the update if the user selects the same element
-      if (node.attrs.id === this.curShownActiveID) {
+      if (nodeAttrs.id === this.curShownActiveID) {
         return;
       }
 
       const nodeElement = this.editor.options.element.querySelector(
-        `span.collapse-item#${node.attrs.id}`
+        `span.collapse-item#${nodeAttrs.id}`
       );
-      this.curShownActiveID = node.attrs.id as string;
+      this.curShownActiveID = nodeAttrs.id as string;
 
       if (nodeElement === null) {
-        throw Error(`Can't find span#${node.attrs.id}`);
+        throw Error(`Can't find span#${nodeAttrs.id}`);
       }
-      updatePopperPopover(
+      this.updatePopperPopover(
         popperSidebarBoxElement,
         nodeElement,
-        this.popperOptions.containerBBox,
-        boxPosition,
-        this.mode
+        boxPosition
       );
     }
 
@@ -210,50 +214,55 @@ export class SidebarMenuView {
     this.editor.off('focus', this.focusHandler);
     this.editor.off('blur', this.blurHandler);
   }
-}
 
-/**
- * Update the popper for the highlighted prompt point
- * @param popperElement Popper element
- * @param anchor Anchor point for the popper element
- */
-const updatePopperPopover = (
-  popperElement: HTMLElement,
-  anchor: Element | VirtualElement,
-  containerBBox: DOMRect,
-  boxPosition: 'left' | 'right',
-  mode: Mode
-) => {
-  computePosition(anchor, popperElement, {
-    placement: 'right',
-    middleware: [offset(0), flip(), shift()]
-  }).then(({ y }) => {
+  /**
+   * Update the popper for the highlighted prompt point
+   * @param popperElement Popper element
+   * @param anchor Anchor point for the popper element
+   */
+  updatePopperPopover = (
+    popperElement: HTMLElement,
+    anchor: Element | VirtualElement,
+    boxPosition: 'left' | 'right'
+  ) => {
+    const containerBBox = this.popperOptions.containerBBox;
+
     const menuElement = popperElement.querySelector(
       'promptlet-sidebar-menu'
     ) as PromptLetSidebarMenu;
-    menuElement.mode = mode;
 
-    if (boxPosition === 'left') {
-      // Set the 'is-on-left' property of the component
-      menuElement.isOnLeft = true;
+    // Pass data to the menu component
+    menuElement.mode = this.mode;
+    menuElement.oldText = this.oldText;
+    menuElement.newText = this.newText;
 
-      const offsetParentBBox =
-        popperElement.offsetParent!.getBoundingClientRect();
-      popperElement.style.left = 'unset';
-      popperElement.style.right = `${
-        offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
-      }px`;
-    } else {
-      menuElement.isOnLeft = false;
+    computePosition(anchor, popperElement, {
+      placement: 'right',
+      middleware: [offset(0), flip(), shift()]
+    }).then(({ y }) => {
+      if (boxPosition === 'left') {
+        // Set the 'is-on-left' property of the component
+        menuElement.isOnLeft = true;
 
-      popperElement.style.right = 'unset';
-      popperElement.style.left = `${
-        containerBBox.x + containerBBox.width + MENU_X_OFFSET
-      }px`;
-    }
-    popperElement.style.top = `${y}px`;
-  });
-};
+        const offsetParentBBox =
+          popperElement.offsetParent!.getBoundingClientRect();
+        popperElement.style.left = 'unset';
+        popperElement.style.right = `${
+          offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
+        }px`;
+      } else {
+        // Set the 'is-on-left' property of the component
+        menuElement.isOnLeft = false;
+
+        popperElement.style.right = 'unset';
+        popperElement.style.left = `${
+          containerBBox.x + containerBBox.width + MENU_X_OFFSET
+        }px`;
+      }
+      popperElement.style.top = `${y}px`;
+    });
+  };
+}
 
 export const SidebarMenuPlugin = (options: SidebarMenuPluginProps) => {
   return new Plugin({

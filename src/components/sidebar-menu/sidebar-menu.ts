@@ -28,6 +28,12 @@ export class PromptLetSidebarMenu extends LitElement {
   @property({ type: String })
   mode: Mode = 'add';
 
+  @property({ type: String })
+  oldText = '';
+
+  @property({ type: String })
+  newText = '';
+
   modeColorMap: Record<Mode, Colors>;
   headerTextMap: Record<Mode, string>;
 
@@ -89,7 +95,7 @@ export class PromptLetSidebarMenu extends LitElement {
               ? this.modeColorMap[this.mode].backgroundColor
               : 'inherent'};"
           >
-            This is very cool and super
+            ${this.oldText}
           </div>
 
           <div class="arrow" ?is-hidden=${this.mode !== 'replace'}></div>
@@ -100,7 +106,7 @@ export class PromptLetSidebarMenu extends LitElement {
             style="background-color: ${this.modeColorMap[this.mode]
               .backgroundColor};"
           >
-            This is very cool and super awesome.
+            ${this.newText}
           </div>
         </div>
 
