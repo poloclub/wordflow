@@ -5,6 +5,9 @@ import { EditorView } from '@tiptap/pm/view';
 import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 import { config } from '../../config/config';
 import { PromptLetSidebarMenu } from '../sidebar-menu/sidebar-menu';
+import type { Mode } from '../sidebar-menu/sidebar-menu';
+import type { EditHighlightAttributes } from './edit-highlight';
+import type { CollapseAttributes } from './collapse-node';
 
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
 
@@ -40,6 +43,7 @@ export class SidebarMenuView {
   view: EditorView;
   preventHide = false;
   curShownActiveID: string | null = null;
+  mode: Mode = 'add';
 
   shouldShow: ShouldShow = props => {
     const editor = props.editor;
@@ -130,11 +134,20 @@ export class SidebarMenuView {
     // or the collapse node in the selection
     if (this.editor.isActive('edit-highlight')) {
       const mark = $from.marks()[0];
+      const markAttribute = mark.attrs as EditHighlightAttributes;
       // Skip the update if the user selects the same element
       if (mark.attrs.id === this.curShownActiveID) {
         return;
       }
 
+      // Determine the mode of this edit
+      // If there no original text => add
+      // If there is original text => replace
+      if (markAttribute.origin.length === 0) {
+        this.mode = 'add';
+      } else {
+        this.mode = 'replace';
+      }
       const markElement = this.editor.options.element.querySelector(
         `mark#${mark.attrs.id}`
       );
@@ -147,13 +160,15 @@ export class SidebarMenuView {
         popperSidebarBoxElement,
         markElement,
         this.popperOptions.containerBBox,
-        boxPosition
+        boxPosition,
+        this.mode
       );
     } else if (this.editor.isActive('collapse')) {
       const node = $from.nodeAfter;
       if (node === null) {
         throw Error(`Can't find node at ${$from.pos}`);
       }
+      this.mode = 'delete';
 
       // Skip the update if the user selects the same element
       if (node.attrs.id === this.curShownActiveID) {
@@ -172,7 +187,8 @@ export class SidebarMenuView {
         popperSidebarBoxElement,
         nodeElement,
         this.popperOptions.containerBBox,
-        boxPosition
+        boxPosition,
+        this.mode
       );
     }
 
@@ -205,17 +221,20 @@ const updatePopperPopover = (
   popperElement: HTMLElement,
   anchor: Element | VirtualElement,
   containerBBox: DOMRect,
-  boxPosition: 'left' | 'right'
+  boxPosition: 'left' | 'right',
+  mode: Mode
 ) => {
   computePosition(anchor, popperElement, {
     placement: 'right',
     middleware: [offset(0), flip(), shift()]
   }).then(({ y }) => {
+    const menuElement = popperElement.querySelector(
+      'promptlet-sidebar-menu'
+    ) as PromptLetSidebarMenu;
+    menuElement.mode = mode;
+
     if (boxPosition === 'left') {
       // Set the 'is-on-left' property of the component
-      const menuElement = popperElement.querySelector(
-        'promptlet-sidebar-menu'
-      ) as PromptLetSidebarMenu;
       menuElement.isOnLeft = true;
 
       const offsetParentBBox =
@@ -225,9 +244,6 @@ const updatePopperPopover = (
         offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
       }px`;
     } else {
-      const menuElement = popperElement.querySelector(
-        'promptlet-sidebar-menu'
-      ) as PromptLetSidebarMenu;
       menuElement.isOnLeft = false;
 
       popperElement.style.right = 'unset';
