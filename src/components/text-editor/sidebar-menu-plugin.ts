@@ -186,7 +186,7 @@ export class SidebarMenuView {
   async hide() {
     this.curShownActiveID = null;
     const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
-    popperSidebarBoxElement.classList.add('hidden');
+    // popperSidebarBoxElement.classList.add('hidden');
   }
 
   destroy() {

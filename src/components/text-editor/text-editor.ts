@@ -231,7 +231,7 @@ export class PromptLetTextEditor extends LitElement {
               id="edit-highlight-${this.curEditID++}"
               data-color="${REPLACED_COLOR}"
               data-origin="${lastDeletedText}"
-            >${diff[1]}</mark> `;
+            >${diff[1]}</mark>`;
             replaceMap.set(diff[1], lastDeletedText);
             lastDeletedText = '';
           }
@@ -243,7 +243,7 @@ export class PromptLetTextEditor extends LitElement {
               id="edit-highlight-${this.curEditID++}"
               data-color="${ADDED_COLOR}"
               data-origin="${lastDeletedText}"
-            >${diff[1]}</mark> `;
+            >${diff[1]}</mark>`;
             replaceMap.set(diff[1], '');
             lastDeletedText = '';
           }
@@ -255,6 +255,12 @@ export class PromptLetTextEditor extends LitElement {
           console.error('Unknown diff code', diff);
         }
       }
+    }
+
+    // If the paragraph ends with a mark element, add a trailing space to exit
+    // the mark
+    if (diffText.slice(-7) === '</mark>') {
+      // diffText += '&nbsp;';
     }
     diffText = `<p>${diffText}</p>`;
     this.editor.commands.setContent(diffText);

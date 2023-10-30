@@ -57,8 +57,6 @@
   display: flex;
   justify-content: center;
   box-sizing: border-box;
-  pointer-events: none;
-  text-align: center;
 
   opacity: 1;
   transition:

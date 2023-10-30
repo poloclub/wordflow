@@ -84,20 +84,41 @@ button:focus {
 }
 
 :root {
-  // Shadows
+  /* Shadows */
   --shadow-border-light: 0px 0px 5px hsla(0, 0%, 0%, 0.1),
     0px 0px 4px hsla(0, 0%, 0%, 0.07), 0px 0px 10px hsla(0, 0%, 0%, 0.07);
   --shadow-border-card: 0px 0px 6px hsla(0, 0%, 0%, 0.07);
   --shadow-border-large: 0 8px 24px hsla(212, 9%, 59%, 0.2);
 
-  // Ease functions
+  /* Ease functions */
   --ease-cubic-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
 
-  // Layouts
+  /* Layouts */
   --border-radius: 5px;
   --container-h-padding: 12px;
   --container-v-padding: 10px;
 
+  /* Font sizes */
+  --font-d1: 0.9375rem;
+  --font-d2: 0.875rem;
+  --font-d3: 0.8125rem;
+  --font-d4: 0.75rem;
+  --font-d5: 0.6875rem;
+  --font-d6: 0.625rem;
+
+  --font-u1: 1.0625rem;
+  --font-u2: 1.125rem;
+  --font-u3: 1.1875rem;
+  --font-u4: 1.25rem;
+  --font-u5: 1.3125rem;
+  --font-u6: 1.375rem;
+
+  /* Custom colors */
+  --added-color: hsl(120, 37%, 89%);
+  --replaced-color: hsl(208, 88%, 90%);
+  --deleted--color: hsl(353, 100%, 93%);
+
+  /* Colors */
   --red-50: hsl(350, 100%, 96.08%);
   --red-100: hsl(354, 100%, 90.2%);
   --red-200: hsl(0, 72.65%, 77.06%);
