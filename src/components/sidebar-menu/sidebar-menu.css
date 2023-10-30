@@ -1,6 +1,5 @@
 .sidebar-menu {
   width: 250px;
-
   padding: 10px 10px;
 
   display: flex;
@@ -51,13 +50,45 @@
 
 .content-row {
   display: flex;
-  flex-flow: row wrap;
-  padding: 5px 5px;
-  border-radius: 3px;
+  flex-flow: column;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
 
-  line-height: 1.25;
+  .arrow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    transform: rotate(45deg);
+    color: var(--gray-400);
 
-  background-color: var(--gray-200);
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+    height: 6px;
+    width: 6px;
+    top: -2px;
+
+    &[is-hidden] {
+      display: none;
+    }
+  }
+
+  .text-block {
+    width: 100%;
+    padding: 5px 5px;
+    border-radius: 3px;
+    line-height: 1.25;
+    background-color: var(--gray-200);
+    box-sizing: border-box;
+
+    &[is-hidden] {
+      display: none;
+    }
+  }
+
+  .old-text {
+    text-decoration: line-through;
+  }
 }
 
 .footer-row {

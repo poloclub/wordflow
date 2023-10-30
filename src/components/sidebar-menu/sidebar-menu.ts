@@ -81,13 +81,27 @@ export class PromptLetSidebarMenu extends LitElement {
           <span class="header-name">${this.headerTextMap[this.mode]}</span>
         </div>
 
-        <div
-          class="content-row"
-          style="background-color: ${this.modeColorMap[this.mode]
-            .backgroundColor};"
-        >
-          <span class="old-text"></span>
-          <span class="new-text">This is very cool and super awesome.</span>
+        <div class="content-row">
+          <div
+            class="text-block old-text"
+            ?is-hidden=${this.mode === 'add'}
+            style="background-color: ${this.mode === 'delete'
+              ? this.modeColorMap[this.mode].backgroundColor
+              : 'inherent'};"
+          >
+            This is very cool and super
+          </div>
+
+          <div class="arrow" ?is-hidden=${this.mode !== 'replace'}></div>
+
+          <div
+            class="text-block new-text"
+            ?is-hidden=${this.mode === 'delete'}
+            style="background-color: ${this.modeColorMap[this.mode]
+              .backgroundColor};"
+          >
+            This is very cool and super awesome.
+          </div>
         </div>
 
         <div class="footer-row">
