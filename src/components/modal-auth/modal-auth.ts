@@ -2,7 +2,6 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { textGenPalm } from '../../llms/palm';
 import { textGenGpt } from '../../llms/gpt';
-import type { SimpleEventMessage } from '../../types/common-types';
 import type { TextGenMessage } from '../../llms/palm';
 
 import componentCSS from './modal-auth.css?inline';
@@ -10,6 +9,11 @@ import componentCSS from './modal-auth.css?inline';
 const USE_CACHE = true;
 
 type Model = 'palm' | 'gpt';
+
+export interface ModelAuthMessage {
+  model: Model;
+  apiKey: string;
+}
 
 /**
  * Modal auth element.
@@ -44,19 +48,32 @@ export class PromptletModalAuth extends LitElement {
     this.updateComplete.then(_ => {
       // Check if the user has already entered the API key. Show the modal if
       // there is no API key found.
-      const apiKey = USE_CACHE ? localStorage.getItem('palmAPIKey') : null;
+      const checkIfAPIAdded = (model: Model) => {
+        const apiKey = USE_CACHE
+          ? localStorage.getItem(`${model}APIKey`)
+          : null;
 
-      if (apiKey === null) {
-        setTimeout(() => {
-          this.modalElement?.classList.add('displayed');
-        }, 300);
-      } else {
-        const event = new CustomEvent<SimpleEventMessage>('api-key-added', {
-          detail: {
-            message: apiKey
-          }
-        });
-        this.dispatchEvent(event);
+        if (apiKey === null) {
+          setTimeout(() => {
+            this.modalElement?.classList.add('displayed');
+          }, 300);
+          return false;
+        } else {
+          const event = new CustomEvent<ModelAuthMessage>('api-key-added', {
+            detail: {
+              model,
+              apiKey
+            }
+          });
+          this.dispatchEvent(event);
+          return true;
+        }
+      };
+
+      // Try PaLM first
+      const resultPalm = checkIfAPIAdded('palm');
+      if (!resultPalm) {
+        checkIfAPIAdded('gpt');
       }
     });
   }
@@ -81,15 +98,16 @@ export class PromptletModalAuth extends LitElement {
     console.error(message);
   };
 
-  authVerificationSucceeded = (apiKey: string) => {
+  authVerificationSucceeded = (model: Model, apiKey: string) => {
     // Add the api key to the local storage
     if (USE_CACHE) {
-      localStorage.setItem('palmAPIKey', apiKey);
+      localStorage.setItem(`${model}APIKey`, apiKey);
     }
 
-    const event = new CustomEvent<SimpleEventMessage>('api-key-added', {
+    const event = new CustomEvent<ModelAuthMessage>('api-key-added', {
       detail: {
-        message: apiKey
+        model,
+        apiKey
       }
     });
     this.dispatchEvent(event);
@@ -128,7 +146,7 @@ export class PromptletModalAuth extends LitElement {
 
     textGenPalm(apiKey, requestID, prompt, temperature, false).then(value => {
       console.log(value);
-      this.textGenMessageHandler(messageElement, value);
+      this.textGenMessageHandler(model, messageElement, value);
     });
   };
 
@@ -137,6 +155,7 @@ export class PromptletModalAuth extends LitElement {
   };
 
   textGenMessageHandler = (
+    model: Model,
     messageElement: HTMLElement,
     message: TextGenMessage
   ) => {
@@ -145,7 +164,7 @@ export class PromptletModalAuth extends LitElement {
         // If the textGen is initialized in the auth function, add the api key
         // to the local storage
         if (message.payload.requestID.includes('auth')) {
-          this.authVerificationSucceeded(message.payload.apiKey);
+          this.authVerificationSucceeded(model, message.payload.apiKey);
         }
         break;
       }
