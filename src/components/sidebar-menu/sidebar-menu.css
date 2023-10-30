@@ -7,7 +7,7 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 
   box-sizing: border-box;
   background-color: white;
@@ -32,7 +32,7 @@
   width: 100%;
   line-height: 1;
 
-  font-weight: 600;
+  font-weight: 700;
 
   display: flex;
   flex-flow: row;
@@ -65,7 +65,13 @@
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
-  gap: 9px;
+  gap: 7px;
+
+  .group {
+    display: flex;
+    flex-flow: row;
+    gap: 7px;
+  }
 }
 
 .svg-icon {
@@ -91,7 +97,7 @@ button {
   all: unset;
   padding: 4px 8px;
   line-height: 1;
-  background-color: var(--indigo-500);
+  background-color: var(--blue-gray-400);
   color: white;
 
   display: flex;
@@ -99,7 +105,7 @@ button {
   justify-content: center;
   gap: 5px;
   border-radius: 5px;
-  font-weight: 600;
+  font-weight: 500;
 
   cursor: pointer;
 
@@ -109,10 +115,10 @@ button {
   }
 
   &:hover {
-    background-color: color-mix(in lab, var(--indigo-500), white 6%);
+    background-color: color-mix(in lab, var(--blue-gray-400), white 6%);
   }
 
   &:active {
-    background-color: var(--indigo-500);
+    background-color: var(--blue-gray-400);
   }
 }

@@ -46,15 +46,20 @@ export class PromptLetSidebarMenu extends LitElement {
           <span class="new-text">This is very cool and super awesome.</span>
         </div>
         <div class="footer-row">
-          <button class="button">
-            <span class="svg-icon">${unsafeHTML(checkIcon)}</span>
-          </button>
-          <button class="button">
-            <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
-          </button>
-          <button class="button">
-            <span class="button-label">Explain</span>
-          </button>
+          <div class="group">
+            <button class="button">
+              <span class="svg-icon">${unsafeHTML(checkIcon)}</span>
+            </button>
+            <button class="button">
+              <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
+            </button>
+          </div>
+
+          <div class="group">
+            <button class="button">
+              <span class="button-label">Explain</span>
+            </button>
+          </div>
         </div>
       </div>
     `;

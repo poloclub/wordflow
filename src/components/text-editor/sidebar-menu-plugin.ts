@@ -4,6 +4,7 @@ import { EditorState, Plugin, PluginKey } from '@tiptap/pm/state';
 import { EditorView } from '@tiptap/pm/view';
 import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 import { config } from '../../config/config';
+import { PromptLetSidebarMenu } from '../sidebar-menu/sidebar-menu';
 
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
 
@@ -211,6 +212,12 @@ const updatePopperPopover = (
     middleware: [offset(0), flip(), shift()]
   }).then(({ y }) => {
     if (boxPosition === 'left') {
+      // Set the 'is-on-left' property of the component
+      const menuElement = popperElement.querySelector(
+        'promptlet-sidebar-menu'
+      ) as PromptLetSidebarMenu;
+      menuElement.isOnLeft = true;
+
       const offsetParentBBox =
         popperElement.offsetParent!.getBoundingClientRect();
       popperElement.style.left = 'unset';
@@ -218,6 +225,11 @@ const updatePopperPopover = (
         offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
       }px`;
     } else {
+      const menuElement = popperElement.querySelector(
+        'promptlet-sidebar-menu'
+      ) as PromptLetSidebarMenu;
+      menuElement.isOnLeft = false;
+
       popperElement.style.right = 'unset';
       popperElement.style.left = `${
         containerBBox.x + containerBBox.width + MENU_X_OFFSET
