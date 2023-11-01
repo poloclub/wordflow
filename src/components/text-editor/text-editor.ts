@@ -19,6 +19,7 @@ import { TextSelection } from '@tiptap/pm/state';
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
 import type { EditHighlightAttributes } from './edit-highlight';
+import type { CollapseAttributes } from './collapse-node';
 import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
 
@@ -385,15 +386,12 @@ export class PromptLetTextEditor extends LitElement {
         .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
         .run();
     } else if (this.editor.isActive('collapse')) {
-      // Remove the node
-      let tr = state.tr;
-      tr.delete($from.pos, $from.pos + 1);
-      view.dispatch(tr);
-
       // Move the cursor
       const newSelection = TextSelection.create(state.doc, $from.pos);
-      tr = state.tr;
+      const tr = state.tr;
       tr.setSelection(newSelection);
+      // Remove the node
+      tr.delete($from.pos, $from.pos + 1);
       view.dispatch(tr);
       view.focus();
     }
@@ -436,7 +434,7 @@ export class PromptLetTextEditor extends LitElement {
         }
       });
 
-      // Replace the text content in the highlight
+      // Replace the text content in the highlight with the old text
       const tr = state.tr;
       const newText = schema.text(markAttribute.oldText);
       const newSelection = TextSelection.create(
@@ -449,10 +447,24 @@ export class PromptLetTextEditor extends LitElement {
       view.dispatch(tr);
       view.focus();
     } else if (this.editor.isActive('collapse')) {
-      // TODO
-    }
+      // Remove the node
+      const node = $from.nodeAfter!;
+      const nodeAttrs = node.attrs as CollapseAttributes;
 
-    console.log('reject');
+      // Move the cursor
+      const newSelection = TextSelection.create(state.doc, $from.pos);
+      const tr = state.tr;
+      tr.setSelection(newSelection);
+
+      // Remove the node
+      tr.delete($from.pos, $from.pos + 1);
+
+      // Add new text node
+      const newText = schema.text(nodeAttrs['deleted-text']);
+      tr.insert($from.pos, newText);
+      view.dispatch(tr);
+      view.focus();
+    }
   }
 
   /**
