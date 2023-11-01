@@ -358,12 +358,59 @@ export class PromptLetTextEditor extends LitElement {
     }
   }
 
+  /**
+   * Accept the current active edit (replace, add, or delete)
+   */
   acceptChange() {
-    console.log('accept');
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const isActive = this._isEditActive();
+    if (!isActive) {
+      return;
+    }
+
+    // To accept the change, we only need to remove the mark
+    this.editor
+      .chain()
+      .focus()
+      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
+      .run();
   }
 
+  /**
+   * Reject the current active edit (replace, add, or delete)
+   */
   rejectChange() {
     console.log('reject');
+  }
+
+  /**
+   * Helper method to check if the user has selected an edit
+   * @returns True if an edit is actively selected
+   */
+  _isEditActive() {
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const view = this.editor.view;
+    const selection = view.state.selection;
+    const { $from } = selection;
+
+    let isActive = false;
+    if (this.editor.isActive('edit-highlight')) {
+      if ($from.marks().length > 0) {
+        isActive = true;
+      }
+    } else if (this.editor.isActive('collapse')) {
+      if ($from.nodeAfter !== null) {
+        isActive = true;
+      }
+    }
+
+    return isActive;
   }
 
   // ===== Templates and Styles ======
