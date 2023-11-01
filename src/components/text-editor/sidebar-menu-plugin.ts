@@ -82,7 +82,6 @@ export class SidebarMenuView {
   };
 
   async update(view: EditorView, oldState?: EditorState) {
-    console.log('update');
     const { state } = view;
     const { doc, selection } = state;
     const { $from } = selection;
@@ -94,9 +93,17 @@ export class SidebarMenuView {
       return;
     }
 
-    const shouldShow =
-      this.editor.isActive('edit-highlight') ||
-      this.editor.isActive('collapse');
+    let shouldShow = false;
+
+    if (this.editor.isActive('edit-highlight')) {
+      if ($from.marks().length > 0) {
+        shouldShow = true;
+      }
+    } else if (this.editor.isActive('collapse')) {
+      if ($from.nodeAfter !== null) {
+        shouldShow = true;
+      }
+    }
 
     if (!shouldShow) {
       this.hide();
