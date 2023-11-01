@@ -368,7 +368,8 @@ export class PromptLetTextEditor extends LitElement {
     }
 
     const view = this.editor.view;
-    const selection = view.state.selection;
+    const state = view.state;
+    const selection = state.selection;
     const { $from } = selection;
 
     const isActive = this._isEditActive();
@@ -385,13 +386,13 @@ export class PromptLetTextEditor extends LitElement {
         .run();
     } else if (this.editor.isActive('collapse')) {
       // Remove the node
-      let tr = view.state.tr;
+      let tr = state.tr;
       tr.delete($from.pos, $from.pos + 1);
       view.dispatch(tr);
 
       // Move the cursor
-      const newSelection = TextSelection.create(view.state.doc, $from.pos);
-      tr = view.state.tr;
+      const newSelection = TextSelection.create(state.doc, $from.pos);
+      tr = state.tr;
       tr.setSelection(newSelection);
       view.dispatch(tr);
       view.focus();
@@ -406,12 +407,50 @@ export class PromptLetTextEditor extends LitElement {
       throw Error('Editor is not fully initialized');
     }
 
+    const view = this.editor.view;
+    const state = view.state;
+    const { selection, schema } = state;
+    const { $from } = selection;
+
     const isActive = this._isEditActive();
     if (!isActive) {
       return;
     }
 
-    // To reject a change, we need to remove the mark
+    // To reject a change, we need to replace the new content with old text
+    if (this.editor.isActive('edit-highlight')) {
+      const mark = $from.marks()[0];
+      const markAttribute = mark.attrs as EditHighlightAttributes;
+      // Find the range of the mark
+      let from = -1;
+      let to = -1;
+      state.doc.content.descendants((node, pos) => {
+        if (
+          node.marks.some(
+            m => (m.attrs as EditHighlightAttributes).id === markAttribute.id
+          )
+        ) {
+          from = pos;
+          to = pos + node.nodeSize;
+          return false;
+        }
+      });
+
+      // Replace the text content in the highlight
+      const tr = state.tr;
+      const newText = schema.text(markAttribute.oldText);
+      const newSelection = TextSelection.create(
+        state.doc,
+        from + newText.nodeSize
+      );
+      // Need to set the selection before replacing the text
+      tr.setSelection(newSelection);
+      tr.replaceWith(from, to, newText);
+      view.dispatch(tr);
+      view.focus();
+    } else if (this.editor.isActive('collapse')) {
+      // TODO
+    }
 
     console.log('reject');
   }

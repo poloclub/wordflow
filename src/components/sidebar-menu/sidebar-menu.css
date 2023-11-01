@@ -128,7 +128,7 @@ button {
   all: unset;
   padding: 4px 8px;
   line-height: 1;
-  background-color: var(--blue-gray-400);
+  background-color: var(--gray-700);
   color: white;
 
   display: flex;
@@ -150,10 +150,10 @@ button {
   }
 
   &:hover {
-    background-color: color-mix(in lab, var(--blue-gray-400), white 8%);
+    background-color: color-mix(in lab, var(--gray-700), white 8%);
   }
 
   &:active {
-    background-color: var(--blue-gray-400);
+    background-color: var(--gray-700);
   }
 }
