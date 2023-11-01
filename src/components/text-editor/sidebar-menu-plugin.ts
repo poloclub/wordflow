@@ -8,6 +8,7 @@ import { PromptLetSidebarMenu } from '../sidebar-menu/sidebar-menu';
 import type { Mode } from '../sidebar-menu/sidebar-menu';
 import type { EditHighlightAttributes } from './edit-highlight';
 import type { CollapseAttributes } from './collapse-node';
+import type { Node as PMNode } from '@tiptap/pm/model';
 
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
 
@@ -19,13 +20,6 @@ export interface PopperOptions {
   containerBBox: DOMRect;
   popperSidebarBox: Promise<HTMLElement>;
 }
-
-type ShouldShow = (props: {
-  editor: Editor;
-  view: EditorView;
-  state: EditorState;
-  oldState?: EditorState;
-}) => boolean;
 
 export interface SidebarMenuPluginProps {
   pluginKey: PluginKey | string;
@@ -46,16 +40,6 @@ export class SidebarMenuView {
   mode: Mode = 'add';
   oldText = '';
   newText = '';
-
-  shouldShow: ShouldShow = props => {
-    const editor = props.editor;
-
-    if (editor.isActive('edit-highlight') || editor.isActive('collapse')) {
-      return true;
-    } else {
-      return false;
-    }
-  };
 
   constructor(props: SidebarMenuViewProps) {
     const { editor, popperOptions, view } = props;
@@ -97,9 +81,11 @@ export class SidebarMenuView {
   };
 
   async update(view: EditorView, oldState?: EditorState) {
+    console.log('update');
     const { state } = view;
     const { doc, selection } = state;
     const { $from } = selection;
+
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
@@ -107,12 +93,9 @@ export class SidebarMenuView {
       return;
     }
 
-    const shouldShow = this.shouldShow?.({
-      editor: this.editor,
-      view,
-      state,
-      oldState
-    });
+    const shouldShow =
+      this.editor.isActive('edit-highlight') ||
+      this.editor.isActive('collapse');
 
     if (!shouldShow) {
       this.hide();
@@ -137,13 +120,26 @@ export class SidebarMenuView {
     if (this.editor.isActive('edit-highlight')) {
       const mark = $from.marks()[0];
       const markAttribute = mark.attrs as EditHighlightAttributes;
-      // Skip the update if the user selects the same element
-      if (mark.attrs.id === this.curShownActiveID) {
-        return;
+
+      // Extract the content of the current mark
+      let markNode: PMNode | undefined;
+      doc.content.descendants(n => {
+        if (
+          n.marks.some(
+            m => (m.attrs as EditHighlightAttributes).id === markAttribute.id
+          )
+        ) {
+          markNode = n;
+          return false;
+        }
+      });
+
+      if (markNode === undefined || markNode.text === undefined) {
+        throw Error('Cannot find mark node.');
       }
 
       this.oldText = markAttribute.oldText;
-      this.newText = markAttribute.newText;
+      this.newText = markNode.text;
 
       // Determine the mode of this edit
       // If there no original text => add

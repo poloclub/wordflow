@@ -8,7 +8,6 @@ import {
 export interface EditHighlightAttributes {
   color: string;
   oldText: string;
-  newText: string;
   id: string;
 }
 
@@ -48,7 +47,6 @@ export const EditHighlight = Mark.create<HighlightOptions>({
       HTMLAttributes: {
         color: '',
         oldText: '',
-        newText: '',
         id: ''
       }
     };
@@ -77,15 +75,6 @@ export const EditHighlight = Mark.create<HighlightOptions>({
         renderHTML: attributes => {
           return {
             'data-old-text': attributes.oldText as string
-          };
-        }
-      },
-      newText: {
-        default: '',
-        parseHTML: element => element.getAttribute('data-new-text'),
-        renderHTML: attributes => {
-          return {
-            'data-new-text': attributes.newText as string
           };
         }
       },
