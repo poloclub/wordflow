@@ -40,6 +40,7 @@ export class SidebarMenuView {
   mode: Mode = 'add';
   oldText = '';
   newText = '';
+  curBoxPosition: 'left' | 'right' = 'left';
 
   constructor(props: SidebarMenuViewProps) {
     const { editor, popperOptions, view } = props;
@@ -121,6 +122,11 @@ export class SidebarMenuView {
       const mark = $from.marks()[0];
       const markAttribute = mark.attrs as EditHighlightAttributes;
 
+      // Do not shift around the box if user has already selected the element
+      if (markAttribute.id === this.curShownActiveID) {
+        boxPosition = this.curBoxPosition;
+      }
+
       // Extract the content of the current mark
       let markNode: PMNode | undefined;
       doc.content.descendants(n => {
@@ -157,11 +163,14 @@ export class SidebarMenuView {
       if (markElement === null) {
         throw Error(`Can't find mark#${mark.attrs.id}`);
       }
+
+      // Update popper
       this.updatePopperPopover(
         popperSidebarBoxElement,
         markElement,
         boxPosition
       );
+      this.curBoxPosition = boxPosition;
     } else if (this.editor.isActive('collapse')) {
       const node = $from.nodeAfter;
       if (node === null) {
@@ -172,9 +181,9 @@ export class SidebarMenuView {
       this.oldText = nodeAttrs['deleted-text'];
       this.newText = '';
 
-      // Skip the update if the user selects the same element
+      // Do not shift around the box if user has already selected the element
       if (nodeAttrs.id === this.curShownActiveID) {
-        return;
+        boxPosition = this.curBoxPosition;
       }
 
       const nodeElement = this.editor.options.element.querySelector(
@@ -185,11 +194,14 @@ export class SidebarMenuView {
       if (nodeElement === null) {
         throw Error(`Can't find span#${nodeAttrs.id}`);
       }
+
+      // Update popper
       this.updatePopperPopover(
         popperSidebarBoxElement,
         nodeElement,
         boxPosition
       );
+      this.curBoxPosition = boxPosition;
     }
 
     this.show();
