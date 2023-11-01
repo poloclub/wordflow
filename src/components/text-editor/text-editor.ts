@@ -14,6 +14,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { EditHighlight } from './edit-highlight';
 import { Collapse } from './collapse-node';
 import { SidebarMenu } from './sidebar-menu-plugin';
+import { TextSelection } from '@tiptap/pm/state';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -366,23 +367,52 @@ export class PromptLetTextEditor extends LitElement {
       throw Error('Editor is not fully initialized');
     }
 
+    const view = this.editor.view;
+    const selection = view.state.selection;
+    const { $from } = selection;
+
     const isActive = this._isEditActive();
     if (!isActive) {
       return;
     }
 
-    // To accept the change, we only need to remove the mark
-    this.editor
-      .chain()
-      .focus()
-      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
-      .run();
+    // To accept the change, we only need to remove the mark or the node
+    if (this.editor.isActive('edit-highlight')) {
+      this.editor
+        .chain()
+        .focus()
+        .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
+        .run();
+    } else if (this.editor.isActive('collapse')) {
+      // Remove the node
+      let tr = view.state.tr;
+      tr.delete($from.pos, $from.pos + 1);
+      view.dispatch(tr);
+
+      // Move the cursor
+      const newSelection = TextSelection.create(view.state.doc, $from.pos);
+      tr = view.state.tr;
+      tr.setSelection(newSelection);
+      view.dispatch(tr);
+      view.focus();
+    }
   }
 
   /**
    * Reject the current active edit (replace, add, or delete)
    */
   rejectChange() {
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const isActive = this._isEditActive();
+    if (!isActive) {
+      return;
+    }
+
+    // To reject a change, we need to remove the mark
+
     console.log('reject');
   }
 
