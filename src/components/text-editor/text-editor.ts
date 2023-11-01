@@ -93,7 +93,7 @@ export class PromptLetTextEditor extends LitElement {
     setTimeout(() => {
       const e = new Event('click') as MouseEvent;
       this.improveButtonClicked(e);
-    }, 1000);
+    }, 300);
   }
 
   initEditor() {
@@ -338,6 +338,32 @@ export class PromptLetTextEditor extends LitElement {
         'edit-highlight'
       ) as EditHighlightAttributes;
     }
+  }
+
+  sidebarFooterButtonClickedHandler(e: CustomEvent<string>) {
+    switch (e.detail) {
+      case 'accept': {
+        this.acceptChange();
+        break;
+      }
+
+      case 'reject': {
+        this.rejectChange();
+        break;
+      }
+
+      default: {
+        console.error('Unknown button clicked:', e.detail);
+      }
+    }
+  }
+
+  acceptChange() {
+    console.log('accept');
+  }
+
+  rejectChange() {
+    console.log('reject');
   }
 
   // ===== Templates and Styles ======

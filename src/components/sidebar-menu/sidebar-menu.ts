@@ -73,6 +73,28 @@ export class PromptLetSidebarMenu extends LitElement {
   async initData() {}
 
   // ===== Event Methods ======
+  footerButtonClicked(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== 'BUTTON') {
+      return;
+    }
+
+    // Event delegation based on the button that the user clicks
+    const buttonName = target.getAttribute('button-key');
+
+    if (buttonName === null) {
+      console.error('Clicking a button without button-key.');
+      return;
+    }
+
+    // Dispatch the event above shadow dom
+    const event = new CustomEvent<string>('footer-button-clicked', {
+      detail: buttonName,
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
 
   // ===== Templates and Styles ======
   render() {
@@ -110,18 +132,21 @@ export class PromptLetSidebarMenu extends LitElement {
           </div>
         </div>
 
-        <div class="footer-row">
+        <div
+          class="footer-row"
+          @click=${(e: MouseEvent) => this.footerButtonClicked(e)}
+        >
           <div class="group">
-            <button class="button">
+            <button class="button" button-key="accept">
               <span class="svg-icon">${unsafeHTML(checkIcon)}</span>
             </button>
-            <button class="button">
+            <button class="button" button-key="reject">
               <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
             </button>
           </div>
 
           <div class="group">
-            <button class="button">
+            <button class="button" button-key="explain">
               <span class="button-label">Explain</span>
             </button>
           </div>

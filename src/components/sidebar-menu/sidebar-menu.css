@@ -145,6 +145,10 @@ button {
     height: 11px;
   }
 
+  & * {
+    pointer-events: none;
+  }
+
   &:hover {
     background-color: color-mix(in lab, var(--blue-gray-400), white 8%);
   }

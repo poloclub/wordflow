@@ -8,6 +8,8 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
+import { PromptLetTextEditor } from '../text-editor/text-editor';
+
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
 import componentCSS from './wordflow.css?inline';
@@ -21,6 +23,9 @@ export class PromptLetWordflow extends LitElement {
   // ===== Class properties ======
   @queryAsync('#popper-sidebar-box')
   popperSidebarBox: Promise<HTMLElement> | undefined;
+
+  @query('promptlet-text-editor')
+  textEditorElement: PromptLetTextEditor | undefined;
 
   // @state()
   // rightPopperBox: HTMLElement | undefined;
@@ -42,6 +47,11 @@ export class PromptLetWordflow extends LitElement {
   initData = async () => {};
 
   // ===== Event Methods ======
+  sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
+    // Delegate the event to the text editor component
+    if (!this.textEditorElement) return;
+    this.textEditorElement.sidebarFooterButtonClickedHandler(e);
+  }
 
   // ===== Templates and Styles ======
   render() {
@@ -60,6 +70,8 @@ export class PromptLetWordflow extends LitElement {
         <div class="popper-box hidden" id="popper-sidebar-box">
           <promptlet-sidebar-menu
             id="right-sidebar-menu"
+            @footer-button-clicked=${(e: CustomEvent<string>) =>
+              this.sidebarMenuFooterButtonClickedHandler(e)}
           ></promptlet-sidebar-menu>
         </div>
       </div>
