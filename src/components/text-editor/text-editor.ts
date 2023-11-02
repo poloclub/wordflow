@@ -15,6 +15,7 @@ import { EditHighlight } from './edit-highlight';
 import { Collapse } from './collapse-node';
 import { SidebarMenu } from './sidebar-menu-plugin';
 import { TextSelection } from '@tiptap/pm/state';
+import { EventHandler } from './event-handler';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -55,6 +56,9 @@ export class PromptLetTextEditor extends LitElement {
   @property({ attribute: false })
   popperSidebarBox: Promise<HTMLElement> | undefined;
 
+  @property({ attribute: false })
+  floatingMenuBox: Promise<HTMLElement> | undefined;
+
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
 
@@ -91,6 +95,22 @@ export class PromptLetTextEditor extends LitElement {
 
   firstUpdated() {
     this.initEditor();
+
+    // Initialize the floating menu's position
+    if (this.floatingMenuBox === undefined) {
+      console.error(
+        'Text editor / select menu element is not added to DOM yet!'
+      );
+      return;
+    }
+
+    this.floatingMenuBox.then(element => {
+      element.style.left = `${
+        this.containerBBox.x + this.containerBBox.width
+      }px`;
+      element.style.top = `${100}px`;
+      element.classList.remove('hidden');
+    });
 
     setTimeout(() => {
       const e = new Event('click') as MouseEvent;
@@ -134,8 +154,14 @@ export class PromptLetTextEditor extends LitElement {
       popperSidebarBox: this.popperSidebarBox,
       containerBBox: this.containerBBox
     };
+
     const mySidebarMenu = SidebarMenu.configure({
       popperOptions
+    });
+
+    const myEventHandler = EventHandler.configure({
+      containerBBox: this.containerBBox,
+      floatingMenuBox: this.floatingMenuBox
     });
 
     const defaultText = `<p>${this.initialText}</p>`;
@@ -147,7 +173,8 @@ export class PromptLetTextEditor extends LitElement {
         myText,
         myEditHighlight,
         Collapse,
-        mySidebarMenu
+        mySidebarMenu,
+        myEventHandler
       ],
       content: `
         ${defaultText}

@@ -2,16 +2,16 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-import componentCSS from './float-menu.css?inline';
+import componentCSS from './floating-menu.css?inline';
 
 import gearIcon from '../../images/icon-gear.svg?raw';
 
 /**
- * Float menu element.
+ * Floating menu element.
  *
  */
-@customElement('promptlet-float-menu')
-export class PromptLetFloatMenu extends LitElement {
+@customElement('promptlet-floating-menu')
+export class PromptLetFloatingMenu extends LitElement {
   // ===== Class properties ======
 
   // ===== Lifecycle Methods ======
@@ -33,7 +33,7 @@ export class PromptLetFloatMenu extends LitElement {
   // ===== Templates and Styles ======
   render() {
     return html`
-      <div class="float-menu">
+      <div class="floating-menu">
         <button class="tool-button">
           <div class="svg-icon">🎓</div>
         </button>
@@ -59,6 +59,6 @@ export class PromptLetFloatMenu extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-float-menu': PromptLetFloatMenu;
+    'promptlet-floating-menu': PromptLetFloatingMenu;
   }
 }

@@ -14,7 +14,7 @@ import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
 
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
-import '../float-menu/float-menu';
+import '../floating-menu/floating-menu';
 import componentCSS from './wordflow.css?inline';
 
 /**
@@ -27,11 +27,11 @@ export class PromptLetWordflow extends LitElement {
   @queryAsync('#popper-sidebar-box')
   popperSidebarBox: Promise<HTMLElement> | undefined;
 
+  @queryAsync('#floating-menu-box')
+  floatingMenuBox: Promise<HTMLElement> | undefined;
+
   @query('promptlet-text-editor')
   textEditorElement: PromptLetTextEditor | undefined;
-
-  // @state()
-  // rightPopperBox: HTMLElement | undefined;
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -65,6 +65,7 @@ export class PromptLetWordflow extends LitElement {
           <div class="editor-content">
             <promptlet-text-editor
               .popperSidebarBox=${this.popperSidebarBox}
+              .floatingMenuBox=${this.floatingMenuBox}
             ></promptlet-text-editor>
           </div>
         </div>
@@ -83,8 +84,8 @@ export class PromptLetWordflow extends LitElement {
           @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {}}
         ></promptlet-modal-auth>
 
-        <div class="popper-menu" id="popper-float-menu">
-          <promptlet-float-menu></promptlet-float-menu>
+        <div class="floating-menu-box hidden" id="floating-menu-box">
+          <promptlet-floating-menu></promptlet-floating-menu>
         </div>
       </div>
     `;

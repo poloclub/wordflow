@@ -68,7 +68,7 @@
   }
 }
 
-.popper-menu {
+.floating-menu-box {
   position: absolute;
   z-index: 21;
   top: 200px;
@@ -77,6 +77,9 @@
   display: flex;
   justify-content: center;
   box-sizing: border-box;
+  width: max-content;
+
+  transform: translate(-50%, -50%);
 
   opacity: 1;
   transition:
