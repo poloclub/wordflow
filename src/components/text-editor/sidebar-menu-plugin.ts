@@ -125,7 +125,7 @@ export class SidebarMenuView {
     }
 
     // Always show the box on the left for now
-    // boxPosition = 'left';
+    boxPosition = 'left';
 
     const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
     // Depending on the active element, we need to get the edit-highlight node

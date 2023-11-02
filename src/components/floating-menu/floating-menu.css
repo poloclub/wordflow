@@ -90,11 +90,11 @@ button {
     padding-top: calc(var(--padding) + 4px);
   }
 
-  &:nth-last-child(2) {
+  &:nth-last-child(1) {
     padding-bottom: calc(var(--padding) + 2px);
   }
 
-  &:last-child {
+  &.setting-button {
     padding-top: calc(var(--padding) + 1px);
     padding-bottom: calc(var(--padding) + 4px);
     border-top: 1px solid var(--gray-300);

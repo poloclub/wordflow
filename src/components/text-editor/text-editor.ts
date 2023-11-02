@@ -10,6 +10,7 @@ import DiffMatchPatch from 'diff-match-patch';
 // Editor
 import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
+import Paragraph from '@tiptap/extension-paragraph';
 import StarterKit from '@tiptap/starter-kit';
 import { EditHighlight } from './edit-highlight';
 import { Collapse } from './collapse-node';
@@ -115,6 +116,7 @@ export class PromptLetTextEditor extends LitElement {
     setTimeout(() => {
       const e = new Event('click') as MouseEvent;
       this.improveButtonClicked(e);
+      this.floatingMenuToolsMouseEnterHandler();
     }, 300);
   }
 
@@ -142,9 +144,27 @@ export class PromptLetTextEditor extends LitElement {
       }
     });
 
+    const myParagraph = Paragraph.extend({
+      addAttributes() {
+        return {
+          ...this.parent?.(),
+          'is-highlighted': {
+            default: null,
+            parseHTML: element => element.getAttribute('is-highlighted'),
+            renderHTML: attributes => {
+              return {
+                class: attributes['is-highlighted'] ? 'highlighted' : null
+              };
+            }
+          }
+        };
+      }
+    });
+
     // Customize the StarterKit extension to exclude customized extensions
     const myStarterKit = StarterKit.configure({
-      text: false
+      text: false,
+      paragraph: false
     });
 
     const myEditHighlight = EditHighlight.configure({
@@ -171,6 +191,7 @@ export class PromptLetTextEditor extends LitElement {
       element: this.editorElement,
       extensions: [
         myStarterKit,
+        myParagraph,
         myText,
         myEditHighlight,
         Collapse,
@@ -370,7 +391,7 @@ export class PromptLetTextEditor extends LitElement {
     }
   }
 
-  sidebarFooterButtonClickedHandler(e: CustomEvent<string>) {
+  sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     switch (e.detail) {
       case 'accept': {
         this.acceptChange();
@@ -385,6 +406,83 @@ export class PromptLetTextEditor extends LitElement {
       default: {
         console.error('Unknown button clicked:', e.detail);
       }
+    }
+  }
+
+  /**
+   * Highlight the currently effective selection. It is the user's selected
+   * text or the current paragraph (if there is no selection).
+   */
+  floatingMenuToolsMouseEnterHandler() {
+    console.log('enter');
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+    const { $from, $to } = this.editor.view.state.selection;
+
+    let hasSelection = $from.pos !== $to.pos;
+    // If the user select the collapse node, the selection range is also 1
+    if (Math.abs($from.pos - $to.pos) === 1) {
+      const node = $from.nodeAfter;
+      if (node && node.type.name === 'collapse') {
+        hasSelection = false;
+      }
+    }
+
+    // Highlight the paragraph
+    if (!hasSelection) {
+      // Find the paragraph node of the cursor's region
+      const paragraphNode = $from.node(1);
+      const paragraphPos = $from.before(1);
+
+      // Update the node's attributes to include the highlighted class
+      const updatedAttrs = {
+        ...paragraphNode.attrs
+      };
+      updatedAttrs['is-highlighted'] = 'true';
+
+      const tr = this.editor.view.state.tr;
+      tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
+      this.editor.view.dispatch(tr);
+    }
+  }
+
+  /**
+   * Cancel any highlighting from mouseenter
+   */
+  floatingMenuToolsMouseLeaveHandler() {
+    console.log('leave');
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+    const { $from, $to } = this.editor.view.state.selection;
+
+    let hasSelection = $from.pos !== $to.pos;
+    // If the user select the collapse node, the selection range is also 1
+    if (Math.abs($from.pos - $to.pos) === 1) {
+      const node = $from.nodeAfter;
+      if (node && node.type.name === 'collapse') {
+        hasSelection = false;
+      }
+    }
+
+    // Highlight the paragraph
+    if (!hasSelection) {
+      // Find the paragraph node of the cursor's region
+      const paragraphNode = $from.node(1);
+      const paragraphPos = $from.before(1);
+
+      // Update the node's attributes to include the highlighted class
+      const updatedAttrs = {
+        ...paragraphNode.attrs
+      };
+      updatedAttrs['is-highlighted'] = null;
+
+      const tr = this.editor.view.state.tr;
+      tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
+      this.editor.view.dispatch(tr);
     }
   }
 

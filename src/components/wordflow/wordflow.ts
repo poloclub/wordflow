@@ -53,7 +53,19 @@ export class PromptLetWordflow extends LitElement {
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
-    this.textEditorElement.sidebarFooterButtonClickedHandler(e);
+    this.textEditorElement.sidebarMenuFooterButtonClickedHandler(e);
+  }
+
+  floatingMenuMouseEnterToolsHandler() {
+    // Delegate the event to the text editor component
+    if (!this.textEditorElement) return;
+    this.textEditorElement.floatingMenuToolsMouseEnterHandler();
+  }
+
+  floatingMenuMouseLeaveToolsHandler() {
+    // Delegate the event to the text editor component
+    if (!this.textEditorElement) return;
+    this.textEditorElement.floatingMenuToolsMouseLeaveHandler();
   }
 
   // ===== Templates and Styles ======
@@ -85,7 +97,12 @@ export class PromptLetWordflow extends LitElement {
         ></promptlet-modal-auth>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
-          <promptlet-floating-menu></promptlet-floating-menu>
+          <promptlet-floating-menu
+            @mouse-enter-tools=${() =>
+              this.floatingMenuMouseEnterToolsHandler()}
+            @mouse-leave-tools=${() =>
+              this.floatingMenuMouseLeaveToolsHandler()}
+          ></promptlet-floating-menu>
         </div>
       </div>
     `;

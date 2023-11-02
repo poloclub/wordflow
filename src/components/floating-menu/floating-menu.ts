@@ -30,20 +30,53 @@ export class PromptLetFloatingMenu extends LitElement {
 
   // ===== Event Methods ======
 
+  /**
+   * Highlight the currently effective region when the user hovers over the buttons
+   * @param e Mouse event
+   */
+  toolButtonsMouseEnterHandler(e: MouseEvent) {
+    e.preventDefault();
+    // Tell the editor component to highlight the effective region
+    const event = new Event('mouse-enter-tools', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  /**
+   * De-highlight the currently effective region when mouse leaves the buttons
+   * @param e Mouse event
+   */
+  toolButtonsMouseLeaveHandler(e: MouseEvent) {
+    e.preventDefault();
+    const event = new Event('mouse-leave-tools', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   // ===== Templates and Styles ======
   render() {
     return html`
       <div class="floating-menu">
-        <button class="tool-button">
-          <div class="svg-icon">🎓</div>
-        </button>
-        <button class="tool-button">
-          <div class="svg-icon">🍔</div>
-        </button>
-        <button class="tool-button">
-          <div class="svg-icon">😘</div>
-        </button>
-        <button class="tool-button">
+        <div
+          class="tool-buttons"
+          @mouseenter=${(e: MouseEvent) => this.toolButtonsMouseEnterHandler(e)}
+          @mouseleave=${(e: MouseEvent) => this.toolButtonsMouseLeaveHandler(e)}
+        >
+          <button class="tool-button">
+            <div class="svg-icon">🎓</div>
+          </button>
+          <button class="tool-button">
+            <div class="svg-icon">🍔</div>
+          </button>
+          <button class="tool-button">
+            <div class="svg-icon">😘</div>
+          </button>
+        </div>
+        <button class="tool-button setting-button">
           <div class="svg-icon">${unsafeHTML(gearIcon)}</div>
         </button>
       </div>
