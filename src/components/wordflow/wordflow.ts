@@ -10,8 +10,11 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import { PromptLetTextEditor } from '../text-editor/text-editor';
 
+import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
+
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
+import '../float-menu/float-menu';
 import componentCSS from './wordflow.css?inline';
 
 /**
@@ -73,6 +76,15 @@ export class PromptLetWordflow extends LitElement {
             @footer-button-clicked=${(e: CustomEvent<string>) =>
               this.sidebarMenuFooterButtonClickedHandler(e)}
           ></promptlet-sidebar-menu>
+        </div>
+
+        <promptlet-modal-auth
+          class="modal"
+          @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {}}
+        ></promptlet-modal-auth>
+
+        <div class="popper-menu" id="popper-float-menu">
+          <promptlet-float-menu></promptlet-float-menu>
         </div>
       </div>
     `;

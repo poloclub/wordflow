@@ -48,7 +48,7 @@ export class PromptLetSidebarMenu extends LitElement {
       },
       replace: {
         backgroundColor: config.customColors.replacedColor,
-        circleColor: config.colors['blue-200']
+        circleColor: config.colors['orange-200']
       },
       delete: {
         backgroundColor: config.customColors.deletedColor,

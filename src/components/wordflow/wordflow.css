@@ -67,3 +67,23 @@
     opacity: 0;
   }
 }
+
+.popper-menu {
+  position: absolute;
+  z-index: 21;
+  top: 200px;
+  right: 405px;
+
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+
+  opacity: 1;
+  transition:
+    opacity 150ms,
+    transform 150ms;
+
+  &.hidden {
+    opacity: 0;
+  }
+}

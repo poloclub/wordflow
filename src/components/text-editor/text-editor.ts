@@ -530,11 +530,6 @@ export class PromptLetTextEditor extends LitElement {
           Select
         </button>
       </div>
-
-      <promptlet-modal-auth
-        class="modal"
-        @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {}}
-      ></promptlet-modal-auth>
     </div>`;
   }
 
