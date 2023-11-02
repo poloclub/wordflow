@@ -123,6 +123,7 @@ export class PromptLetTextEditor extends LitElement {
       this.editorElement === undefined ||
       this.selectMenuElement === undefined ||
       this.containerElement === undefined ||
+      this.floatingMenuBox === undefined ||
       this.popperSidebarBox === undefined
     ) {
       console.error(

@@ -1,5 +1,5 @@
 const layout = {
-  sidebarMenuXOffset: 10
+  sidebarMenuXOffset: 30
 };
 
 const time = {

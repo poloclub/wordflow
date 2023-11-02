@@ -11,15 +11,15 @@ export interface EventHandlerProps {
 export const EventHandler = Extension.create<EventHandlerProps>({
   name: 'eventHandler',
 
+  onSelectionUpdate() {
+    clickHandler(this.options, this.editor, this.editor.view);
+  },
+
   addProseMirrorPlugins() {
     return [
       new Plugin({
         key: new PluginKey('eventHandler'),
-        props: {
-          handleClick: (view, pos, event) => {
-            clickHandler(this.options, this.editor, view, pos, event);
-          }
-        }
+        props: {}
       })
     ];
   }
@@ -28,13 +28,12 @@ export const EventHandler = Extension.create<EventHandlerProps>({
 const clickHandler = async (
   options: EventHandlerProps,
   editor: Editor,
-  view: EditorView,
-  pos: number,
-  _event: MouseEvent
+  view: EditorView
 ) => {
   const containerBBox = options.containerBBox;
   const floatingMenuBox = await options.floatingMenuBox;
-  const cursorCoordinate = view.coordsAtPos(pos);
+  const $from = view.state.selection.$from;
+  const cursorCoordinate = view.coordsAtPos($from.pos);
 
   // Need to bound the box inside the view
   const floatingMenuBoxBBox = floatingMenuBox.getBoundingClientRect();

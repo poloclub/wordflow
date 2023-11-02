@@ -59,7 +59,9 @@ export class SidebarMenuView {
 
   focusHandler = ({ event }: { event: FocusEvent }) => {
     // we use `setTimeout` to make sure `selection` is already updated
-    setTimeout(() => this.update(this.editor.view));
+    setTimeout(() => {
+      this.update(this.editor.view);
+    });
   };
 
   blurHandler = async ({ event }: { event: FocusEvent }) => {
@@ -123,7 +125,7 @@ export class SidebarMenuView {
     }
 
     // Always show the box on the left for now
-    boxPosition = 'left';
+    // boxPosition = 'left';
 
     const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
     // Depending on the active element, we need to get the edit-highlight node
@@ -303,7 +305,7 @@ export const SidebarMenu = Extension.create<SidebarMenuOptions>({
   addOptions() {
     const getDefaultPopperOptions = () => {
       const phantomElement = document.createElement('div');
-      const popperSidebarBox = Promise.resolve(phantomElement);
+      const phantomPromise = Promise.resolve(phantomElement);
       const containerBBox: DOMRect = {
         x: 0,
         y: 0,
@@ -317,7 +319,7 @@ export const SidebarMenu = Extension.create<SidebarMenuOptions>({
       };
       const defaultPopperOption: PopperOptions = {
         containerBBox,
-        popperSidebarBox
+        popperSidebarBox: phantomPromise
       };
       return defaultPopperOption;
     };
