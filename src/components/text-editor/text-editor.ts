@@ -24,6 +24,8 @@ import type { EditHighlightAttributes } from './edit-highlight';
 import type { CollapseAttributes } from './collapse-node';
 import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
+import type { Promptlet } from '../../types/promptlet';
+import type { ResolvedPos } from '@tiptap/pm/model';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -115,7 +117,7 @@ export class PromptLetTextEditor extends LitElement {
 
     setTimeout(() => {
       const e = new Event('click') as MouseEvent;
-      this.improveButtonClicked(e);
+      // this.improveButtonClicked(e);
     }, 300);
   }
 
@@ -299,6 +301,27 @@ export class PromptLetTextEditor extends LitElement {
     return diffText;
   }
 
+  /**
+   * Detection if the users has not selected anything
+   * @returns True if there is empty selection
+   */
+  isEmptySelection() {
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+    const { $from, $to } = this.editor.view.state.selection;
+    let hasSelection = $from.pos !== $to.pos;
+    // If the user select the collapse node, the selection range is also 1
+    if (Math.abs($from.pos - $to.pos) === 1) {
+      const node = $from.nodeAfter;
+      if (node && node.type.name === 'collapse') {
+        hasSelection = false;
+      }
+    }
+    return hasSelection;
+  }
+
   // ===== Event Methods ======
   highlightButtonClicked(e: MouseEvent) {
     e.preventDefault();
@@ -413,21 +436,12 @@ export class PromptLetTextEditor extends LitElement {
    * text or the current paragraph (if there is no selection).
    */
   floatingMenuToolsMouseEnterHandler() {
-    console.log('enter');
     if (this.editor === null) {
       console.error('Editor is not initialized yet.');
       return;
     }
     const { $from, $to } = this.editor.view.state.selection;
-
-    let hasSelection = $from.pos !== $to.pos;
-    // If the user select the collapse node, the selection range is also 1
-    if (Math.abs($from.pos - $to.pos) === 1) {
-      const node = $from.nodeAfter;
-      if (node && node.type.name === 'collapse') {
-        hasSelection = false;
-      }
-    }
+    const hasSelection = this.isEmptySelection();
 
     // Highlight the paragraph
     if (!hasSelection) {
@@ -451,21 +465,12 @@ export class PromptLetTextEditor extends LitElement {
    * Cancel any highlighting set from mouseenter
    */
   floatingMenuToolsMouseLeaveHandler() {
-    console.log('leave');
     if (this.editor === null) {
       console.error('Editor is not initialized yet.');
       return;
     }
     const { $from, $to } = this.editor.view.state.selection;
-
-    let hasSelection = $from.pos !== $to.pos;
-    // If the user select the collapse node, the selection range is also 1
-    if (Math.abs($from.pos - $to.pos) === 1) {
-      const node = $from.nodeAfter;
-      if (node && node.type.name === 'collapse') {
-        hasSelection = false;
-      }
-    }
+    const hasSelection = this.isEmptySelection();
 
     // Highlight the paragraph
     if (!hasSelection) {
@@ -482,6 +487,63 @@ export class PromptLetTextEditor extends LitElement {
       const tr = this.editor.view.state.tr;
       tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
       this.editor.view.dispatch(tr);
+    }
+  }
+
+  /**
+   * Execute the promptlet on the selected text
+   */
+  floatingMenuToolButtonClickHandler(promptlet: Promptlet) {
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+    const { $from, $to } = this.editor.view.state.selection;
+    const hasSelection = this.isEmptySelection();
+
+    // Paragraph mode
+    if (!hasSelection) {
+      // Find the paragraph node of the cursor's region
+      const paragraphNode = $from.node(1);
+      const paragraphPos = $from.before(1);
+      const oldText = paragraphNode.textContent;
+
+      const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
+      textGenGpt(this.apiKey!, 'text-gen', curPrompt, 0.2).then(message => {
+        switch (message.command) {
+          case 'finishTextGen': {
+            if (this.editor === null) {
+              console.error('Editor is not initialized');
+              return;
+            }
+
+            console.log(message);
+            const newText = message.payload.result.replace(
+              promptlet.outputParser,
+              '$1'
+            );
+            let diffText = this.diffParagraph(oldText, newText);
+            diffText = `<p>${diffText}</p>`;
+
+            this.editor
+              .chain()
+              .focus()
+              .insertContentAt(
+                {
+                  from: paragraphPos,
+                  to: paragraphPos + paragraphNode.nodeSize
+                },
+                diffText
+              )
+              .run();
+            break;
+          }
+
+          case 'error': {
+            console.error('Failed to generate text', message.payload);
+          }
+        }
+      });
     }
   }
 

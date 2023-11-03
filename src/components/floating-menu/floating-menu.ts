@@ -3,37 +3,22 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { updatePopperTooltip } from '@xiaohk/utils';
 
-import componentCSS from './floating-menu.css?inline';
+// Types
+import type { PromptModel } from '../../types/common-types';
+import type { Promptlet } from '../../types/promptlet';
 
+// Assets
+import componentCSS from './floating-menu.css?inline';
+import mlPromptJSON from '../../prompts/prompt-ml-academic.json';
 import gearIcon from '../../images/icon-gear.svg?raw';
 
-/**
- * Promptlet object describing a prompt functionality.
- */
-interface Promptlet {
-  /** Short name of the promptlet */
-  name: string;
-
-  /** Detailed description of the promptlet */
-  description: string;
-
-  /** The associated prompt */
-  prompt: string;
-
-  /** Associated tags */
-  tags: string[];
-
-  /** A simple regex rule to parse the output */
-  outputParser: string;
-
-  /** A unicode character used as an icon for the promptlet (can be emoji) */
-  iconUnicode: string;
-}
+const mlPrompt = mlPromptJSON as PromptModel;
 
 const createPromptlet = ({
   name = '',
   description = '',
   prompt = '',
+  temperature = 0.2,
   tags = [],
   outputParser = '',
   iconUnicode = ''
@@ -41,6 +26,7 @@ const createPromptlet = ({
   name?: string;
   description?: string;
   prompt?: string;
+  temperature?: number;
   tags?: string[];
   outputParser?: string;
   iconUnicode?: string;
@@ -49,6 +35,7 @@ const createPromptlet = ({
     name,
     description,
     prompt,
+    temperature,
     tags,
     outputParser,
     iconUnicode
@@ -76,6 +63,8 @@ export class PromptLetFloatingMenu extends LitElement {
     // Initialize the current active promptlets
     const promptlet1 = createPromptlet({
       name: 'Improve academic ML paper writing',
+      prompt: mlPrompt.prompt,
+      outputParser: '/.*<o>(.*?)</o>.*/',
       iconUnicode: '🎓'
     });
     const promptlet2 = createPromptlet({
@@ -83,8 +72,11 @@ export class PromptLetFloatingMenu extends LitElement {
       iconUnicode: '💰'
     });
     const promptlet3 = createPromptlet({
-      name: 'Make the writing very easy to understand',
-      iconUnicode: '🐣'
+      name: 'Translate the text to Japanese',
+      prompt:
+        'Translate the text in <input></input> from English to Japanese. Your output should be put in <output></output>.\n<input>{{text}}</input>',
+      outputParser: '/(.*?)/',
+      iconUnicode: '🇯🇵'
     });
     this.activePromptlets = [promptlet1, promptlet2, promptlet3];
   }
@@ -127,8 +119,19 @@ export class PromptLetFloatingMenu extends LitElement {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Notify the parent to take promptlet action
+   * @param e Mouse event
+   * @param index Index of the active tool button
+   */
   toolButtonClickHandler(e: MouseEvent, index: number) {
-    console.log(index);
+    e.preventDefault();
+    const event = new CustomEvent<Promptlet>('tool-button-clicked', {
+      detail: this.activePromptlets[index],
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
   }
 
   toolButtonMouseEnterHandler(e: MouseEvent, index: number) {
@@ -183,7 +186,8 @@ export class PromptLetFloatingMenu extends LitElement {
     let toolButtons = html``;
     for (const [i, promptlet] of this.activePromptlets.entries()) {
       // Take the first unicode character as the icon
-      const icon = Array.from(promptlet.iconUnicode)[0];
+      // const icon = Array.from(promptlet.iconUnicode)[0];
+      const icon = promptlet.iconUnicode;
       toolButtons = html`${toolButtons}
         <button
           class="tool-button"

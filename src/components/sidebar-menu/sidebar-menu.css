@@ -1,6 +1,7 @@
 .sidebar-menu {
   width: 250px;
   padding: 10px 12px;
+  max-height: 90vh;
 
   display: flex;
   flex-flow: column;
@@ -54,6 +55,7 @@
   align-items: center;
   width: 100%;
   gap: 4px;
+  overflow-y: auto;
 
   .arrow {
     position: relative;

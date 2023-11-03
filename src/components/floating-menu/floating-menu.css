@@ -59,10 +59,10 @@ button {
     color: var(--gray-700);
     font-size: 1em;
     font-weight: 700;
-    box-sizing: border-box;
     text-align: center;
     vertical-align: center;
     line-height: 1;
+    box-sizing: border-box;
 
     & svg {
       width: 1em;

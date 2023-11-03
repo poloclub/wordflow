@@ -7,14 +7,18 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-
 import { PromptLetTextEditor } from '../text-editor/text-editor';
 
+// Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
+import type { Promptlet } from '../../types/promptlet';
 
+// Components
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
 import '../floating-menu/floating-menu';
+
+// Assets
 import componentCSS from './wordflow.css?inline';
 
 /**
@@ -59,16 +63,22 @@ export class PromptLetWordflow extends LitElement {
     this.textEditorElement.sidebarMenuFooterButtonClickedHandler(e);
   }
 
-  floatingMenuMouseEnterToolsHandler() {
+  floatingMenuToolMouseEnterHandler() {
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
     this.textEditorElement.floatingMenuToolsMouseEnterHandler();
   }
 
-  floatingMenuMouseLeaveToolsHandler() {
+  floatingMenuToolsMouseLeaveHandler() {
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
     this.textEditorElement.floatingMenuToolsMouseLeaveHandler();
+  }
+
+  floatingMenuToolButtonClickHandler(e: CustomEvent<Promptlet>) {
+    // Delegate the event to the text editor component
+    if (!this.textEditorElement) return;
+    this.textEditorElement.floatingMenuToolButtonClickHandler(e.detail);
   }
 
   // ===== Templates and Styles ======
@@ -102,10 +112,11 @@ export class PromptLetWordflow extends LitElement {
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <promptlet-floating-menu
             .popperTooltip=${this.popperTooltip}
-            @mouse-enter-tools=${() =>
-              this.floatingMenuMouseEnterToolsHandler()}
+            @mouse-enter-tools=${() => this.floatingMenuToolMouseEnterHandler()}
             @mouse-leave-tools=${() =>
-              this.floatingMenuMouseLeaveToolsHandler()}
+              this.floatingMenuToolsMouseLeaveHandler()}
+            @tool-button-clicked=${(e: CustomEvent<Promptlet>) =>
+              this.floatingMenuToolButtonClickHandler(e)}
           ></promptlet-floating-menu>
         </div>
 
