@@ -90,3 +90,60 @@
     opacity: 0;
   }
 }
+
+.popper-tooltip {
+  position: absolute;
+  width: max-content;
+  left: 0px;
+  top: 0px;
+  z-index: 20;
+  background: var(--gray-800);
+  color: white;
+  box-shadow:
+    0 0 1px hsla(0, 0%, 0%, 0.6),
+    0 0 3px hsla(0, 0%, 0%, 0.05);
+  padding: 0px 5px 3px;
+  border-radius: 4px;
+  font-size: var(--font-d3);
+
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  pointer-events: none;
+  text-align: center;
+
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: left center;
+  transition:
+    opacity 150ms,
+    transform 150ms;
+
+  &.hidden {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .popper-content {
+    max-width: 300px;
+    max-height: 200px;
+    line-height: 1.5;
+    overflow: hidden;
+    display: flex;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .popper-arrow {
+    position: absolute;
+    background: var(--gray-800);
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+    opacity: 1;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
+}

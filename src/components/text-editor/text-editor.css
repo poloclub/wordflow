@@ -7,6 +7,7 @@
   display: flex;
   box-sizing: border-box;
   position: relative;
+  overflow-y: auto;
 }
 
 .text-editor {
@@ -82,12 +83,14 @@ p {
       135deg,
       white,
       white,
-      var(--blue-50),
+      hsla(0, 0%, 96%, 1),
+      hsla(0, 0%, 92%, 1),
+      hsla(0, 0%, 96%, 1),
       white,
       white
     );
-    background-size: 700% 700%;
-    animation: gradient 2900ms ease-in-out infinite;
+    background-size: 900% 900%;
+    animation: gradient 3500ms ease-in-out infinite;
   }
 }
 

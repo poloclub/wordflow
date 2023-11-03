@@ -116,7 +116,6 @@ export class PromptLetTextEditor extends LitElement {
     setTimeout(() => {
       const e = new Event('click') as MouseEvent;
       this.improveButtonClicked(e);
-      this.floatingMenuToolsMouseEnterHandler();
     }, 300);
   }
 

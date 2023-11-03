@@ -30,6 +30,9 @@ export class PromptLetWordflow extends LitElement {
   @queryAsync('#floating-menu-box')
   floatingMenuBox: Promise<HTMLElement> | undefined;
 
+  @queryAsync('#popper-tooltip')
+  popperTooltip: Promise<HTMLElement> | undefined;
+
   @query('promptlet-text-editor')
   textEditorElement: PromptLetTextEditor | undefined;
 
@@ -98,11 +101,17 @@ export class PromptLetWordflow extends LitElement {
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <promptlet-floating-menu
+            .popperTooltip=${this.popperTooltip}
             @mouse-enter-tools=${() =>
               this.floatingMenuMouseEnterToolsHandler()}
             @mouse-leave-tools=${() =>
               this.floatingMenuMouseLeaveToolsHandler()}
           ></promptlet-floating-menu>
+        </div>
+
+        <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
+          <span class="popper-content"></span>
+          <div class="popper-arrow"></div>
         </div>
       </div>
     `;
