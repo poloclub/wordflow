@@ -449,7 +449,7 @@ export class PromptLetTextEditor extends LitElement {
   }
 
   /**
-   * Cancel any highlighting from mouseenter
+   * Cancel any highlighting set from mouseenter
    */
   floatingMenuToolsMouseLeaveHandler() {
     console.log('leave');

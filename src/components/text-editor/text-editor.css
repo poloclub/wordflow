@@ -75,3 +75,30 @@ button {
     background-color: var(--gray-700);
   }
 }
+
+p {
+  &.highlighted {
+    background: linear-gradient(
+      135deg,
+      white,
+      white,
+      var(--blue-50),
+      white,
+      white
+    );
+    background-size: 700% 700%;
+    animation: gradient 2900ms ease-in-out infinite;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

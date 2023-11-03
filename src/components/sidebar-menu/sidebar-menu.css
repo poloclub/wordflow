@@ -116,7 +116,7 @@
   transition: transform 80ms linear;
   transform-origin: center;
 
-  svg {
+  & svg {
     fill: currentColor;
     stroke: currentColor;
     width: 100%;

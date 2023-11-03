@@ -28,7 +28,7 @@
   transition: transform 80ms linear;
   transform-origin: center;
 
-  svg {
+  & svg {
     fill: currentColor;
     width: 100%;
     height: 100%;
@@ -64,7 +64,7 @@ button {
     vertical-align: center;
     line-height: 1;
 
-    svg {
+    & svg {
       width: 1em;
       height: 1em;
     }
