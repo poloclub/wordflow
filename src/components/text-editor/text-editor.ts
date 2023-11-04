@@ -55,7 +55,9 @@ const DMP = new DiffMatchPatch();
  */
 @customElement('promptlet-text-editor')
 export class PromptLetTextEditor extends LitElement {
-  // ===== Class properties ======
+  //==========================================================================||
+  //                              Class Properties                            ||
+  //==========================================================================||
   @property({ attribute: false })
   popperSidebarBox: Promise<HTMLElement> | undefined;
 
@@ -88,7 +90,9 @@ export class PromptLetTextEditor extends LitElement {
     toJSON: () => ''
   };
 
-  // ===== Lifecycle Methods ======
+  //==========================================================================||
+  //                             Lifecycle Methods                            ||
+  //==========================================================================||
   constructor() {
     super();
 
@@ -212,7 +216,9 @@ export class PromptLetTextEditor extends LitElement {
    */
   willUpdate(changedProperties: PropertyValues<this>) {}
 
-  // ===== Custom Methods ======
+  //==========================================================================||
+  //                              Custom Methods                              ||
+  //==========================================================================||
   async initData() {}
 
   diffParagraph(oldText: string, newText: string) {
@@ -322,7 +328,116 @@ export class PromptLetTextEditor extends LitElement {
     return hasSelection;
   }
 
-  // ===== Event Methods ======
+  /**
+   * Accept the current active edit (replace, add, or delete)
+   */
+  acceptChange() {
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const view = this.editor.view;
+    const state = view.state;
+    const selection = state.selection;
+    const { $from } = selection;
+
+    const isActive = this._isEditActive();
+    if (!isActive) {
+      return;
+    }
+
+    // To accept the change, we only need to remove the mark or the node
+    if (this.editor.isActive('edit-highlight')) {
+      this.editor
+        .chain()
+        .focus()
+        .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
+        .run();
+    } else if (this.editor.isActive('collapse')) {
+      // Move the cursor
+      const newSelection = TextSelection.create(state.doc, $from.pos);
+      const tr = state.tr;
+      tr.setSelection(newSelection);
+      // Remove the node
+      tr.delete($from.pos, $from.pos + 1);
+      view.dispatch(tr);
+      view.focus();
+    }
+  }
+
+  /**
+   * Reject the current active edit (replace, add, or delete)
+   */
+  rejectChange() {
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const view = this.editor.view;
+    const state = view.state;
+    const { selection, schema } = state;
+    const { $from } = selection;
+
+    const isActive = this._isEditActive();
+    if (!isActive) {
+      return;
+    }
+
+    // To reject a change, we need to replace the new content with old text
+    if (this.editor.isActive('edit-highlight')) {
+      const mark = $from.marks()[0];
+      const markAttribute = mark.attrs as EditHighlightAttributes;
+      // Find the range of the mark
+      let from = -1;
+      let to = -1;
+      state.doc.content.descendants((node, pos) => {
+        if (
+          node.marks.some(
+            m => (m.attrs as EditHighlightAttributes).id === markAttribute.id
+          )
+        ) {
+          from = pos;
+          to = pos + node.nodeSize;
+          return false;
+        }
+      });
+
+      // Replace the text content in the highlight with the old text
+      const tr = state.tr;
+      const newText = schema.text(markAttribute.oldText);
+      const newSelection = TextSelection.create(
+        state.doc,
+        from + newText.nodeSize
+      );
+      // Need to set the selection before replacing the text
+      tr.setSelection(newSelection);
+      tr.replaceWith(from, to, newText);
+      view.dispatch(tr);
+      view.focus();
+    } else if (this.editor.isActive('collapse')) {
+      // Remove the node
+      const node = $from.nodeAfter!;
+      const nodeAttrs = node.attrs as CollapseAttributes;
+
+      // Move the cursor
+      const newSelection = TextSelection.create(state.doc, $from.pos);
+      const tr = state.tr;
+      tr.setSelection(newSelection);
+
+      // Remove the node
+      tr.delete($from.pos, $from.pos + 1);
+
+      // Add new text node
+      const newText = schema.text(nodeAttrs['deleted-text']);
+      tr.insert($from.pos, newText);
+      view.dispatch(tr);
+      view.focus();
+    }
+  }
+
+  //==========================================================================||
+  //                               Event Handlers                             ||
+  //==========================================================================||
   highlightButtonClicked(e: MouseEvent) {
     e.preventDefault();
     if (this.editor === null) {
@@ -547,112 +662,9 @@ export class PromptLetTextEditor extends LitElement {
     }
   }
 
-  /**
-   * Accept the current active edit (replace, add, or delete)
-   */
-  acceptChange() {
-    if (this.editor === null) {
-      throw Error('Editor is not fully initialized');
-    }
-
-    const view = this.editor.view;
-    const state = view.state;
-    const selection = state.selection;
-    const { $from } = selection;
-
-    const isActive = this._isEditActive();
-    if (!isActive) {
-      return;
-    }
-
-    // To accept the change, we only need to remove the mark or the node
-    if (this.editor.isActive('edit-highlight')) {
-      this.editor
-        .chain()
-        .focus()
-        .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
-        .run();
-    } else if (this.editor.isActive('collapse')) {
-      // Move the cursor
-      const newSelection = TextSelection.create(state.doc, $from.pos);
-      const tr = state.tr;
-      tr.setSelection(newSelection);
-      // Remove the node
-      tr.delete($from.pos, $from.pos + 1);
-      view.dispatch(tr);
-      view.focus();
-    }
-  }
-
-  /**
-   * Reject the current active edit (replace, add, or delete)
-   */
-  rejectChange() {
-    if (this.editor === null) {
-      throw Error('Editor is not fully initialized');
-    }
-
-    const view = this.editor.view;
-    const state = view.state;
-    const { selection, schema } = state;
-    const { $from } = selection;
-
-    const isActive = this._isEditActive();
-    if (!isActive) {
-      return;
-    }
-
-    // To reject a change, we need to replace the new content with old text
-    if (this.editor.isActive('edit-highlight')) {
-      const mark = $from.marks()[0];
-      const markAttribute = mark.attrs as EditHighlightAttributes;
-      // Find the range of the mark
-      let from = -1;
-      let to = -1;
-      state.doc.content.descendants((node, pos) => {
-        if (
-          node.marks.some(
-            m => (m.attrs as EditHighlightAttributes).id === markAttribute.id
-          )
-        ) {
-          from = pos;
-          to = pos + node.nodeSize;
-          return false;
-        }
-      });
-
-      // Replace the text content in the highlight with the old text
-      const tr = state.tr;
-      const newText = schema.text(markAttribute.oldText);
-      const newSelection = TextSelection.create(
-        state.doc,
-        from + newText.nodeSize
-      );
-      // Need to set the selection before replacing the text
-      tr.setSelection(newSelection);
-      tr.replaceWith(from, to, newText);
-      view.dispatch(tr);
-      view.focus();
-    } else if (this.editor.isActive('collapse')) {
-      // Remove the node
-      const node = $from.nodeAfter!;
-      const nodeAttrs = node.attrs as CollapseAttributes;
-
-      // Move the cursor
-      const newSelection = TextSelection.create(state.doc, $from.pos);
-      const tr = state.tr;
-      tr.setSelection(newSelection);
-
-      // Remove the node
-      tr.delete($from.pos, $from.pos + 1);
-
-      // Add new text node
-      const newText = schema.text(nodeAttrs['deleted-text']);
-      tr.insert($from.pos, newText);
-      view.dispatch(tr);
-      view.focus();
-    }
-  }
+  //==========================================================================||
+  //                             Private Helpers                              ||
+  //==========================================================================||
 
   /**
    * Helper method to check if the user has selected an edit
@@ -681,7 +693,9 @@ export class PromptLetTextEditor extends LitElement {
     return isActive;
   }
 
-  // ===== Templates and Styles ======
+  //==========================================================================||
+  //                           Templates and Styles                           ||
+  //==========================================================================||
   render() {
     return html` <div class="text-editor-container">
       <div class="text-editor" style="white-space: break-spaces;"></div>

@@ -45,7 +45,16 @@ export class PromptLetWordflow extends LitElement {
     super();
   }
 
-  firstUpdated() {}
+  firstUpdated() {
+    // Observe the app's content size and update menu positions accordingly
+    const observer = new ResizeObserver(entries => {
+      console.log('resized');
+    });
+    const workflowElement = this.renderRoot.querySelector(
+      '.wordflow'
+    ) as HTMLElement;
+    observer.observe(workflowElement);
+  }
 
   /**
    * This method is called before new DOM is updated and rendered
