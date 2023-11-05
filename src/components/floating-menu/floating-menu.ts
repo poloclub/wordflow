@@ -126,6 +126,13 @@ export class PromptLetFloatingMenu extends LitElement {
    */
   toolButtonClickHandler(e: MouseEvent, index: number) {
     e.preventDefault();
+    // Prevent default suppresses ::active, we need to manually trigger it
+    const target = e.target as HTMLElement;
+    target.classList.add('active');
+    setTimeout(() => {
+      target.classList.remove('active');
+    }, 100);
+
     const event = new CustomEvent<Promptlet>('tool-button-clicked', {
       detail: this.activePromptlets[index],
       bubbles: true,
@@ -191,7 +198,7 @@ export class PromptLetFloatingMenu extends LitElement {
       toolButtons = html`${toolButtons}
         <button
           class="tool-button"
-          @click=${(e: MouseEvent) => this.toolButtonClickHandler(e, i)}
+          @mousedown=${(e: MouseEvent) => this.toolButtonClickHandler(e, i)}
           @mouseenter=${(e: MouseEvent) =>
             this.toolButtonMouseEnterHandler(e, i)}
           @mouseleave=${(e: MouseEvent) => this.toolButtonMouseLeaveHandler(e)}

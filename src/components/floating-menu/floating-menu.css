@@ -63,10 +63,12 @@ button {
     vertical-align: center;
     line-height: 1;
     box-sizing: border-box;
+    transition: box-shadow linear 100ms;
+    box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.08);
 
     & svg {
-      width: 1em;
-      height: 1em;
+      width: 15px;
+      height: 15px;
     }
   }
 
@@ -76,13 +78,16 @@ button {
 
   &:hover {
     .svg-icon {
-      background-color: color-mix(in lab, var(--gray-200), white 20%);
+      box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.15);
+      transform: scale(1.05);
     }
   }
 
-  &:active {
+  &:active,
+  &.active {
     .svg-icon {
-      background-color: color-mix(in lab, var(--gray-300), white 20%);
+      box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.15);
+      transform: scale(0.99);
     }
   }
 

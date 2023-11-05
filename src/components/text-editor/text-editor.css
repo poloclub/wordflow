@@ -79,6 +79,11 @@ button {
 }
 
 p {
+  transition: background linear 300ms;
+  /*
+  &::selection {
+  } */
+
   &.highlighted {
     background: linear-gradient(
       135deg,
@@ -90,8 +95,22 @@ p {
       white,
       white
     );
+
     background-size: 900% 900%;
     animation: gradient 3500ms ease-in-out infinite;
+
+    background: linear-gradient(
+      135deg,
+      color-mix(in lab, #f29350, transparent 75%),
+      color-mix(in lab, #c76888, transparent 75%),
+      color-mix(in lab, #8578cd, transparent 75%),
+      color-mix(in lab, #3495dc, transparent 75%),
+      color-mix(in lab, #8578cd, transparent 75%),
+      color-mix(in lab, #c76888, transparent 75%),
+      color-mix(in lab, #f29350, transparent 75%)
+    );
+    background-size: 500% 500%;
+    animation: gradient 3500ms ease-in-out infinite normal both;
   }
 }
 

@@ -621,7 +621,8 @@ export class PromptLetTextEditor extends LitElement {
       console.error('Editor is not initialized yet.');
       return;
     }
-    const { $from, $to } = this.editor.view.state.selection;
+    const { state } = this.editor.view;
+    const { $from, $to } = state.selection;
     const hasSelection = this.isEmptySelection();
 
     // Paragraph mode
@@ -667,6 +668,10 @@ export class PromptLetTextEditor extends LitElement {
           }
         }
       });
+    } else {
+      // Selection mode
+      const oldText = state.doc.textBetween($from.pos, $to.pos);
+      console.log(oldText);
     }
   }
 
