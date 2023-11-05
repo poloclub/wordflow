@@ -70,10 +70,8 @@ export class PromptLetWordflow extends LitElement {
     // Observe the app's content size and update menu positions accordingly
     const observer = new ResizeObserver(() => {
       this.resizeHandler();
-      if (this.textEditorElement) {
-        this.textEditorElement.resizeHandler();
-      }
     });
+
     const workflowElement = this.renderRoot.querySelector(
       '.wordflow'
     ) as HTMLElement;
@@ -171,6 +169,19 @@ export class PromptLetWordflow extends LitElement {
     }
   }
 
+  async updateFloatingMenuXPos() {
+    if (
+      this.centerPanelElement === undefined ||
+      this.floatingMenuBox === undefined
+    ) {
+      console.error('centerPanelElement is undefined');
+      return;
+    }
+    const containerBBox = this.centerPanelElement.getBoundingClientRect();
+    const floatingMenuBox = await this.floatingMenuBox;
+    floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
+  }
+
   // ===== Event Methods ======
   resizeHandler() {
     this.updateSidebarMenuXPos(
@@ -178,6 +189,8 @@ export class PromptLetWordflow extends LitElement {
         ? this.lastUpdateSidebarMenuProps.boxPosition
         : 'left'
     );
+
+    this.updateFloatingMenuXPos();
   }
 
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {

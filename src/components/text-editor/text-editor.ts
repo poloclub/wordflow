@@ -670,14 +670,6 @@ export class PromptLetTextEditor extends LitElement {
     }
   }
 
-  /**
-   * Reposition the floating menu and sidebar menu when the parent is resized
-   */
-  resizeHandler() {
-    console.log('handling!');
-    this.editor?.chain().setMeta('needToRepositionSidebarMenu', true).run();
-  }
-
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
