@@ -8,10 +8,15 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptLetTextEditor } from '../text-editor/text-editor';
+import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
+import { config } from '../../config/config';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
 import type { Promptlet } from '../../types/promptlet';
+import type { VirtualElement } from '@floating-ui/dom';
+import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
+import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
 
 // Components
 import '../text-editor/text-editor';
@@ -20,6 +25,17 @@ import '../floating-menu/floating-menu';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
+
+// Constants
+const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
+
+export interface UpdateSidebarMenuProps {
+  anchor: Element | VirtualElement;
+  boxPosition: 'left' | 'right';
+  mode?: Mode;
+  oldText?: string;
+  newText?: string;
+}
 
 /**
  * Wordflow element.
@@ -40,6 +56,11 @@ export class PromptLetWordflow extends LitElement {
   @query('promptlet-text-editor')
   textEditorElement: PromptLetTextEditor | undefined;
 
+  @query('.center-panel')
+  centerPanelElement: HTMLElement | undefined;
+
+  lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
+
   // ===== Lifecycle Methods ======
   constructor() {
     super();
@@ -47,8 +68,11 @@ export class PromptLetWordflow extends LitElement {
 
   firstUpdated() {
     // Observe the app's content size and update menu positions accordingly
-    const observer = new ResizeObserver(entries => {
-      console.log('resized');
+    const observer = new ResizeObserver(() => {
+      this.resizeHandler();
+      if (this.textEditorElement) {
+        this.textEditorElement.resizeHandler();
+      }
     });
     const workflowElement = this.renderRoot.querySelector(
       '.wordflow'
@@ -65,7 +89,97 @@ export class PromptLetWordflow extends LitElement {
   // ===== Custom Methods ======
   initData = async () => {};
 
+  /**
+   * Update the sidebar menu position and content
+   */
+  updateSidebarMenu = async ({
+    anchor,
+    boxPosition,
+    mode,
+    oldText,
+    newText
+  }: UpdateSidebarMenuProps) => {
+    if (
+      this.centerPanelElement === undefined ||
+      this.popperSidebarBox === undefined
+    ) {
+      console.error('centerPanelElement is undefined');
+      return;
+    }
+
+    const popperElement = await this.popperSidebarBox;
+    const menuElement = popperElement.querySelector(
+      'promptlet-sidebar-menu'
+    ) as PromptLetSidebarMenu;
+
+    // Pass data to the menu component
+    if (mode) menuElement.mode = mode;
+    if (oldText) menuElement.oldText = oldText;
+    if (newText) menuElement.newText = newText;
+
+    // Cache the props
+    this.lastUpdateSidebarMenuProps = {
+      anchor,
+      boxPosition,
+      mode: menuElement.mode,
+      oldText: menuElement.oldText,
+      newText: menuElement.newText
+    };
+
+    computePosition(anchor, popperElement, {
+      placement: 'right',
+      middleware: [offset(0), flip(), shift()]
+    }).then(({ y }) => {
+      this.updateSidebarMenuXPos(boxPosition);
+      popperElement.style.top = `${y}px`;
+    });
+  };
+
+  async updateSidebarMenuXPos(boxPosition: 'left' | 'right') {
+    if (
+      this.centerPanelElement === undefined ||
+      this.popperSidebarBox === undefined
+    ) {
+      console.error('centerPanelElement is undefined');
+      return;
+    }
+
+    const popperElement = await this.popperSidebarBox;
+    const containerBBox = this.centerPanelElement.getBoundingClientRect();
+    const menuElement = popperElement.querySelector(
+      'promptlet-sidebar-menu'
+    ) as PromptLetSidebarMenu;
+
+    if (boxPosition === 'left') {
+      // Set the 'is-on-left' property of the component
+      menuElement.isOnLeft = true;
+
+      const offsetParentBBox =
+        popperElement.offsetParent!.getBoundingClientRect();
+      popperElement.style.left = 'unset';
+      popperElement.style.right = `${
+        offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
+      }px`;
+    } else {
+      // Set the 'is-on-left' property of the component
+      menuElement.isOnLeft = false;
+
+      popperElement.style.right = 'unset';
+      popperElement.style.left = `${
+        containerBBox.x + containerBBox.width + MENU_X_OFFSET
+      }px`;
+    }
+  }
+
   // ===== Event Methods ======
+  resizeHandler() {
+    this.updateSidebarMenuXPos(
+      this.lastUpdateSidebarMenuProps
+        ? this.lastUpdateSidebarMenuProps.boxPosition
+        : 'left'
+    );
+  }
+
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
@@ -100,12 +214,16 @@ export class PromptLetWordflow extends LitElement {
             <promptlet-text-editor
               .popperSidebarBox=${this.popperSidebarBox}
               .floatingMenuBox=${this.floatingMenuBox}
+              .updateSidebarMenu=${this.updateSidebarMenu}
             ></promptlet-text-editor>
           </div>
         </div>
         <div class="right-panel"></div>
 
-        <div class="popper-box hidden" id="popper-sidebar-box">
+        <div
+          class="popper-box popper-sidebar-menu hidden"
+          id="popper-sidebar-box"
+        >
           <promptlet-sidebar-menu
             id="right-sidebar-menu"
             @footer-button-clicked=${(e: CustomEvent<string>) =>

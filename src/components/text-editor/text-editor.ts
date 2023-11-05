@@ -26,6 +26,7 @@ import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
 import type { Promptlet } from '../../types/promptlet';
 import type { ResolvedPos } from '@tiptap/pm/model';
+import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -63,6 +64,11 @@ export class PromptLetTextEditor extends LitElement {
 
   @property({ attribute: false })
   floatingMenuBox: Promise<HTMLElement> | undefined;
+
+  @property({ attribute: false })
+  updateSidebarMenu:
+    | ((props: UpdateSidebarMenuProps) => Promise<void>)
+    | undefined;
 
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
@@ -131,7 +137,8 @@ export class PromptLetTextEditor extends LitElement {
       this.selectMenuElement === undefined ||
       this.containerElement === undefined ||
       this.floatingMenuBox === undefined ||
-      this.popperSidebarBox === undefined
+      this.popperSidebarBox === undefined ||
+      this.updateSidebarMenu === undefined
     ) {
       console.error(
         'Text editor / select menu element is not added to DOM yet!'
@@ -178,7 +185,8 @@ export class PromptLetTextEditor extends LitElement {
 
     const popperOptions: PopperOptions = {
       popperSidebarBox: this.popperSidebarBox,
-      containerBBox: this.containerBBox
+      containerBBox: this.containerBBox,
+      updateSidebarMenu: this.updateSidebarMenu
     };
 
     const mySidebarMenu = SidebarMenu.configure({
@@ -660,6 +668,14 @@ export class PromptLetTextEditor extends LitElement {
         }
       });
     }
+  }
+
+  /**
+   * Reposition the floating menu and sidebar menu when the parent is resized
+   */
+  resizeHandler() {
+    console.log('handling!');
+    this.editor?.chain().setMeta('needToRepositionSidebarMenu', true).run();
   }
 
   //==========================================================================||
