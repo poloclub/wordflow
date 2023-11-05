@@ -18,7 +18,7 @@ export interface Promptlet {
   tags: string[];
 
   /** A simple regex rule to parse the output */
-  outputParser: string;
+  outputParser: RegExp;
 
   /** A unicode character used as an icon for the promptlet (can be emoji) */
   iconUnicode: string;

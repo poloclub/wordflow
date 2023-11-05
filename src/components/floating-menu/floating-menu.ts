@@ -20,7 +20,7 @@ const createPromptlet = ({
   prompt = '',
   temperature = 0.2,
   tags = [],
-  outputParser = '',
+  outputParser = /(.*)/,
   iconUnicode = ''
 }: {
   name?: string;
@@ -28,7 +28,7 @@ const createPromptlet = ({
   prompt?: string;
   temperature?: number;
   tags?: string[];
-  outputParser?: string;
+  outputParser?: RegExp;
   iconUnicode?: string;
 }) => {
   const promptlet: Promptlet = {
@@ -64,7 +64,7 @@ export class PromptLetFloatingMenu extends LitElement {
     const promptlet1 = createPromptlet({
       name: 'Improve academic ML paper writing',
       prompt: mlPrompt.prompt,
-      outputParser: '/.*<o>(.*?)</o>.*/',
+      outputParser: /.*<output>(.*?)<\/output>.*/,
       iconUnicode: '🎓'
     });
     const promptlet2 = createPromptlet({
@@ -75,7 +75,7 @@ export class PromptLetFloatingMenu extends LitElement {
       name: 'Translate the text to Japanese',
       prompt:
         'Translate the text in <input></input> from English to Japanese. Your output should be put in <output></output>.\n<input>{{text}}</input>',
-      outputParser: '/(.*?)/',
+      outputParser: /(.*?)/,
       iconUnicode: '🇯🇵'
     });
     this.activePromptlets = [promptlet1, promptlet2, promptlet3];

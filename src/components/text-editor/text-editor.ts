@@ -633,7 +633,12 @@ export class PromptLetTextEditor extends LitElement {
       const oldText = paragraphNode.textContent;
 
       const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
-      textGenGpt(this.apiKey!, 'text-gen', curPrompt, 0.2).then(message => {
+      textGenGpt(
+        this.apiKey!,
+        'text-gen',
+        curPrompt,
+        promptlet.temperature
+      ).then(message => {
         switch (message.command) {
           case 'finishTextGen': {
             if (this.editor === null) {
@@ -641,7 +646,6 @@ export class PromptLetTextEditor extends LitElement {
               return;
             }
 
-            console.log(message);
             const newText = message.payload.result.replace(
               promptlet.outputParser,
               '$1'
@@ -657,7 +661,8 @@ export class PromptLetTextEditor extends LitElement {
                   from: paragraphPos,
                   to: paragraphPos + paragraphNode.nodeSize
                 },
-                diffText
+                diffText,
+                { updateSelection: true }
               )
               .run();
             break;
@@ -671,7 +676,49 @@ export class PromptLetTextEditor extends LitElement {
     } else {
       // Selection mode
       const oldText = state.doc.textBetween($from.pos, $to.pos);
-      console.log(oldText);
+      const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
+
+      textGenGpt(
+        this.apiKey!,
+        'text-gen',
+        curPrompt,
+        promptlet.temperature
+      ).then(message => {
+        switch (message.command) {
+          case 'finishTextGen': {
+            if (this.editor === null) {
+              console.error('Editor is not initialized');
+              return;
+            }
+
+            const newText = message.payload.result.replace(
+              promptlet.outputParser,
+              '$1'
+            );
+            let diffText = this.diffParagraph(oldText, newText);
+            diffText = `${diffText}`;
+
+            this.editor
+              .chain()
+              .focus()
+              .insertContentAt(
+                {
+                  from: $from.pos,
+                  to: $to.pos
+                },
+                diffText,
+                { updateSelection: true }
+              )
+              .joinBackward()
+              .run();
+            break;
+          }
+
+          case 'error': {
+            console.error('Failed to generate text', message.payload);
+          }
+        }
+      });
     }
   }
 
