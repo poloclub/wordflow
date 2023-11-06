@@ -5,20 +5,15 @@ import {
   mergeAttributes
 } from '@tiptap/core';
 
-export interface EditHighlightAttributes {
-  color: string;
-  oldText: string;
-  id: string;
-}
+export interface LoadingHighlightAttributes {}
 
 export interface HighlightOptions {
-  multicolor: boolean;
-  HTMLAttributes: EditHighlightAttributes;
+  HTMLAttributes: LoadingHighlightAttributes;
 }
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    highlight: {
+    loadingHighlight: {
       /**
        * Set a highlight mark
        */
@@ -38,56 +33,18 @@ declare module '@tiptap/core' {
 export const inputRegex = /(?:^|\s)((?:==)((?:[^~=]+))(?:==))$/;
 export const pasteRegex = /(?:^|\s)((?:==)((?:[^~=]+))(?:==))/g;
 
-export const EditHighlight = Mark.create<HighlightOptions>({
-  name: 'edit-highlight',
+export const LoadingHighlight = Mark.create<HighlightOptions>({
+  name: 'loading-highlight',
 
   addOptions() {
     return {
       multicolor: true,
-      HTMLAttributes: {
-        color: '',
-        oldText: '',
-        id: ''
-      }
+      HTMLAttributes: {}
     };
   },
 
   addAttributes() {
-    if (!this.options.multicolor) {
-      return {};
-    }
-
-    return {
-      color: {
-        default: null,
-        parseHTML: element =>
-          element.getAttribute('data-color') || element.style.backgroundColor,
-        renderHTML: attributes => {
-          return {
-            'data-color': attributes.color as string,
-            style: `background-color: ${attributes.color}; color: inherit;`
-          };
-        }
-      },
-      oldText: {
-        default: '',
-        parseHTML: element => element.getAttribute('data-old-text'),
-        renderHTML: attributes => {
-          return {
-            'data-old-text': attributes.oldText as string
-          };
-        }
-      },
-      id: {
-        default: '',
-        parseHTML: element => element.getAttribute('id'),
-        renderHTML: attributes => {
-          return {
-            id: attributes.id as string
-          };
-        }
-      }
-    };
+    return {};
   },
 
   parseHTML() {
@@ -101,7 +58,9 @@ export const EditHighlight = Mark.create<HighlightOptions>({
   renderHTML({ HTMLAttributes }) {
     return [
       'mark',
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        class: 'loading-highlight'
+      }),
       0
     ];
   },

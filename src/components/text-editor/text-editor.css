@@ -85,16 +85,16 @@ button {
       background: linear-gradient(
         135deg,
         white,
-        white,
+        hsla(0, 0%, 99%, 1),
         hsla(0, 0%, 96%, 1),
         hsla(0, 0%, 92%, 1),
         hsla(0, 0%, 96%, 1),
-        white,
+        hsla(0, 0%, 99%, 1),
         white
       );
 
       background-size: 900% 900%;
-      animation: gradient 3500ms ease-in-out infinite;
+      animation: gradient 4000ms ease-in-out infinite;
     }
   }
 }
@@ -103,9 +103,6 @@ button {
 .text-editor {
   p {
     transition: background linear 300ms;
-    /*
-  &::selection {
-  } */
 
     &.is-loading {
       background: linear-gradient(
@@ -133,5 +130,26 @@ button {
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+mark {
+  &.loading-highlight {
+    background: linear-gradient(
+      135deg,
+      color-mix(in lab, #f29350, transparent 75%),
+      color-mix(in lab, #c76888, transparent 75%),
+      color-mix(in lab, #8578cd, transparent 75%),
+      color-mix(in lab, #3495dc, transparent 75%),
+      color-mix(in lab, #8578cd, transparent 75%),
+      color-mix(in lab, #c76888, transparent 75%),
+      color-mix(in lab, #f29350, transparent 75%)
+    );
+    background-size: 500% 500%;
+    animation: gradient 4500ms ease-in-out infinite normal both;
+
+    &::selection {
+      background-color: transparent;
+    }
   }
 }

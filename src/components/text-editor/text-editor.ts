@@ -13,6 +13,7 @@ import Text from '@tiptap/extension-text';
 import Paragraph from '@tiptap/extension-paragraph';
 import StarterKit from '@tiptap/starter-kit';
 import { EditHighlight } from './edit-highlight';
+import { LoadingHighlight } from './loading-highlight';
 import { Collapse } from './collapse-node';
 import { SidebarMenu } from './sidebar-menu-plugin';
 import { TextSelection } from '@tiptap/pm/state';
@@ -196,6 +197,8 @@ export class PromptLetTextEditor extends LitElement {
       multicolor: true
     });
 
+    const myLoadingHighlight = LoadingHighlight.configure({});
+
     const popperOptions: PopperOptions = {
       popperSidebarBox: this.popperSidebarBox,
       containerBBox: this.containerBBox,
@@ -220,6 +223,7 @@ export class PromptLetTextEditor extends LitElement {
         myParagraph,
         myText,
         myEditHighlight,
+        myLoadingHighlight,
         Collapse,
         mySidebarMenu,
         myEventHandler
@@ -674,6 +678,15 @@ export class PromptLetTextEditor extends LitElement {
       });
     } else {
       // Selection mode
+      // Set the highlight
+      this.editor
+        .chain()
+        .focus()
+        .setMeta('addToHistory', false)
+        .setMark('loading-highlight')
+        .run();
+
+      // Generate new text
       const oldText = state.doc.textBetween($from.pos, $to.pos);
       const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
 
@@ -683,6 +696,20 @@ export class PromptLetTextEditor extends LitElement {
         curPrompt,
         promptlet.temperature
       ).then(message => {
+        if (this.editor === null) {
+          console.error('Editor is not initialized yet.');
+          return;
+        }
+        this._dispatchLoadingFinishedEvent();
+
+        // Remove the highlight
+        this.editor
+          .chain()
+          .focus()
+          .setMeta('addToHistory', false)
+          .unsetMark('loading-highlight', { extendEmptyMarkRange: true })
+          .run();
+
         switch (message.command) {
           case 'finishTextGen': {
             if (this.editor === null) {
@@ -785,6 +812,9 @@ export class PromptLetTextEditor extends LitElement {
     this.editor.view.dispatch(tr);
   }
 
+  /**
+   * Notify the parent that the loading is finished.
+   */
   _dispatchLoadingFinishedEvent() {
     const event = new Event('loading-finished', {
       bubbles: true,
