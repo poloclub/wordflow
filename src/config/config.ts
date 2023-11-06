@@ -8,7 +8,7 @@ const time = {
 
 const customColors = {
   addedColor: 'hsl(120, 37%, 88%)',
-  replacedColor: 'hsl(35, 100%, 87%)',
+  replacedColor: 'hsl(35, 100%, 89%)',
   deletedColor: 'hsl(353, 100%, 93%)'
 };
 

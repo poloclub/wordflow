@@ -53,6 +53,9 @@ export class PromptLetFloatingMenu extends LitElement {
   @property({ attribute: false })
   popperTooltip: Promise<HTMLElement> | undefined;
 
+  @property({ type: Number })
+  loadingActionIndex: number | null = null;
+
   @state()
   activePromptlets: Promptlet[] = [];
 
@@ -69,13 +72,15 @@ export class PromptLetFloatingMenu extends LitElement {
     });
     const promptlet2 = createPromptlet({
       name: 'Improve NSF grant proposal writing',
+      prompt:
+        'You are an experienced Academic researcher who has been awarded over 100 NSF grants. Make the text in <input></input> more grand, engaging, academic, and compelling for an NSF grant proposal. Your output should imply that the work has both significant intellectual merit and broader impact. Do not add new information. Keep the output same length as the input text. Keep the output same length as the input text. Your output should be put in <output></output>.\n <input>{{text}}</input>',
       iconUnicode: '💰'
     });
     const promptlet3 = createPromptlet({
       name: 'Translate the text to Japanese',
       prompt:
         'Translate the text in <input></input> from English to Japanese. Your output should be put in <output></output>.\n<input>{{text}}</input>',
-      outputParser: /(.*?)/,
+      outputParser: /.*<output>(.*?)<\/output>.*/,
       iconUnicode: '🇯🇵'
     });
     this.activePromptlets = [promptlet1, promptlet2, promptlet3];
@@ -126,6 +131,10 @@ export class PromptLetFloatingMenu extends LitElement {
    */
   toolButtonClickHandler(e: MouseEvent, index: number) {
     e.preventDefault();
+
+    // Do not respond to interactions when an action is laoding
+    if (this.loadingActionIndex !== null) return;
+
     // Prevent default suppresses ::active, we need to manually trigger it
     const target = e.target as HTMLElement;
     target.classList.add('active');
@@ -133,8 +142,8 @@ export class PromptLetFloatingMenu extends LitElement {
       target.classList.remove('active');
     }, 100);
 
-    const event = new CustomEvent<Promptlet>('tool-button-clicked', {
-      detail: this.activePromptlets[index],
+    const event = new CustomEvent<[Promptlet, number]>('tool-button-clicked', {
+      detail: [this.activePromptlets[index], index],
       bubbles: true,
       composed: true
     });
@@ -198,12 +207,21 @@ export class PromptLetFloatingMenu extends LitElement {
       toolButtons = html`${toolButtons}
         <button
           class="tool-button"
+          ?is-loading=${this.loadingActionIndex === i}
           @mousedown=${(e: MouseEvent) => this.toolButtonClickHandler(e, i)}
           @mouseenter=${(e: MouseEvent) =>
             this.toolButtonMouseEnterHandler(e, i)}
           @mouseleave=${(e: MouseEvent) => this.toolButtonMouseLeaveHandler(e)}
         >
-          <div class="svg-icon">${icon}</div>
+          <div class="svg-icon">
+            ${icon}
+            <div
+              class="loader-container"
+              ?hidden=${this.loadingActionIndex !== i}
+            >
+              <div class="circle-loader"></div>
+            </div>
+          </div>
         </button>`;
     }
 
@@ -211,6 +229,7 @@ export class PromptLetFloatingMenu extends LitElement {
       <div class="floating-menu">
         <div
           class="tool-buttons"
+          ?has-loading-action=${this.loadingActionIndex !== null}
           @mouseenter=${(e: MouseEvent) =>
             this.toolButtonGroupMouseEnterHandler(e)}
           @mouseleave=${(e: MouseEvent) =>

@@ -59,7 +59,8 @@ export const textGenGpt = async (
   const cachedValue = localStorage.getItem('[gpt]' + prompt);
   if (useCache && cachedValue !== null) {
     console.log('Use cached output (text gen)');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 100000));
     const message: TextGenMessage = {
       command: 'finishTextGen',
       payload: {

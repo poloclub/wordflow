@@ -59,6 +59,12 @@ export class PromptLetWordflow extends LitElement {
   @query('.center-panel')
   centerPanelElement: HTMLElement | undefined;
 
+  @query('.wordflow')
+  workflowElement: HTMLElement | undefined;
+
+  @state()
+  loadingActionIndex: number | null = null;
+
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
   // ===== Lifecycle Methods ======
@@ -67,15 +73,15 @@ export class PromptLetWordflow extends LitElement {
   }
 
   firstUpdated() {
+    if (this.workflowElement === undefined) {
+      throw Error('workflowElement undefined.');
+    }
     // Observe the app's content size and update menu positions accordingly
     const observer = new ResizeObserver(() => {
       this.resizeHandler();
     });
 
-    const workflowElement = this.renderRoot.querySelector(
-      '.wordflow'
-    ) as HTMLElement;
-    observer.observe(workflowElement);
+    observer.observe(this.workflowElement);
   }
 
   /**
@@ -211,10 +217,18 @@ export class PromptLetWordflow extends LitElement {
     this.textEditorElement.floatingMenuToolsMouseLeaveHandler();
   }
 
-  floatingMenuToolButtonClickHandler(e: CustomEvent<Promptlet>) {
+  floatingMenuToolButtonClickHandler(e: CustomEvent<[Promptlet, number]>) {
+    if (this.workflowElement === undefined) {
+      throw Error('workflowElement is undefined');
+    }
+
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
-    this.textEditorElement.floatingMenuToolButtonClickHandler(e.detail);
+    const [promptlet, index] = e.detail;
+    this.textEditorElement.floatingMenuToolButtonClickHandler(promptlet);
+
+    // Start the loading animation
+    this.loadingActionIndex = index;
   }
 
   // ===== Templates and Styles ======
@@ -252,10 +266,11 @@ export class PromptLetWordflow extends LitElement {
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <promptlet-floating-menu
             .popperTooltip=${this.popperTooltip}
+            .loadingActionIndex=${this.loadingActionIndex}
             @mouse-enter-tools=${() => this.floatingMenuToolMouseEnterHandler()}
             @mouse-leave-tools=${() =>
               this.floatingMenuToolsMouseLeaveHandler()}
-            @tool-button-clicked=${(e: CustomEvent<Promptlet>) =>
+            @tool-button-clicked=${(e: CustomEvent<[Promptlet, number]>) =>
               this.floatingMenuToolButtonClickHandler(e)}
           ></promptlet-floating-menu>
         </div>

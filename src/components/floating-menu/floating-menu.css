@@ -35,6 +35,18 @@
   }
 }
 
+.tool-buttons {
+  &[has-loading-action] {
+    button {
+      cursor: not-allowed;
+
+      &[is-loading] {
+        cursor: progress;
+      }
+    }
+  }
+}
+
 button {
   --padding: 4px;
   all: unset;
@@ -48,6 +60,7 @@ button {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
 
   .svg-icon {
     width: 28px;
@@ -55,6 +68,7 @@ button {
 
     border-radius: 100%;
     border: 1px solid var(--gray-300);
+    position: relative;
 
     color: var(--gray-700);
     font-size: 1em;
@@ -103,5 +117,67 @@ button {
     padding-top: calc(var(--padding) + 1px);
     padding-bottom: calc(var(--padding) + 4px);
     border-top: 1px solid var(--gray-300);
+  }
+}
+
+.loader-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  white-space: nowrap;
+  line-height: 1;
+  border-radius: 50%;
+
+  background: conic-gradient(
+    color-mix(in lab, #f29350, transparent 0%),
+    color-mix(in lab, #c76888, transparent 0%),
+    color-mix(in lab, #8578cd, transparent 0%),
+    color-mix(in lab, #3495dc, transparent 0%),
+    color-mix(in lab, #8578cd, transparent 0%),
+    color-mix(in lab, #c76888, transparent 0%),
+    color-mix(in lab, #f29350, transparent 0%)
+  );
+
+  transition: opacity 100ms ease-in-out;
+  opacity: 1;
+
+  &[hidden] {
+    display: none;
+    pointer-events: none;
+  }
+
+  .circle-loader {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 4px solid;
+    border-color: hsla(0, 100%, 100%, 0.75);
+    border-right-color: hsla(0, 100%, 100%, 0.1);
+    animation: circle-loader-animation 1s infinite linear;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      background-color: white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      top: 50%;
+      left: 50%;
+    }
+  }
+}
+
+@keyframes circle-loader-animation {
+  to {
+    transform: rotate(1turn);
   }
 }
