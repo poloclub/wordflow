@@ -213,8 +213,10 @@ export class PromptLetFloatingMenu extends LitElement {
             this.toolButtonMouseEnterHandler(e, i)}
           @mouseleave=${(e: MouseEvent) => this.toolButtonMouseLeaveHandler(e)}
         >
-          <div class="svg-icon">
-            ${icon}
+          <div class="icon">
+            <div class="svg-icon">
+              ${this.loadingActionIndex === i ? '' : icon}
+            </div>
             <div
               class="loader-container"
               ?hidden=${this.loadingActionIndex !== i}

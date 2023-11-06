@@ -47,6 +47,11 @@
   }
 }
 
+.icon {
+  display: flex;
+  position: relative;
+}
+
 button {
   --padding: 4px;
   all: unset;
@@ -117,6 +122,15 @@ button {
     padding-top: calc(var(--padding) + 1px);
     padding-bottom: calc(var(--padding) + 4px);
     border-top: 1px solid var(--gray-300);
+  }
+}
+
+/* Special rule for safari to scale down the emojis */
+@supports (font: -apple-system-body) and (-webkit-appearance: none) {
+  button {
+    .svg-icon {
+      font-size: 13px;
+    }
   }
 }
 

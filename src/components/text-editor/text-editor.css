@@ -1,13 +1,12 @@
 .text-editor-container {
   width: 100%;
-  height: 100%;
-  padding: 60px 50px 0 50px;
+  min-height: 100vh;
+  padding: 60px 70px;
   background-color: white;
 
   display: flex;
   box-sizing: border-box;
   position: relative;
-  overflow-y: auto;
 }
 
 .text-editor {
@@ -80,7 +79,7 @@ button {
 
 /* Need to condition the is-highlighted to hack undo capturing highlighting state */
 .text-editor[is-hovering-floating-menu] {
-  p {
+  & p {
     &.is-highlighted {
       background: linear-gradient(
         135deg,
@@ -101,7 +100,7 @@ button {
 
 .text-editor[is-hovering-floating-menu],
 .text-editor {
-  p {
+  & p {
     transition: background linear 300ms;
 
     &.is-loading {
