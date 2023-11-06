@@ -231,6 +231,10 @@ export class PromptLetWordflow extends LitElement {
     this.loadingActionIndex = index;
   }
 
+  textEditorLoadingFinishedHandler() {
+    this.loadingActionIndex = null;
+  }
+
   // ===== Templates and Styles ======
   render() {
     return html`
@@ -242,6 +246,7 @@ export class PromptLetWordflow extends LitElement {
               .popperSidebarBox=${this.popperSidebarBox}
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
+              @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
             ></promptlet-text-editor>
           </div>
         </div>

@@ -78,39 +78,49 @@ button {
   }
 }
 
-p {
-  transition: background linear 300ms;
-  /*
+/* Need to condition the is-highlighted to hack undo capturing highlighting state */
+.text-editor[is-hovering-floating-menu] {
+  p {
+    &.is-highlighted {
+      background: linear-gradient(
+        135deg,
+        white,
+        white,
+        hsla(0, 0%, 96%, 1),
+        hsla(0, 0%, 92%, 1),
+        hsla(0, 0%, 96%, 1),
+        white,
+        white
+      );
+
+      background-size: 900% 900%;
+      animation: gradient 3500ms ease-in-out infinite;
+    }
+  }
+}
+
+.text-editor[is-hovering-floating-menu],
+.text-editor {
+  p {
+    transition: background linear 300ms;
+    /*
   &::selection {
   } */
 
-  &.highlighted {
-    background: linear-gradient(
-      135deg,
-      white,
-      white,
-      hsla(0, 0%, 96%, 1),
-      hsla(0, 0%, 92%, 1),
-      hsla(0, 0%, 96%, 1),
-      white,
-      white
-    );
-
-    background-size: 900% 900%;
-    animation: gradient 3500ms ease-in-out infinite;
-
-    background: linear-gradient(
-      135deg,
-      color-mix(in lab, #f29350, transparent 75%),
-      color-mix(in lab, #c76888, transparent 75%),
-      color-mix(in lab, #8578cd, transparent 75%),
-      color-mix(in lab, #3495dc, transparent 75%),
-      color-mix(in lab, #8578cd, transparent 75%),
-      color-mix(in lab, #c76888, transparent 75%),
-      color-mix(in lab, #f29350, transparent 75%)
-    );
-    background-size: 500% 500%;
-    animation: gradient 3500ms ease-in-out infinite normal both;
+    &.is-loading {
+      background: linear-gradient(
+        135deg,
+        color-mix(in lab, #f29350, transparent 75%),
+        color-mix(in lab, #c76888, transparent 75%),
+        color-mix(in lab, #8578cd, transparent 75%),
+        color-mix(in lab, #3495dc, transparent 75%),
+        color-mix(in lab, #8578cd, transparent 75%),
+        color-mix(in lab, #c76888, transparent 75%),
+        color-mix(in lab, #f29350, transparent 75%)
+      );
+      background-size: 500% 500%;
+      animation: gradient 3500ms ease-in-out infinite normal both;
+    }
   }
 }
 

@@ -17,6 +17,7 @@ import { Collapse } from './collapse-node';
 import { SidebarMenu } from './sidebar-menu-plugin';
 import { TextSelection } from '@tiptap/pm/state';
 import { EventHandler } from './event-handler';
+import { closeHistory } from '@tiptap/pm/history';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -78,6 +79,9 @@ export class PromptLetTextEditor extends LitElement {
 
   @query('.select-menu')
   selectMenuElement: HTMLElement | undefined;
+
+  @state()
+  isHoveringFloatingMenu = false;
 
   editor: Editor | null = null;
   initialText = OLD_TEXT;
@@ -165,7 +169,16 @@ export class PromptLetTextEditor extends LitElement {
             parseHTML: element => element.getAttribute('is-highlighted'),
             renderHTML: attributes => {
               return {
-                class: attributes['is-highlighted'] ? 'highlighted' : null
+                class: attributes['is-highlighted'] ? 'is-highlighted' : null
+              };
+            }
+          },
+          'is-loading': {
+            default: null,
+            parseHTML: element => element.getAttribute('is-loading'),
+            renderHTML: attributes => {
+              return {
+                class: attributes['is-loading'] ? 'is-loading' : null
               };
             }
           }
@@ -563,24 +576,13 @@ export class PromptLetTextEditor extends LitElement {
       console.error('Editor is not initialized yet.');
       return;
     }
+    this.isHoveringFloatingMenu = true;
     const { $from, $to } = this.editor.view.state.selection;
     const hasSelection = this.isEmptySelection();
 
     // Highlight the paragraph
     if (!hasSelection) {
-      // Find the paragraph node of the cursor's region
-      const paragraphNode = $from.node(1);
-      const paragraphPos = $from.before(1);
-
-      // Update the node's attributes to include the highlighted class
-      const updatedAttrs = {
-        ...paragraphNode.attrs
-      };
-      updatedAttrs['is-highlighted'] = 'true';
-
-      const tr = this.editor.view.state.tr;
-      tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
-      this.editor.view.dispatch(tr);
+      this._setParagraphAttribute($from, 'is-highlighted', 'true');
     }
   }
 
@@ -592,24 +594,13 @@ export class PromptLetTextEditor extends LitElement {
       console.error('Editor is not initialized yet.');
       return;
     }
+    this.isHoveringFloatingMenu = false;
     const { $from, $to } = this.editor.view.state.selection;
     const hasSelection = this.isEmptySelection();
 
     // Highlight the paragraph
     if (!hasSelection) {
-      // Find the paragraph node of the cursor's region
-      const paragraphNode = $from.node(1);
-      const paragraphPos = $from.before(1);
-
-      // Update the node's attributes to include the highlighted class
-      const updatedAttrs = {
-        ...paragraphNode.attrs
-      };
-      updatedAttrs['is-highlighted'] = null;
-
-      const tr = this.editor.view.state.tr;
-      tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
-      this.editor.view.dispatch(tr);
+      this._setParagraphAttribute($from, 'is-highlighted', null);
     }
   }
 
@@ -627,6 +618,10 @@ export class PromptLetTextEditor extends LitElement {
 
     // Paragraph mode
     if (!hasSelection) {
+      // Change the highlight style
+      this._setParagraphAttribute($from, 'is-highlighted', null);
+      this._setParagraphAttribute($from, 'is-loading', 'true');
+
       // Find the paragraph node of the cursor's region
       const paragraphNode = $from.node(1);
       const paragraphPos = $from.before(1);
@@ -639,6 +634,10 @@ export class PromptLetTextEditor extends LitElement {
         curPrompt,
         promptlet.temperature
       ).then(message => {
+        // Cancel the loading style
+        this._setParagraphAttribute($from, 'is-loading', null);
+        this._dispatchLoadingFinishedEvent();
+
         switch (message.command) {
           case 'finishTextGen': {
             if (this.editor === null) {
@@ -753,12 +752,56 @@ export class PromptLetTextEditor extends LitElement {
     return isActive;
   }
 
+  /**
+   * Set the attribute of the current paragraph node
+   * @param $from From position of the selection
+   * @param attribute Attribute name
+   * @param value Attribute value
+   * @returns void
+   */
+  _setParagraphAttribute(
+    $from: ResolvedPos,
+    attribute: string,
+    value: string | null
+  ) {
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
+    // Find the paragraph node of the cursor's region
+    const paragraphNode = $from.node(1);
+    const paragraphPos = $from.before(1);
+
+    // Update the node's attributes to include the highlighted class
+    const updatedAttrs = {
+      ...paragraphNode.attrs
+    };
+    updatedAttrs[attribute] = value;
+
+    const tr = this.editor.view.state.tr;
+    tr.setNodeMarkup(paragraphPos, null, updatedAttrs);
+    tr.setMeta('addToHistory', false);
+    this.editor.view.dispatch(tr);
+  }
+
+  _dispatchLoadingFinishedEvent() {
+    const event = new Event('loading-finished', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   //==========================================================================||
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
     return html` <div class="text-editor-container">
-      <div class="text-editor" style="white-space: break-spaces;"></div>
+      <div
+        class="text-editor"
+        ?is-hovering-floating-menu=${this.isHoveringFloatingMenu}
+      ></div>
       <div class="control-panel">
         <button
           class="control-button"
