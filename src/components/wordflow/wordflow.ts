@@ -79,7 +79,6 @@ export class PromptLetWordflow extends LitElement {
     }
     // Observe the app's content size and update menu positions accordingly
     const observer = new ResizeObserver(() => {
-      console.log('resized');
       this.resizeHandler();
     });
 

@@ -43,6 +43,7 @@ const clickHandler = async (
   // Need to bound the box inside the view
   const floatingMenuBoxBBox = floatingMenuBox.getBoundingClientRect();
   const windowHeight = window.innerHeight;
+  const invisibleHeight = window.scrollY;
 
   // Get the line height in the editor element
   const lineHeight = parseInt(
@@ -50,9 +51,14 @@ const clickHandler = async (
   );
 
   const PADDING_OFFSET = 5;
-  const minTop = floatingMenuBoxBBox.height / 2 + PADDING_OFFSET;
-  const maxTop = windowHeight - floatingMenuBoxBBox.height / 2 - PADDING_OFFSET;
-  const idealTop = cursorCoordinate.top + lineHeight / 2;
+  const minTop =
+    invisibleHeight + floatingMenuBoxBBox.height / 2 + PADDING_OFFSET;
+  const maxTop =
+    windowHeight +
+    invisibleHeight -
+    floatingMenuBoxBBox.height / 2 -
+    PADDING_OFFSET;
+  const idealTop = cursorCoordinate.top + invisibleHeight + lineHeight / 2;
   const boundedTop = Math.min(maxTop, Math.max(minTop, idealTop));
 
   floatingMenuBox.style.top = `${boundedTop}px`;
