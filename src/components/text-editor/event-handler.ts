@@ -4,7 +4,7 @@ import { EditorView } from '@tiptap/pm/view';
 import { Editor } from '@tiptap/core';
 
 export interface EventHandlerProps {
-  containerBBox: DOMRect;
+  updateFloatingMenuXPos: () => Promise<void>;
   floatingMenuBox: Promise<HTMLElement>;
 }
 
@@ -25,12 +25,17 @@ export const EventHandler = Extension.create<EventHandlerProps>({
   }
 });
 
+/**
+ * Update the position of the floating window
+ * @param options Props
+ * @param editor Editor
+ * @param view Editor view
+ */
 const clickHandler = async (
   options: EventHandlerProps,
   editor: Editor,
   view: EditorView
 ) => {
-  const containerBBox = options.containerBBox;
   const floatingMenuBox = await options.floatingMenuBox;
   const $from = view.state.selection.$from;
   const cursorCoordinate = view.coordsAtPos($from.pos);
@@ -50,6 +55,6 @@ const clickHandler = async (
   const idealTop = cursorCoordinate.top + lineHeight / 2;
   const boundedTop = Math.min(maxTop, Math.max(minTop, idealTop));
 
-  floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
   floatingMenuBox.style.top = `${boundedTop}px`;
+  options.updateFloatingMenuXPos();
 };

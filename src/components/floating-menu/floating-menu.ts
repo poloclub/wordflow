@@ -73,7 +73,7 @@ export class PromptLetFloatingMenu extends LitElement {
     const promptlet2 = createPromptlet({
       name: 'Improve NSF grant proposal writing',
       prompt:
-        'You are an experienced Academic researcher who has been awarded over 100 NSF grants. Make the text in <input></input> more grand, engaging, academic, and compelling for an NSF grant proposal. Your output should imply that the work has both significant intellectual merit and broader impact. Do not add new information. Keep the output same length as the input text. Keep the output same length as the input text. Your output should be put in <output></output>.\n <input>{{text}}</input>',
+        'You are an experienced Academic researcher who has been awarded over 100 NSF grants. Make the text in <input></input> more grand, engaging, academic, and compelling for an NSF grant proposal. Your output should imply that the work has both significant intellectual merit and broader impact. Do not add new information. Keep the output same length as the input text. Keep the output same length as the input text. Do not add new content. Your output should be put in <output></output>.\n <input>{{text}}</input>',
       iconUnicode: '💰'
     });
     const promptlet3 = createPromptlet({

@@ -17,6 +17,7 @@ import type { Promptlet } from '../../types/promptlet';
 import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
+import type { ResolvedPos } from '@tiptap/pm/model';
 
 // Components
 import '../text-editor/text-editor';
@@ -78,6 +79,7 @@ export class PromptLetWordflow extends LitElement {
     }
     // Observe the app's content size and update menu positions accordingly
     const observer = new ResizeObserver(() => {
+      console.log('resized');
       this.resizeHandler();
     });
 
@@ -175,7 +177,7 @@ export class PromptLetWordflow extends LitElement {
     }
   }
 
-  async updateFloatingMenuXPos() {
+  updateFloatingMenuXPos = async () => {
     if (
       this.centerPanelElement === undefined ||
       this.floatingMenuBox === undefined
@@ -186,7 +188,7 @@ export class PromptLetWordflow extends LitElement {
     const containerBBox = this.centerPanelElement.getBoundingClientRect();
     const floatingMenuBox = await this.floatingMenuBox;
     floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
-  }
+  };
 
   // ===== Event Methods ======
   resizeHandler() {
@@ -246,6 +248,7 @@ export class PromptLetWordflow extends LitElement {
               .popperSidebarBox=${this.popperSidebarBox}
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
+              .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
             ></promptlet-text-editor>
           </div>

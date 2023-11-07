@@ -72,6 +72,9 @@ export class PromptLetTextEditor extends LitElement {
     | ((props: UpdateSidebarMenuProps) => Promise<void>)
     | undefined;
 
+  @property({ attribute: false })
+  updateFloatingMenuXPos: (() => Promise<void>) | undefined;
+
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
 
@@ -143,7 +146,8 @@ export class PromptLetTextEditor extends LitElement {
       this.containerElement === undefined ||
       this.floatingMenuBox === undefined ||
       this.popperSidebarBox === undefined ||
-      this.updateSidebarMenu === undefined
+      this.updateSidebarMenu === undefined ||
+      this.updateFloatingMenuXPos === undefined
     ) {
       console.error(
         'Text editor / select menu element is not added to DOM yet!'
@@ -210,7 +214,7 @@ export class PromptLetTextEditor extends LitElement {
     });
 
     const myEventHandler = EventHandler.configure({
-      containerBBox: this.containerBBox,
+      updateFloatingMenuXPos: this.updateFloatingMenuXPos,
       floatingMenuBox: this.floatingMenuBox
     });
 
