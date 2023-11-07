@@ -17,7 +17,7 @@ import type { Promptlet } from '../../types/promptlet';
 import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
-import type { ResolvedPos } from '@tiptap/pm/model';
+import type { Editor } from '@tiptap/core';
 
 // Components
 import '../text-editor/text-editor';
@@ -32,6 +32,7 @@ const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
 
 export interface UpdateSidebarMenuProps {
   anchor: Element | VirtualElement;
+  editor: Editor;
   boxPosition: 'left' | 'right';
   mode?: Mode;
   oldText?: string;
@@ -100,6 +101,7 @@ export class PromptLetWordflow extends LitElement {
   updateSidebarMenu = async ({
     anchor,
     boxPosition,
+    editor,
     mode,
     oldText,
     newText
@@ -126,18 +128,39 @@ export class PromptLetWordflow extends LitElement {
     this.lastUpdateSidebarMenuProps = {
       anchor,
       boxPosition,
+      editor,
       mode: menuElement.mode,
       oldText: menuElement.oldText,
       newText: menuElement.newText
     };
 
-    computePosition(anchor, popperElement, {
-      placement: 'right',
-      middleware: [offset(0), flip(), shift()]
-    }).then(({ y }) => {
-      this.updateSidebarMenuXPos(boxPosition);
-      popperElement.style.top = `${y}px`;
-    });
+    const { view } = editor;
+    const $from = view.state.selection.$from;
+    const cursorCoordinate = view.coordsAtPos($from.pos);
+
+    // Need to bound the box inside the view
+    const popperElementBBox = popperElement.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const invisibleHeight = window.scrollY;
+
+    // Get the line height in the editor element
+    const lineHeight = parseInt(
+      window.getComputedStyle(editor.options.element).lineHeight
+    );
+
+    const PADDING_OFFSET = 5;
+    const minTop =
+      invisibleHeight + popperElementBBox.height / 2 + PADDING_OFFSET;
+    const maxTop =
+      windowHeight +
+      invisibleHeight -
+      popperElementBBox.height / 2 -
+      PADDING_OFFSET;
+    const idealTop = cursorCoordinate.top + invisibleHeight + lineHeight / 2;
+    const boundedTop = Math.min(maxTop, Math.max(minTop, idealTop));
+
+    popperElement.style.top = `${boundedTop}px`;
+    this.updateSidebarMenuXPos(boxPosition);
   };
 
   async updateSidebarMenuXPos(boxPosition: 'left' | 'right') {

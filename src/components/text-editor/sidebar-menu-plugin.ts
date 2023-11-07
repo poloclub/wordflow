@@ -199,11 +199,11 @@ export class SidebarMenuView implements PluginView {
       await this.popperOptions.updateSidebarMenu({
         anchor: markElement,
         boxPosition,
+        editor: this.editor,
         newText: this.newText,
         oldText: this.oldText,
         mode: this.mode
       });
-
       this.curBoxPosition = boxPosition;
     } else if (this.editor.isActive('collapse')) {
       const node = $from.nodeAfter;
@@ -233,11 +233,11 @@ export class SidebarMenuView implements PluginView {
       this.popperOptions.updateSidebarMenu({
         anchor: nodeElement,
         boxPosition,
+        editor: this.editor,
         newText: this.newText,
         oldText: this.oldText,
         mode: this.mode
       });
-
       this.curBoxPosition = boxPosition;
     }
   }

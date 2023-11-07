@@ -12,7 +12,7 @@ export const EventHandler = Extension.create<EventHandlerProps>({
   name: 'eventHandler',
 
   onSelectionUpdate() {
-    clickHandler(this.options, this.editor, this.editor.view);
+    updateFloatingMenuPosition(this.options, this.editor, this.editor.view);
   },
 
   addProseMirrorPlugins() {
@@ -26,12 +26,12 @@ export const EventHandler = Extension.create<EventHandlerProps>({
 });
 
 /**
- * Update the position of the floating window
+ * Update the position of the floating menu
  * @param options Props
  * @param editor Editor
  * @param view Editor view
  */
-const clickHandler = async (
+const updateFloatingMenuPosition = async (
   options: EventHandlerProps,
   editor: Editor,
   view: EditorView
