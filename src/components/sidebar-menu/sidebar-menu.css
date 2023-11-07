@@ -63,6 +63,7 @@
     align-items: center;
     transform: rotate(45deg);
     color: var(--gray-400);
+    flex: 0 0 auto;
 
     border-right: 2px solid;
     border-bottom: 2px solid;

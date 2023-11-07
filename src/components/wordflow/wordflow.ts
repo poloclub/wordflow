@@ -138,6 +138,11 @@ export class PromptLetWordflow extends LitElement {
     const $from = view.state.selection.$from;
     const cursorCoordinate = view.coordsAtPos($from.pos);
 
+    // Need to wait the child component to update
+    await new Promise(r => {
+      setTimeout(r, 0);
+    });
+
     // Need to bound the box inside the view
     const popperElementBBox = popperElement.getBoundingClientRect();
     const windowHeight = window.innerHeight;

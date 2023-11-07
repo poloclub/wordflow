@@ -80,6 +80,7 @@ export const textGenGpt = async (
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
       Authorization: `Bearer ${apiKey}`
     },
     body: JSON.stringify(body)
