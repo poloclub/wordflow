@@ -15,6 +15,10 @@ export class PromptLetSettingWindow extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @state()
+  activeMenuItemIndex = 0;
+
+  menuItems = ['My promptlets', 'Community', 'Settings'];
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -37,6 +41,9 @@ export class PromptLetSettingWindow extends LitElement {
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
+  menuItemClicked(index: number) {
+    this.activeMenuItemIndex = index;
+  }
 
   //==========================================================================||
   //                             Private Helpers                              ||
@@ -46,6 +53,20 @@ export class PromptLetSettingWindow extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
+    // Compose the menu items
+    let menuItemsTemplate = html``;
+    for (const [i, item] of this.menuItems.entries()) {
+      menuItemsTemplate = html`${menuItemsTemplate}
+        <div
+          class="menu-item"
+          data-text="${item}"
+          ?selected=${this.activeMenuItemIndex === i}
+          @click=${() => this.menuItemClicked(i)}
+        >
+          ${item}
+        </div> `;
+    }
+
     return html`
       <div class="setting-window">
         <div class="window">
@@ -54,11 +75,7 @@ export class PromptLetSettingWindow extends LitElement {
             <div class="svg-icon close-button">${unsafeHTML(crossIcon)}</div>
           </div>
           <div class="content">
-            <div class="menu">
-              <div class="menu-item">My promptlets</div>
-              <div class="menu-item">Community</div>
-              <div class="menu-item">Settings</div>
-            </div>
+            <div class="menu">${menuItemsTemplate}</div>
             <div class="panel">panel</div>
           </div>
         </div>

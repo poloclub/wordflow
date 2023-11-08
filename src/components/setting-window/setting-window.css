@@ -126,9 +126,25 @@
     border-right: 1px solid var(--gray-300);
 
     .menu-item {
+      --bold-weight: 600;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+
       line-height: 1;
       cursor: pointer;
       padding: 15px var(--padding-h) 15px var(--padding-h);
+
+      &::after {
+        content: attr(data-text);
+        height: 0;
+        visibility: hidden;
+        overflow: hidden;
+        user-select: none;
+        pointer-events: none;
+        font-weight: var(--bold-weight);
+      }
 
       &:first-child {
         padding-top: 16px;
@@ -138,8 +154,9 @@
         background-color: var(--gray-100);
       }
 
-      &.selected {
-        color: var(--blue-600);
+      &[selected] {
+        color: var(--blue-700);
+        font-weight: var(--bold-weight);
       }
     }
   }
