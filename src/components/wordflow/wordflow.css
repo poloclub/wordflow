@@ -75,7 +75,7 @@
 
 .floating-menu-box {
   position: absolute;
-  z-index: 21;
+  z-index: 2;
   top: 200px;
   right: 405px;
 

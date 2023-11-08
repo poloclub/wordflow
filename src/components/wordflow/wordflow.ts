@@ -23,6 +23,7 @@ import type { Editor } from '@tiptap/core';
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
 import '../floating-menu/floating-menu';
+import '../setting-window/setting-window';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
@@ -309,6 +310,8 @@ export class PromptLetWordflow extends LitElement {
               this.floatingMenuToolButtonClickHandler(e)}
           ></promptlet-floating-menu>
         </div>
+
+        <promptlet-setting-window></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>
