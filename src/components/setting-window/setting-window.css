@@ -40,6 +40,7 @@
   background-color: white;
   box-shadow: var(--shadow-border-large);
   border-radius: 8px;
+  overflow: hidden;
   width: max-content;
   max-width: calc(100% - 40px);
   box-sizing: border-box;
@@ -70,7 +71,7 @@
 
   .name {
     font-weight: 500;
-    font-size: var(--font-u1);
+    /* font-size: var(--font-u1); */
   }
 
   .svg-icon {
@@ -135,7 +136,7 @@
 
       line-height: 1;
       cursor: pointer;
-      padding: 15px var(--padding-h) 15px var(--padding-h);
+      padding: 15px var(--padding-h) 15px 20px;
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
 
@@ -164,7 +165,7 @@
         &::before {
           content: '';
           height: 80%;
-          width: 5px;
+          width: 4px;
           border-radius: 5px;
           background-color: var(--blue-600);
           position: absolute;
@@ -177,11 +178,16 @@
   }
 
   .panel {
-    padding: var(--padding-v) var(--padding-h);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 600px;
-    height: 500px;
+    width: 700px;
+    height: 560px;
+    box-sizing: border-box;
+
+    & * {
+      width: 100%;
+      height: 100%;
+    }
   }
 }

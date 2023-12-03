@@ -1,15 +1,15 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
-import { customElement, property, state, query, queryAsync } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-import componentCSS from './<FTName>.css?inline';
+import componentCSS from './panel-setting.css?inline';
 
 /**
- * [FTName | sentencecase] element.
+ * Panel setting element.
  *
  */
-@customElement('promptlet-[FTName]')
-export class PromptLet<FTName | pascalcase> extends LitElement {
+@customElement('promptlet-panel-setting')
+export class PromptLetPanelSetting extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -30,7 +30,7 @@ export class PromptLet<FTName | pascalcase> extends LitElement {
   //==========================================================================||
   //                              Custom Methods                              ||
   //==========================================================================||
-  async initData() {};
+  async initData() {}
 
   //==========================================================================||
   //                              Event Handlers                              ||
@@ -44,8 +44,8 @@ export class PromptLet<FTName | pascalcase> extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
-    return html` <div class="<FTName | paramcase>">[FTName | sentencecase]</div> `;
-  };
+    return html` <div class="panel-setting">Panel setting</div> `;
+  }
 
   static styles = [
     css`
@@ -56,6 +56,6 @@ export class PromptLet<FTName | pascalcase> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-<FTName>': PromptLet<FTName | pascalcase>;
+    'promptlet-panel-setting': PromptLetPanelSetting;
   }
 }
