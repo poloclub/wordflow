@@ -18,7 +18,7 @@ export class PromptLetSettingWindow extends LitElement {
   @state()
   activeMenuItemIndex = 0;
 
-  menuItems = ['My promptlets', 'Community', 'Settings'];
+  menuItems = ['My Prompts', 'Community', 'Settings'];
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||

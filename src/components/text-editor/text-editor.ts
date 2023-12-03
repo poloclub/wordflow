@@ -50,6 +50,8 @@ const NEW_TEXT =
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
 
+const DEV_MODE = import.meta.env.DEV;
+
 const DMP = new DiffMatchPatch();
 
 /**
@@ -510,6 +512,9 @@ export class PromptLetTextEditor extends LitElement {
             return;
           }
 
+          if (DEV_MODE) {
+            console.info(message.payload.result);
+          }
           const newText = parseTags(message.payload.result, 'output')[0];
           let diffText = this.diffParagraph(oldText, newText);
           diffText = `<p>${diffText}</p>`;
@@ -653,6 +658,10 @@ export class PromptLetTextEditor extends LitElement {
               return;
             }
 
+            if (DEV_MODE) {
+              console.info(message.payload.result);
+            }
+
             const newText = message.payload.result.replace(
               promptlet.outputParser,
               '$1'
@@ -719,6 +728,10 @@ export class PromptLetTextEditor extends LitElement {
             if (this.editor === null) {
               console.error('Editor is not initialized');
               return;
+            }
+
+            if (DEV_MODE) {
+              console.info(message.payload.result);
             }
 
             const newText = message.payload.result.replace(

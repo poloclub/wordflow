@@ -131,10 +131,13 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: space-between;
+      position: relative;
 
       line-height: 1;
       cursor: pointer;
       padding: 15px var(--padding-h) 15px var(--padding-h);
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
 
       &::after {
         content: attr(data-text);
@@ -151,12 +154,24 @@
       }
 
       &:hover {
-        background-color: var(--gray-100);
+        background-color: color-mix(in lab, var(--gray-200), white 60%);
       }
 
       &[selected] {
-        color: var(--blue-700);
         font-weight: var(--bold-weight);
+        background-color: color-mix(in lab, var(--gray-200), white 20%);
+
+        &::before {
+          content: '';
+          height: 80%;
+          width: 5px;
+          border-radius: 5px;
+          background-color: var(--blue-600);
+          position: absolute;
+          top: 50%;
+          left: 2px;
+          transform: translate(0, -50%);
+        }
       }
     }
   }
