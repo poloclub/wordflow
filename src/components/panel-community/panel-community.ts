@@ -88,7 +88,6 @@ export class PromptLetPanelCommunity extends LitElement {
   willUpdate(changedProperties: PropertyValues<this>) {}
 
   firstUpdated() {
-    console.log(123);
     this.initMaxTagsOneLine();
   }
 
@@ -107,7 +106,7 @@ export class PromptLetPanelCommunity extends LitElement {
 
     const tagsBBox = this.popularTagsElement.getBoundingClientRect();
     const tempTags = document.createElement('div');
-    // tempTags.style.setProperty('visibility', 'hidden');
+    tempTags.style.setProperty('visibility', 'hidden');
     tempTags.style.setProperty('position', 'absolute');
     this.panelElement.appendChild(tempTags);
 
@@ -115,8 +114,12 @@ export class PromptLetPanelCommunity extends LitElement {
     tempTags.style.setProperty('width', `${tagsBBox.width}px`);
 
     const specialTag = document.createElement('span');
-    specialTag.classList.add('tag', 'expand-button');
-    specialTag.innerText = 'show more';
+    specialTag.classList.add('tag', 'expand-tag');
+    specialTag.innerHTML = `
+    <span class="svg-icon"
+        >${this.isPopularTagListExpanded ? shrinkIcon : expandIcon}</span
+      >
+    more`;
     tempTags.appendChild(specialTag);
 
     const initHeight = tempTags.getBoundingClientRect().height;
@@ -134,7 +137,6 @@ export class PromptLetPanelCommunity extends LitElement {
     }
 
     tempTags.remove();
-    console.log(this.maxTagsOneLine);
   }
 
   //==========================================================================||
@@ -171,7 +173,7 @@ export class PromptLetPanelCommunity extends LitElement {
           this.isPopularTagListExpanded ? shrinkIcon : expandIcon
         )}</span
       >
-      ${this.isPopularTagListExpanded ? 'show less' : 'show more'}</span
+      ${this.isPopularTagListExpanded ? 'less' : 'more'}</span
     >`;
 
     return html`
@@ -183,8 +185,20 @@ export class PromptLetPanelCommunity extends LitElement {
           </div>
           <div class="header-bottom">
             <div class="header-toggle">
-              <span ?is-active=${this.curMode === 'popular'}>Popular</span>
-              <span ?is-active=${this.curMode === 'new'}>New</span>
+              <span
+                @click=${() => {
+                  this.curMode = 'popular';
+                }}
+                ?is-active=${this.curMode === 'popular'}
+                >Popular</span
+              >
+              <span
+                @click=${() => {
+                  this.curMode = 'new';
+                }}
+                ?is-active=${this.curMode === 'new'}
+                >New</span
+              >
             </div>
             <div class="header-tag-list">
               <span class="name">Popular tags</span>
