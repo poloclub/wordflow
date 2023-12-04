@@ -11,19 +11,21 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: flex-start;
+  gap: 5px;
 
   padding: var(--padding-v) var(--padding-h);
   box-sizing: border-box;
 
   border: 1px solid var(--gray-300);
   border-radius: 10px;
-  font-size: var(--font-d1);
+  font-size: var(--font-d2);
 }
 
 .header {
   display: flex;
   align-items: center;
   gap: 5px;
+  font-size: var(--font-d1);
 
   .icon {
     display: flex;
@@ -61,5 +63,30 @@
 
 .prompt {
   line-height: 1.25;
-  margin: 5px 0;
+}
+
+.footer {
+  width: 100%;
+  font-size: var(--font-d2);
+  color: var(--gray-700);
+
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  .share-info {
+    display: flex;
+    flex-flow: row;
+    align-items: stretch;
+    gap: 4px;
+
+    .separator {
+      width: 2px;
+      border-radius: 1px;
+      background-color: var(--gray-300);
+      transform: scale(1, 0.7);
+      transform-origin: center;
+    }
+  }
 }

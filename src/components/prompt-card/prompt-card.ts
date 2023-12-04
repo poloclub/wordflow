@@ -1,4 +1,5 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
+import d3 from '../../utils/d3-import';
 import {
   customElement,
   property,
@@ -72,7 +73,7 @@ export class PromptLetPromptCard extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
-    // Compile the tag list
+    // Compose the tag list
     let tagList = html``;
     for (const tag of this.promptData.tags) {
       tagList = html`${tagList}
@@ -83,6 +84,20 @@ export class PromptLetPromptCard extends LitElement {
           >${tag}</span
         >`;
     }
+
+    // Compose the share info
+    const numFormatter = d3.format(',');
+    let dateFormatter = d3.timeFormat('%b %d, %Y');
+    const date = d3.isoParse(this.promptData.created)!;
+    const curDate = new Date();
+
+    // Ignore the year if it is the same year as today
+    if (date.getFullYear == curDate.getFullYear) {
+      dateFormatter = d3.timeFormat('%b %d');
+    }
+    const user =
+      this.promptData.userName === '' ? 'Anonymous' : this.promptData.userName;
+
     return html`
       <div class="prompt-card">
         <div class="header">
@@ -93,6 +108,17 @@ export class PromptLetPromptCard extends LitElement {
         <div class="prompt">${this.promptData.prompt}</div>
 
         <div class="tag-list">${tagList}</div>
+
+        <div class="footer">
+          <span class="run-count"
+            >${numFormatter(this.promptData.promptRunCount)} runs</span
+          >
+          <span class="share-info">
+            <span>${user}</span>
+            <span class="separator"></span>
+            <span>${dateFormatter(date)}</span>
+          </span>
+        </div>
       </div>
     `;
   }
