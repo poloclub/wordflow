@@ -1,9 +1,25 @@
 /**
+ * Prompt data to communicate with the server
+ */
+export interface PromptDataRemote {
+  prompt: string;
+  tags: string[];
+  userID: string;
+  userName: string;
+  description: string;
+  icon: string;
+  forkFrom: string;
+  promptRunCount: number;
+  created: string;
+  title: string;
+}
+
+/**
  * Promptlet object describing a prompt functionality.
  */
 export interface Promptlet {
   /** Short name of the promptlet */
-  name: string;
+  title: string;
 
   /** Detailed description of the promptlet */
   description: string;
@@ -21,5 +37,5 @@ export interface Promptlet {
   outputParser: RegExp;
 
   /** A unicode character used as an icon for the promptlet (can be emoji) */
-  iconUnicode: string;
+  icon: string;
 }

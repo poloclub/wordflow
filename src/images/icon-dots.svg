@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 76 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="icon-dots">
+        <path d="M8.673,16.436C13.262,16.436 16.876,12.921 16.876,8.429C16.876,3.985 13.262,0.372 8.673,0.372C4.229,0.372 0.616,3.985 0.616,8.429C0.616,12.921 4.229,16.436 8.673,16.436Z" style="fill-rule:nonzero;"/>
+        <path d="M37.823,16.436C42.315,16.436 45.88,12.921 45.88,8.429C45.88,3.985 42.315,0.372 37.823,0.372C33.38,0.372 29.815,3.985 29.815,8.429C29.815,12.921 33.38,16.436 37.823,16.436Z" style="fill-rule:nonzero;"/>
+        <path d="M67.022,16.436C71.465,16.436 75.079,12.921 75.079,8.429C75.079,3.985 71.465,0.372 67.022,0.372C62.432,0.372 58.819,3.985 58.819,8.429C58.819,12.921 62.432,16.436 67.022,16.436Z" style="fill-rule:nonzero;"/>
+    </g>
+</svg>

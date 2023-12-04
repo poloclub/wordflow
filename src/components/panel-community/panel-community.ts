@@ -7,13 +7,20 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import '../prompt-card/prompt-card';
+
+// Types
+import type { PromptDataRemote } from '../../types/promptlet';
 
 // Assets
 import componentCSS from './panel-community.css?inline';
-import plusIcon from '../../images/icon-plus.svg?raw';
-import minusIcon from '../../images/icon-minus.svg?raw';
-import expandIcon from '../../images/icon-expand.svg?raw';
+import expandIcon from '../../images/icon-more-circle.svg?raw';
 import shrinkIcon from '../../images/icon-shrink.svg?raw';
+import crossIcon from '../../images/icon-cross.svg?raw';
+
+import fakePromptsJSON from '../../data/fake-prompts-100.json';
+
+const fakePrompts = fakePromptsJSON as PromptDataRemote[];
 
 /**
  * Panel community element.
@@ -35,6 +42,9 @@ export class PromptLetPanelCommunity extends LitElement {
 
   @state()
   isPopularTagListExpanded = false;
+
+  @state()
+  curSelectedTag = '';
 
   @query('.popular-tags')
   popularTagsElement: HTMLElement | undefined;
@@ -106,12 +116,12 @@ export class PromptLetPanelCommunity extends LitElement {
 
     const tagsBBox = this.popularTagsElement.getBoundingClientRect();
     const tempTags = document.createElement('div');
-    tempTags.style.setProperty('visibility', 'hidden');
-    tempTags.style.setProperty('position', 'absolute');
     this.panelElement.appendChild(tempTags);
 
-    tempTags.classList.add('popular-tags');
+    tempTags.style.setProperty('visibility', 'hidden');
+    tempTags.style.setProperty('position', 'absolute');
     tempTags.style.setProperty('width', `${tagsBBox.width}px`);
+    tempTags.classList.add('popular-tags');
 
     const specialTag = document.createElement('span');
     specialTag.classList.add('tag', 'expand-tag');
@@ -131,7 +141,9 @@ export class PromptLetPanelCommunity extends LitElement {
       tempTags.appendChild(curTag);
       const curHeight = tempTags.getBoundingClientRect().height;
       if (curHeight > initHeight) {
-        this.maxTagsOneLine = i;
+        if (this.maxTagsOneLine !== i) {
+          this.maxTagsOneLine = i;
+        }
         break;
       }
     }
@@ -144,6 +156,14 @@ export class PromptLetPanelCommunity extends LitElement {
   //==========================================================================||
   popularTagListToggled() {
     this.isPopularTagListExpanded = !this.isPopularTagListExpanded;
+  }
+
+  tagClicked(tag: string) {
+    if (this.curSelectedTag === tag) {
+      this.curSelectedTag = '';
+    } else {
+      this.curSelectedTag = tag;
+    }
   }
 
   //==========================================================================||
@@ -159,8 +179,15 @@ export class PromptLetPanelCommunity extends LitElement {
     const curMaxTag = this.isPopularTagListExpanded
       ? this.popularTags.length
       : this.maxTagsOneLine;
+
     for (const tag of this.popularTags.slice(0, curMaxTag)) {
-      popularTagList = html`${popularTagList} <span class="tag">${tag}</span>`;
+      popularTagList = html`${popularTagList}
+        <span
+          class="tag"
+          ?is-selected="${this.curSelectedTag === tag}"
+          @click=${() => this.tagClicked(tag)}
+          >${tag}</span
+        >`;
     }
 
     const specialTag = html`<span
@@ -181,9 +208,16 @@ export class PromptLetPanelCommunity extends LitElement {
         <div class="header">
           <div class="header-top">
             <span class="name">205 Prompts</span>
-            <span class="filter-name">tagged [writing]</span>
-          </div>
-          <div class="header-bottom">
+            <span class="filter" ?is-hidden=${this.curSelectedTag === ''}
+              >tagged
+              <span
+                class="tag"
+                is-selected=""
+                @click=${() => this.tagClicked(this.curSelectedTag)}
+                >${this.curSelectedTag}
+                <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
+              </span></span
+            >
             <div class="header-toggle">
               <span
                 @click=${() => {
@@ -200,13 +234,24 @@ export class PromptLetPanelCommunity extends LitElement {
                 >New</span
               >
             </div>
+          </div>
+          <div class="header-bottom">
             <div class="header-tag-list">
               <span class="name">Popular tags</span>
               <div class="popular-tags">${popularTagList} ${specialTag}</div>
             </div>
           </div>
         </div>
-        <div class="card-container"></div>
+
+        <div class="prompt-container">
+          <promptlet-prompt-card
+            .promptData=${fakePrompts[0]}
+          ></promptlet-prompt-card>
+
+          <promptlet-prompt-card
+            .promptData=${fakePrompts[1]}
+          ></promptlet-prompt-card>
+        </div>
       </div>
     `;
   }

@@ -15,30 +15,30 @@ import gearIcon from '../../images/icon-gear.svg?raw';
 const mlPrompt = mlPromptJSON as PromptModel;
 
 const createPromptlet = ({
-  name = '',
+  title = '',
   description = '',
   prompt = '',
   temperature = 0.2,
   tags = [],
   outputParser = /(.*)/,
-  iconUnicode = ''
+  icon = ''
 }: {
-  name?: string;
+  title?: string;
   description?: string;
   prompt?: string;
   temperature?: number;
   tags?: string[];
   outputParser?: RegExp;
-  iconUnicode?: string;
+  icon?: string;
 }) => {
   const promptlet: Promptlet = {
-    name,
+    title,
     description,
     prompt,
     temperature,
     tags,
     outputParser,
-    iconUnicode
+    icon
   };
   return promptlet;
 };
@@ -65,29 +65,29 @@ export class PromptLetFloatingMenu extends LitElement {
 
     // Initialize the current active promptlets
     const promptlet1 = createPromptlet({
-      name: 'Improve academic ML paper writing',
+      title: 'Improve academic ML paper writing',
       prompt: mlPrompt.prompt,
       outputParser: /.*<output>(.*?)<\/output>.*/,
-      iconUnicode: '🎓'
+      icon: '🎓'
     });
     // const promptlet2 = createPromptlet({
     //   name: 'Improve NSF grant proposal writing',
     //   prompt:
     //     'You are an experienced Academic researcher who has been awarded over 100 NSF grants. Make the text in <input></input> more grand, engaging, academic, and compelling for an NSF grant proposal. Your output should imply that the work has both significant intellectual merit and broader impact. Do not add new information. Keep the output same length as the input text. Keep the output same length as the input text. Do not add new content. Your output should be put in <output></output>.\n <input>{{text}}</input>',
-    //   iconUnicode: '💰'
+    //   icon: '💰'
     // });
     const promptlet2 = createPromptlet({
-      name: 'Improve academic paper in LaTeX',
+      title: 'Improve academic paper in LaTeX',
       prompt:
         'You are a great writer. Improve the flow in the text in <input></input>. Your output should be put in <output></output>.\n <input>{{text}}</input>',
-      iconUnicode: '✍️'
+      icon: '✍️'
     });
     const promptlet3 = createPromptlet({
-      name: 'Translate the text to Japanese',
+      title: 'Translate the text to Japanese',
       prompt:
         'Translate the text in <input></input> from English to Japanese. Your output should be put in <output></output>.\n<input>{{text}}</input>',
       outputParser: /.*<output>(.*?)<\/output>.*/,
-      iconUnicode: '🇯🇵'
+      icon: '🇯🇵'
     });
     this.activePromptlets = [promptlet1, promptlet2, promptlet3];
   }
@@ -165,7 +165,7 @@ export class PromptLetFloatingMenu extends LitElement {
       updatePopperTooltip(
         tooltip,
         e.target as HTMLElement,
-        this.activePromptlets[index].name,
+        this.activePromptlets[index].title,
         'right',
         true,
         10
@@ -209,7 +209,7 @@ export class PromptLetFloatingMenu extends LitElement {
     for (const [i, promptlet] of this.activePromptlets.entries()) {
       // Take the first unicode character as the icon
       // const icon = Array.from(promptlet.iconUnicode)[0];
-      const icon = promptlet.iconUnicode;
+      const icon = promptlet.icon;
       toolButtons = html`${toolButtons}
         <button
           class="tool-button"

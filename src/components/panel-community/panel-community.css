@@ -6,7 +6,7 @@
   height: 100%;
 
   display: flex;
-  flex-flow: columns;
+  flex-flow: column;
   justify-content: flex-start;
   align-items: flex-start;
 
@@ -39,12 +39,34 @@
   width: 100%;
   border-bottom: 1px solid var(--gray-200);
   gap: 12px;
+  box-sizing: border-box;
 
   .header-top {
+    width: 100%;
     display: flex;
+    align-items: baseline;
     flex-flow: row;
-    gap: 10px;
     font-size: var(--font-u2);
+    line-height: 1;
+    gap: 16px;
+
+    .title {
+      display: flex;
+      flex-flow: row;
+      gap: 10px;
+    }
+
+    .filter {
+      display: flex;
+      flex-flow: row;
+      align-items: baseline;
+      gap: 5px;
+      flex-grow: 0;
+
+      &[is-hidden] {
+        display: none;
+      }
+    }
 
     .name {
       font-weight: 600;
@@ -52,6 +74,7 @@
   }
 
   .header-bottom {
+    width: 100%;
     display: flex;
     flex-flow: row;
     align-items: flex-start;
@@ -62,6 +85,7 @@
 
 .header-toggle {
   --border-color: var(--gray-300);
+  flex: 0 0 auto;
   display: flex;
   flex-flow: row;
   border: 1px solid var(--border-color);
@@ -98,11 +122,11 @@
 }
 
 .header-tag-list {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row;
   align-items: flex-start;
   gap: 5px;
-  width: 100%;
   font-size: var(--font-d2);
 
   .name {
@@ -113,11 +137,11 @@
 }
 
 .popular-tags {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row wrap;
   align-items: center;
   gap: 7px;
-  width: 100%;
 }
 
 .tag {
@@ -129,17 +153,22 @@
   color: var(--blue-900);
   border-radius: 5px;
   white-space: nowrap;
+  height: var(--font-d2);
 
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
 
   &:hover {
-    background-color: color-mix(in lab, var(--blue-100), white 20%);
+    background-color: color-mix(in lab, var(--blue-100), white 30%);
   }
 
   &:active {
-    background-color: color-mix(in lab, var(--blue-100), white 5%);
+    background-color: color-mix(in lab, var(--blue-100), white 2%);
+  }
+
+  &[is-selected] {
+    background-color: color-mix(in lab, var(--blue-100), white 2%);
   }
 
   &.expand-tag {
@@ -158,10 +187,26 @@
     .svg-icon {
       position: relative;
       top: 1px;
-      margin-right: 4px;
-      color: var(--gray-7800);
+      margin-right: 3px;
+      color: var(--gray-700);
       width: 1em;
       height: 1em;
     }
   }
+
+  .svg-icon {
+    top: 1px;
+    position: relative;
+    width: 8px;
+    height: 8px;
+    margin: auto;
+    margin-left: 4px;
+  }
+}
+
+.prompt-container {
+  padding: var(--padding-v) var(--padding-h);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
