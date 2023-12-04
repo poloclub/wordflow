@@ -68,11 +68,16 @@ export class PromptLetWordflow extends LitElement {
   @state()
   loadingActionIndex: number | null = null;
 
+  @state()
+  apiKey: string | null = null;
+
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
   // ===== Lifecycle Methods ======
   constructor() {
     super();
+    const model = 'gpt';
+    this.apiKey = localStorage.getItem(`${model}APIKey`);
   }
 
   firstUpdated() {
@@ -277,6 +282,7 @@ export class PromptLetWordflow extends LitElement {
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
               .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
+              .apiKey=${this.apiKey}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
             ></promptlet-text-editor>
           </div>
@@ -296,7 +302,10 @@ export class PromptLetWordflow extends LitElement {
 
         <promptlet-modal-auth
           class="modal"
-          @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {}}
+          @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {
+            const model = 'gpt';
+            this.apiKey = localStorage.getItem(`${model}APIKey`);
+          }}
         ></promptlet-modal-auth>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
@@ -310,8 +319,6 @@ export class PromptLetWordflow extends LitElement {
               this.floatingMenuToolButtonClickHandler(e)}
           ></promptlet-floating-menu>
         </div>
-
-        <promptlet-setting-window></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>

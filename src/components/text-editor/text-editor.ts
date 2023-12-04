@@ -92,6 +92,8 @@ export class PromptLetTextEditor extends LitElement {
   editor: Editor | null = null;
   initialText = OLD_TEXT;
   curEditID = 0;
+
+  @property({ type: String })
   apiKey: string | null = null;
 
   containerBBox: DOMRect = {
@@ -111,9 +113,6 @@ export class PromptLetTextEditor extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-
-    const model = 'gpt';
-    this.apiKey = localStorage.getItem(`${model}APIKey`);
   }
 
   firstUpdated() {
@@ -500,11 +499,16 @@ export class PromptLetTextEditor extends LitElement {
       return;
     }
 
+    if (this.apiKey === null) {
+      console.error('API key is null.');
+      return;
+    }
+
     // Get the word-level differences
     const oldText = this.editor.getText();
 
     const curPrompt = promptML.prompt.replace('{{text}}', oldText);
-    textGenGpt(this.apiKey!, 'text-gen', curPrompt, 0.2).then(message => {
+    textGenGpt(this.apiKey, 'text-gen', curPrompt, 0.2).then(message => {
       switch (message.command) {
         case 'finishTextGen': {
           if (this.editor === null) {
@@ -625,6 +629,12 @@ export class PromptLetTextEditor extends LitElement {
       console.error('Editor is not initialized yet.');
       return;
     }
+
+    if (this.apiKey === null) {
+      console.error('API key is null.');
+      return;
+    }
+
     const { state } = this.editor.view;
     const { $from, $to } = state.selection;
     const hasSelection = this.isEmptySelection();
@@ -642,7 +652,7 @@ export class PromptLetTextEditor extends LitElement {
 
       const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
       textGenGpt(
-        this.apiKey!,
+        this.apiKey,
         'text-gen',
         curPrompt,
         promptlet.temperature
@@ -704,7 +714,7 @@ export class PromptLetTextEditor extends LitElement {
       const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
 
       textGenGpt(
-        this.apiKey!,
+        this.apiKey,
         'text-gen',
         curPrompt,
         promptlet.temperature

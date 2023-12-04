@@ -37,7 +37,7 @@
 
 .tool-buttons {
   &[has-loading-action] {
-    button {
+    & button {
       cursor: not-allowed;
 
       &[is-loading] {
