@@ -59,7 +59,7 @@ export class PromptLetPromptCard extends LitElement {
     return html`
       <div class="prompt-card">
         <div class="header">
-          <span class="icon">${this.promptData.icon}</span>
+          <span class="icon"><span>${this.promptData.icon}</span></span>
           <span class="name">${this.promptData.title}</span>
         </div>
         <div class="prompt">${this.promptData.prompt}</div>

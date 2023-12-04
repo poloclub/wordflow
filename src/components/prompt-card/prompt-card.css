@@ -29,19 +29,27 @@
     height: 28px;
     justify-content: center;
     align-items: center;
+    vertical-align: middle;
+    text-align: center;
     transform-origin: center center 0px;
 
     border-radius: 100%;
     border: 1px solid var(--gray-300);
     position: relative;
 
-    color: var(--gray-700);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
     box-sizing: border-box;
     transition: box-shadow linear 100ms;
     /* box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.08); */
+
+    & span {
+      /* Trick to horizontally align emojis */
+      font-size: 32px;
+      transform: scale(0.5);
+
+      color: var(--gray-700);
+      font-weight: 700;
+      line-height: 1;
+    }
   }
 
   .name {
