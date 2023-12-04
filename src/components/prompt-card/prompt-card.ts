@@ -25,6 +25,9 @@ export class PromptLetPromptCard extends LitElement {
   @property({ attribute: false })
   promptData: PromptDataRemote;
 
+  @property({ type: String })
+  curSelectedTag = '';
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -47,6 +50,19 @@ export class PromptLetPromptCard extends LitElement {
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
+  /**
+   * Tag clicked event handler
+   * @param tag Clicked tag name
+   */
+  tagClicked(tag: string) {
+    // Notify the parent
+    const event = new CustomEvent('tag-clicked', {
+      detail: tag,
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
 
   //==========================================================================||
   //                             Private Helpers                              ||
@@ -56,13 +72,27 @@ export class PromptLetPromptCard extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
+    // Compile the tag list
+    let tagList = html``;
+    for (const tag of this.promptData.tags) {
+      tagList = html`${tagList}
+        <span
+          class="tag"
+          ?is-selected=${this.curSelectedTag === tag}
+          @click=${() => this.tagClicked(tag)}
+          >${tag}</span
+        >`;
+    }
     return html`
       <div class="prompt-card">
         <div class="header">
           <span class="icon"><span>${this.promptData.icon}</span></span>
           <span class="name">${this.promptData.title}</span>
         </div>
+
         <div class="prompt">${this.promptData.prompt}</div>
+
+        <div class="tag-list">${tagList}</div>
       </div>
     `;
   }

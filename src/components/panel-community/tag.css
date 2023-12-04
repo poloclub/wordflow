@@ -1,0 +1,61 @@
+.tag {
+  display: flex;
+  line-height: 1;
+  font-size: var(--font-d2);
+  padding: 4px 6px;
+  background-color: var(--blue-50);
+  color: var(--blue-900);
+  border-radius: 5px;
+  white-space: nowrap;
+  height: var(--font-d2);
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &:hover {
+    background-color: color-mix(in lab, var(--blue-100), white 30%);
+  }
+
+  &:active {
+    background-color: color-mix(in lab, var(--blue-100), white 2%);
+  }
+
+  &[is-selected] {
+    background-color: color-mix(in lab, var(--blue-100), white 2%);
+  }
+
+  &.expand-tag {
+    /* border: 1px solid var(--gray-400); */
+    /* background-color: white; */
+    background-color: color-mix(in lab, var(--gray-200), white 20%);
+    color: var(--gray-800);
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+
+    &:hover {
+      background-color: color-mix(in lab, var(--gray-300), white 30%);
+    }
+
+    .svg-icon {
+      position: relative;
+      top: 1px;
+      margin-right: 3px;
+      color: var(--gray-700);
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  &.show-cross {
+    .svg-icon {
+      top: 1px;
+      position: relative;
+      width: 8px;
+      height: 8px;
+      margin: auto;
+      margin-left: 4px;
+    }
+  }
+}

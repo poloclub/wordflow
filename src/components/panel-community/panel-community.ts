@@ -60,6 +60,8 @@ export class PromptLetPanelCommunity extends LitElement {
     this.popularTags = [
       'writing',
       'research',
+      'professional',
+      'simplification',
       'science',
       'technology',
       'art',
@@ -166,6 +168,10 @@ export class PromptLetPanelCommunity extends LitElement {
     }
   }
 
+  promptCardTagClickedHandler(e: CustomEvent<string>) {
+    this.tagClicked(e.detail);
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -211,7 +217,7 @@ export class PromptLetPanelCommunity extends LitElement {
             <span class="filter" ?is-hidden=${this.curSelectedTag === ''}
               >tagged
               <span
-                class="tag"
+                class="tag show-cross"
                 is-selected=""
                 @click=${() => this.tagClicked(this.curSelectedTag)}
                 >${this.curSelectedTag}
@@ -246,10 +252,16 @@ export class PromptLetPanelCommunity extends LitElement {
         <div class="prompt-container">
           <promptlet-prompt-card
             .promptData=${fakePrompts[0]}
+            .curSelectedTag=${this.curSelectedTag}
+            @tag-clicked=${(e: CustomEvent<string>) =>
+              this.promptCardTagClickedHandler(e)}
           ></promptlet-prompt-card>
 
           <promptlet-prompt-card
             .promptData=${fakePrompts[1]}
+            .curSelectedTag=${this.curSelectedTag}
+            @tag-clicked=${(e: CustomEvent<string>) =>
+              this.promptCardTagClickedHandler(e)}
           ></promptlet-prompt-card>
         </div>
       </div>
