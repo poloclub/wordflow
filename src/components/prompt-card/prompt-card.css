@@ -20,6 +20,24 @@
   border-radius: 10px;
   font-size: var(--font-d2);
   overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+
+  transition:
+    box-shadow linear 100ms,
+    transform linear 100ms;
+  transform-origin: center;
+
+  &:hover {
+    box-shadow:
+      0 0 10px hsla(0, 0%, 0%, 0.05),
+      0 0 4px hsla(0, 0%, 0%, 0.05);
+  }
+
+  &:active:not(:has(.tag:active)) {
+    transform: translate(0, 1px);
+  }
 }
 
 .header {
@@ -76,10 +94,18 @@
 .prompt {
   display: -webkit-box;
   line-height: 1.25;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 3px;
+  font-size: 13px;
+  font-family: 'Roboto Mono', 'SF Mono', monospace;
+}
+
+.tag-list {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 7px;
 }
 
 .footer {

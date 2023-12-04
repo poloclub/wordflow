@@ -8,6 +8,7 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import '../prompt-card/prompt-card';
+import '../pagination/pagination';
 
 // Types
 import type { PromptDataRemote } from '../../types/promptlet';
@@ -20,6 +21,10 @@ import crossIcon from '../../images/icon-cross.svg?raw';
 
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
+// Constants
+const NUM_CARDS_PER_PAGE = 4;
+const PAGINATION_WINDOW = 5;
+
 const fakePrompts = fakePromptsJSON as PromptDataRemote[];
 
 /**
@@ -31,6 +36,9 @@ export class PromptLetPanelCommunity extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @state()
+  allPrompts: PromptDataRemote[] = fakePrompts;
+
   @state()
   curMode: 'popular' | 'new' = 'popular';
 
@@ -45,6 +53,9 @@ export class PromptLetPanelCommunity extends LitElement {
 
   @state()
   curSelectedTag = '';
+
+  @state()
+  curPage = 1;
 
   @query('.popular-tags')
   popularTagsElement: HTMLElement | undefined;
@@ -172,6 +183,12 @@ export class PromptLetPanelCommunity extends LitElement {
     this.tagClicked(e.detail);
   }
 
+  pageClickedHandler(e: CustomEvent<number>) {
+    if (e.detail !== this.curPage) {
+      this.curPage = e.detail;
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -208,6 +225,23 @@ export class PromptLetPanelCommunity extends LitElement {
       >
       ${this.isPopularTagListExpanded ? 'less' : 'more'}</span
     >`;
+
+    // Compose the prompt cards
+    let promptCards = html``;
+    for (let i = 0; i < NUM_CARDS_PER_PAGE; i++) {
+      const curIndex = (this.curPage - 1) * NUM_CARDS_PER_PAGE + i;
+      if (curIndex > this.allPrompts.length - 1) {
+        break;
+      }
+
+      promptCards = html`${promptCards}
+        <promptlet-prompt-card
+          .promptData=${this.allPrompts[curIndex]}
+          .curSelectedTag=${this.curSelectedTag}
+          @tag-clicked=${(e: CustomEvent<string>) =>
+            this.promptCardTagClickedHandler(e)}
+        ></promptlet-prompt-card> `;
+    }
 
     return html`
       <div class="panel-community">
@@ -249,20 +283,20 @@ export class PromptLetPanelCommunity extends LitElement {
           </div>
         </div>
 
-        <div class="prompt-container">
-          <promptlet-prompt-card
-            .promptData=${fakePrompts[0]}
-            .curSelectedTag=${this.curSelectedTag}
-            @tag-clicked=${(e: CustomEvent<string>) =>
-              this.promptCardTagClickedHandler(e)}
-          ></promptlet-prompt-card>
+        <div class="prompt-content">
+          <div class="prompt-container">${promptCards}</div>
 
-          <promptlet-prompt-card
-            .promptData=${fakePrompts[1]}
-            .curSelectedTag=${this.curSelectedTag}
-            @tag-clicked=${(e: CustomEvent<string>) =>
-              this.promptCardTagClickedHandler(e)}
-          ></promptlet-prompt-card>
+          <div class="pagination">
+            <promptlet-pagination
+              curPage=${this.curPage}
+              totalPageNum=${Math.ceil(
+                this.allPrompts.length / NUM_CARDS_PER_PAGE
+              )}
+              pageWindowSize=${PAGINATION_WINDOW}
+              @page-clicked=${(e: CustomEvent<number>) =>
+                this.pageClickedHandler(e)}
+            ></promptlet-pagination>
+          </div>
         </div>
       </div>
     `;

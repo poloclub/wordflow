@@ -55,7 +55,10 @@ export class PromptLetPromptCard extends LitElement {
    * Tag clicked event handler
    * @param tag Clicked tag name
    */
-  tagClicked(tag: string) {
+  tagClicked(e: MouseEvent, tag: string) {
+    e.preventDefault();
+    e.stopPropagation();
+
     // Notify the parent
     const event = new CustomEvent('tag-clicked', {
       detail: tag,
@@ -80,7 +83,7 @@ export class PromptLetPromptCard extends LitElement {
         <span
           class="tag"
           ?is-selected=${this.curSelectedTag === tag}
-          @click=${() => this.tagClicked(tag)}
+          @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
           >${tag}</span
         >`;
     }
@@ -88,6 +91,7 @@ export class PromptLetPromptCard extends LitElement {
     // Compose the share info
     const numFormatter = d3.format(',');
     let dateFormatter = d3.timeFormat('%b %d, %Y');
+    const fullTimeFormatter = d3.timeFormat('%b %d, %Y %H:%M');
     const date = d3.isoParse(this.promptData.created)!;
     const curDate = new Date();
 
@@ -103,7 +107,9 @@ export class PromptLetPromptCard extends LitElement {
         <div class="header">
           <span class="icon"><span>${this.promptData.icon}</span></span>
           <span class="name-wrapper">
-            <span class="name">${this.promptData.title}</span>
+            <span class="name" title=${this.promptData.title}
+              >${this.promptData.title}</span
+            >
           </span>
         </div>
 
@@ -116,9 +122,11 @@ export class PromptLetPromptCard extends LitElement {
             >${numFormatter(this.promptData.promptRunCount)} runs</span
           >
           <span class="share-info">
-            <span class="name">${user}</span>
+            <span class="name" title=${user}>${user}</span>
             <span class="separator"></span>
-            <span class="date">${dateFormatter(date)}</span>
+            <span class="date" title=${fullTimeFormatter(date)}
+              >${dateFormatter(date)}</span
+            >
           </span>
         </div>
       </div>

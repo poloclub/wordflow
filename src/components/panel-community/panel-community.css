@@ -39,7 +39,7 @@
   display: flex;
   flex-flow: column;
   width: 100%;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-300);
   gap: 12px;
   box-sizing: border-box;
 
@@ -86,7 +86,7 @@
 }
 
 .header-toggle {
-  --border-color: var(--gray-300);
+  --border-color: var(--gray-400);
   flex: 0 0 auto;
   display: flex;
   flex-flow: row;
@@ -146,12 +146,22 @@
   gap: 7px;
 }
 
+.prompt-content {
+  overflow-y: auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
 .prompt-container {
   padding: var(--padding-v) var(--padding-h);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
+  gap: 16px;
+}
 
-  promptlet-prompt-card {
-  }
+.pagination {
+  padding: var(--padding-v) var(--padding-h);
+  display: flex;
+  justify-content: center;
 }
