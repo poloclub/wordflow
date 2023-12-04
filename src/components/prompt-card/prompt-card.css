@@ -74,7 +74,12 @@
 }
 
 .prompt {
+  display: -webkit-box;
   line-height: 1.25;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 3px;
 }
 
 .footer {
