@@ -19,13 +19,17 @@
   border: 1px solid var(--gray-300);
   border-radius: 10px;
   font-size: var(--font-d2);
+  overflow: hidden;
 }
 
 .header {
+  width: 100%;
   display: flex;
+  flex-flow: row nowrap;
   align-items: center;
   gap: 5px;
   font-size: var(--font-d1);
+  overflow: hidden;
 
   .icon {
     display: flex;
@@ -43,7 +47,6 @@
 
     box-sizing: border-box;
     transition: box-shadow linear 100ms;
-    /* box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.08); */
 
     & span {
       /* Trick to horizontally align emojis */
@@ -56,8 +59,17 @@
     }
   }
 
-  .name {
-    font-weight: 600;
+  .name-wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    overflow: hidden;
+
+    .name {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -72,14 +84,17 @@
 
   display: flex;
   flex-flow: row nowrap;
+  white-space: nowrap;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 
   .share-info {
     display: flex;
-    flex-flow: row;
+    flex-flow: row nowrap;
     align-items: stretch;
     gap: 4px;
+    overflow: hidden;
 
     .separator {
       width: 2px;
@@ -87,6 +102,12 @@
       background-color: var(--gray-300);
       transform: scale(1, 0.7);
       transform-origin: center;
+    }
+
+    .name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

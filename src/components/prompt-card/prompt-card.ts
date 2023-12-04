@@ -102,7 +102,9 @@ export class PromptLetPromptCard extends LitElement {
       <div class="prompt-card">
         <div class="header">
           <span class="icon"><span>${this.promptData.icon}</span></span>
-          <span class="name">${this.promptData.title}</span>
+          <span class="name-wrapper">
+            <span class="name">${this.promptData.title}</span>
+          </span>
         </div>
 
         <div class="prompt">${this.promptData.prompt}</div>
@@ -114,9 +116,9 @@ export class PromptLetPromptCard extends LitElement {
             >${numFormatter(this.promptData.promptRunCount)} runs</span
           >
           <span class="share-info">
-            <span>${user}</span>
+            <span class="name">${user}</span>
             <span class="separator"></span>
-            <span>${dateFormatter(date)}</span>
+            <span class="date">${dateFormatter(date)}</span>
           </span>
         </div>
       </div>
