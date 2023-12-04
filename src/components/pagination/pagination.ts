@@ -80,7 +80,7 @@ export class PromptLetPagination extends LitElement {
   getPageButtonTemplate = (name: string) => {
     return html` <button
       class="page-button"
-      is-cur-page=${this.curPage === parseInt(name)}
+      ?is-cur-page=${this.curPage === parseInt(name)}
       @click=${() => this.pageButtonClicked(name)}
     >
       ${name}
@@ -110,8 +110,11 @@ export class PromptLetPagination extends LitElement {
     }
 
     if (pageMin > 1) {
-      pagination = html`${pagination} ${this.getPageButtonTemplate('1')}
-        <span>...</span>`;
+      pagination = html`${pagination} ${this.getPageButtonTemplate('1')}`;
+
+      if (pageMin > 2) {
+        pagination = html`${pagination} <span>...</span>`;
+      }
     }
 
     for (let i = pageMin; i < pageMax + 1; i++) {
@@ -120,10 +123,11 @@ export class PromptLetPagination extends LitElement {
     }
 
     if (pageMax < this.totalPageNum) {
+      if (pageMax < this.totalPageNum - 1) {
+        pagination = html`${pagination}<span>...</span>`;
+      }
       pagination = html`${pagination}
-        <span>...</span>${this.getPageButtonTemplate(
-          this.totalPageNum.toString()
-        )}`;
+      ${this.getPageButtonTemplate(this.totalPageNum.toString())}`;
     }
 
     if (this.curPage < this.totalPageNum) {

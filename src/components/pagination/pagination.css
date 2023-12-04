@@ -8,5 +8,22 @@
   align-items: center;
 
   box-sizing: border-box;
-  gap: 5px;
+  gap: 7px;
+}
+
+button {
+  all: unset;
+  font-size: var(--font-d2);
+  padding: 0px 8px;
+  border: 1px solid var(--gray-400);
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-mix(in lab, var(--gray-200) 100%, white 90%);
+  }
+
+  &[is-cur-page] {
+    background-color: var(--gray-200);
+  }
 }

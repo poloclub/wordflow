@@ -162,6 +162,7 @@
 
 .pagination {
   padding: var(--padding-v) var(--padding-h);
+  margin-bottom: var(--padding-v);
   display: flex;
   justify-content: center;
 }

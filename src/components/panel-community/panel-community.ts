@@ -22,7 +22,7 @@ import crossIcon from '../../images/icon-cross.svg?raw';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
-const NUM_CARDS_PER_PAGE = 4;
+const NUM_CARDS_PER_PAGE = 18;
 const PAGINATION_WINDOW = 5;
 
 const fakePrompts = fakePromptsJSON as PromptDataRemote[];
