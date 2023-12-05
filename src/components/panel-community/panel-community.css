@@ -151,6 +151,11 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  position: relative;
+
+  &.no-scroll {
+    overflow-y: hidden;
+  }
 }
 
 .prompt-container {
@@ -165,4 +170,17 @@
   margin-bottom: var(--padding-v);
   display: flex;
   justify-content: center;
+}
+
+.prompt-modal {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: hsla(0, 0%, 100%, 0.75);
+  /* backdrop-filter: blur(1px); */
+  /* -webkit-backdrop-filter: blur(1px); */
+
+  &.hidden {
+    /* display: none; */
+  }
 }

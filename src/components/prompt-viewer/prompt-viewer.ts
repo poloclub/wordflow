@@ -1,5 +1,4 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
-import d3 from '../../utils/d3-import';
 import {
   customElement,
   property,
@@ -9,18 +8,21 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptData } from '../panel-community/panel-community';
+import d3 from '../../utils/d3-import';
 
 // Types
 import type { PromptDataRemote } from '../../types/promptlet';
 
-import componentCSS from './prompt-card.css?inline';
+import crossIcon from '../../images/icon-cross.svg?raw';
+
+import componentCSS from './prompt-viewer.css?inline';
 
 /**
- * Prompt card element.
+ * Prompt viewer element.
  *
  */
-@customElement('promptlet-prompt-card')
-export class PromptLetPromptCard extends LitElement {
+@customElement('promptlet-prompt-viewer')
+export class PromptLetPromptViewer extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -28,7 +30,7 @@ export class PromptLetPromptCard extends LitElement {
   promptData: PromptDataRemote;
 
   @property({ type: String })
-  curSelectedTag = '';
+  curSelectedTag: string = '';
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -61,12 +63,12 @@ export class PromptLetPromptCard extends LitElement {
     e.stopPropagation();
 
     // Notify the parent
-    const event = new CustomEvent('tag-clicked', {
-      detail: tag,
-      bubbles: true,
-      composed: true
-    });
-    this.dispatchEvent(event);
+    // const event = new CustomEvent('tag-clicked', {
+    //   detail: tag,
+    //   bubbles: true,
+    //   composed: true
+    // });
+    // this.dispatchEvent(event);
   }
 
   //==========================================================================||
@@ -77,20 +79,9 @@ export class PromptLetPromptCard extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
-    // Compose the tag list
-    let tagList = html``;
-    for (const tag of this.promptData.tags) {
-      tagList = html`${tagList}
-        <span
-          class="tag"
-          ?is-selected=${this.curSelectedTag === tag}
-          @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
-          >${tag}</span
-        >`;
-    }
-
     // Compose the share info
     const numFormatter = d3.format(',');
+    // '%m/%d/%Y';
     let dateFormatter = d3.timeFormat('%b %d, %Y');
     const fullTimeFormatter = d3.timeFormat('%b %d, %Y %H:%M');
     const date = d3.isoParse(this.promptData.created)!;
@@ -103,32 +94,65 @@ export class PromptLetPromptCard extends LitElement {
     const user =
       this.promptData.userName === '' ? 'Anonymous' : this.promptData.userName;
 
+    // Compose the tag list
+    let tagList = html``;
+    for (const tag of this.promptData.tags) {
+      tagList = html`${tagList}
+        <span
+          class="tag"
+          ?is-selected=${this.curSelectedTag === tag}
+          @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
+          >${tag}</span
+        >`;
+    }
+
     return html`
-      <div class="prompt-card">
-        <div class="header">
-          <span class="icon"><span>${this.promptData.icon}</span></span>
-          <span class="name-wrapper">
-            <span class="name" title=${this.promptData.title}
-              >${this.promptData.title}</span
-            >
-          </span>
-        </div>
+      <div class="prompt-viewer">
+        <div class="prompt-window">
+          <div class="header">
+            <div class="title-bar">
+              <span class="icon"><span>${this.promptData.icon}</span></span>
+              <span class="name">${this.promptData.title}</span>
+              <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
+            </div>
 
-        <div class="prompt">${this.promptData.prompt}</div>
+            <div class="info-bar">
+              <span class="user-name">${user}</span>
+              <div class="separator"></div>
 
-        <div class="tag-list">${tagList}</div>
+              <span class="date" title=${fullTimeFormatter(date)}
+                >${dateFormatter(date)}</span
+              >
+              <div class="separator"></div>
 
-        <div class="footer">
-          <span class="run-count"
-            >${numFormatter(this.promptData.promptRunCount)} runs</span
-          >
-          <span class="share-info">
-            <span class="name" title=${user}>${user}</span>
-            <span class="separator"></span>
-            <span class="date" title=${fullTimeFormatter(date)}
-              >${dateFormatter(date)}</span
-            >
-          </span>
+              <span class="run-info"
+                >${numFormatter(this.promptData.promptRunCount)} runs</span
+              >
+            </div>
+          </div>
+
+          <div class="content">
+            <section class="content-block">
+              <div class="name">Description</div>
+              <div class="content-text">${this.promptData.description}</div>
+            </section>
+
+            <section class="content-block">
+              <div class="name">Prompt</div>
+              <div class="content-text">${this.promptData.prompt}</div>
+            </section>
+
+            <section class="content-block">
+              <div class="name">Tags</div>
+              <div class="tag-list">${tagList}</div>
+            </section>
+
+            <section class="content-block">
+              <div class="name">More Info</div>
+              <div class="info-table"></div>
+            </section>
+          </div>
+          <div class="footer">Add to library</div>
         </div>
       </div>
     `;
@@ -143,6 +167,6 @@ export class PromptLetPromptCard extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-prompt-card': PromptLetPromptCard;
+    'promptlet-prompt-viewer': PromptLetPromptViewer;
   }
 }

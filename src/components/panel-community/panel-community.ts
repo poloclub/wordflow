@@ -6,9 +6,13 @@ import {
   query,
   queryAsync
 } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+
+// Components
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
+import '../prompt-viewer/prompt-viewer';
 
 // Types
 import type { PromptDataRemote } from '../../types/promptlet';
@@ -40,6 +44,9 @@ export class PromptLetPanelCommunity extends LitElement {
   allPrompts: PromptDataRemote[] = fakePrompts;
 
   @state()
+  selectedPrompt: PromptDataRemote | null = fakePrompts[0];
+
+  @state()
   curMode: 'popular' | 'new' = 'popular';
 
   @state()
@@ -65,6 +72,9 @@ export class PromptLetPanelCommunity extends LitElement {
 
   @query('.prompt-content')
   promptContentElement: HTMLElement | undefined;
+
+  @query('.prompt-modal')
+  promptModalElement: HTMLDialogElement | undefined;
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -199,6 +209,25 @@ export class PromptLetPanelCommunity extends LitElement {
     }
   }
 
+  promptCardClicked(promptData: PromptDataRemote) {
+    if (
+      this.promptModalElement === undefined ||
+      this.promptContentElement === undefined
+    ) {
+      throw Error('promptModalElement is undefined.');
+    }
+
+    this.selectedPrompt = promptData;
+    this.promptModalElement.style.setProperty(
+      'top',
+      `${this.promptContentElement.scrollTop}px`
+    );
+    this.promptModalElement.classList.remove('hidden');
+
+    // Disable scrolling
+    this.promptContentElement.classList.add('no-scroll');
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -243,11 +272,14 @@ export class PromptLetPanelCommunity extends LitElement {
       if (curIndex > this.allPrompts.length - 1) {
         break;
       }
-
+      const curPromptData = this.allPrompts[curIndex];
       promptCards = html`${promptCards}
         <promptlet-prompt-card
-          .promptData=${this.allPrompts[curIndex]}
+          .promptData=${curPromptData}
           .curSelectedTag=${this.curSelectedTag}
+          @click=${() => {
+            this.promptCardClicked(curPromptData);
+          }}
           @tag-clicked=${(e: CustomEvent<string>) =>
             this.promptCardTagClickedHandler(e)}
         ></promptlet-prompt-card> `;
@@ -307,6 +339,14 @@ export class PromptLetPanelCommunity extends LitElement {
                 this.pageClickedHandler(e)}
             ></promptlet-pagination>
           </div>
+
+          <div class="prompt-modal hidden">
+            <promptlet-prompt-viewer
+              .promptData=${this.selectedPrompt
+                ? this.selectedPrompt
+                : getEmptyPromptData()}
+            ></promptlet-prompt-viewer>
+          </div>
         </div>
       </div>
     `;
@@ -324,3 +364,19 @@ declare global {
     'promptlet-panel-community': PromptLetPanelCommunity;
   }
 }
+
+export const getEmptyPromptData = () => {
+  const data: PromptDataRemote = {
+    prompt: '',
+    tags: [],
+    userID: '',
+    userName: '',
+    description: '',
+    icon: '',
+    forkFrom: '',
+    promptRunCount: 0,
+    created: '',
+    title: ''
+  };
+  return data;
+};
