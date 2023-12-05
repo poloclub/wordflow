@@ -17,6 +17,11 @@ import crossIcon from '../../images/icon-cross.svg?raw';
 
 import componentCSS from './prompt-viewer.css?inline';
 
+interface InfoPair {
+  key: string;
+  value: string;
+}
+
 /**
  * Prompt viewer element.
  *
@@ -75,13 +80,24 @@ export class PromptLetPromptViewer extends LitElement {
   //                             Private Helpers                              ||
   //==========================================================================||
 
+  /**
+   * Create info as key-value pairs
+   */
+  getInfoPairs() {
+    const infos: InfoPair[] = [];
+    infos.push({ key: 'Models', value: 'gpt-3.5-turbo' });
+    infos.push({ key: 'Injection mode', value: 'in-place' });
+    infos.push({ key: 'Output parsing', value: '.*<output>(.+)</output>.*' });
+    return infos;
+  }
+
   //==========================================================================||
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
     // Compose the share info
     const numFormatter = d3.format(',');
-    // '%m/%d/%Y';
+    // d3.timeFormat('%m/%d/%Y');
     let dateFormatter = d3.timeFormat('%b %d, %Y');
     const fullTimeFormatter = d3.timeFormat('%b %d, %Y %H:%M');
     const date = d3.isoParse(this.promptData.created)!;
@@ -106,6 +122,24 @@ export class PromptLetPromptViewer extends LitElement {
         >`;
     }
 
+    // Compose the info table
+    const infoPairs = this.getInfoPairs();
+    let infoContent = html``;
+    for (const pair of infoPairs) {
+      infoContent = html`${infoContent}
+        <span class="key">${pair.key}</span>
+        <span></span>
+        <span class="value">${pair.value}</span> `;
+    }
+
+    // Add a report row
+    infoContent = html`${infoContent}
+      <span class="key">Report</span>
+      <span></span>
+      <span class="value"
+        ><a href="mailto:jayw@gatech.edu">Report a concern</a></span
+      > `;
+
     return html`
       <div class="prompt-viewer">
         <div class="prompt-window">
@@ -117,7 +151,9 @@ export class PromptLetPromptViewer extends LitElement {
             </div>
 
             <div class="info-bar">
-              <span class="user-name">${user}</span>
+              <span class="user-name-wrapper">
+                <span class="user-name" title=${user}>${user}</span>
+              </span>
               <div class="separator"></div>
 
               <span class="date" title=${fullTimeFormatter(date)}
@@ -128,6 +164,8 @@ export class PromptLetPromptViewer extends LitElement {
               <span class="run-info"
                 >${numFormatter(this.promptData.promptRunCount)} runs</span
               >
+
+              <button class="add-button">Add</button>
             </div>
           </div>
 
@@ -149,10 +187,9 @@ export class PromptLetPromptViewer extends LitElement {
 
             <section class="content-block">
               <div class="name">More Info</div>
-              <div class="info-table"></div>
+              <div class="info-table">${infoContent}</div>
             </section>
           </div>
-          <div class="footer">Add to library</div>
         </div>
       </div>
     `;

@@ -68,7 +68,7 @@
 
     & span {
       /* Trick to horizontally align emojis */
-      font-size: 32px;
+      font-size: 34px;
       transform: scale(0.5);
 
       color: var(--gray-700);

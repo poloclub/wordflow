@@ -181,6 +181,6 @@
   /* -webkit-backdrop-filter: blur(1px); */
 
   &.hidden {
-    /* display: none; */
+    display: none;
   }
 }
