@@ -18,6 +18,7 @@ import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
+import type { ModelAuthMessage } from '../modal-auth/modal-auth';
 
 // Components
 import '../text-editor/text-editor';
@@ -302,9 +303,8 @@ export class PromptLetWordflow extends LitElement {
 
         <promptlet-modal-auth
           class="modal"
-          @api-key-added=${(e: CustomEvent<SimpleEventMessage>) => {
-            const model = 'gpt';
-            this.apiKey = localStorage.getItem(`${model}APIKey`);
+          @api-key-added=${(e: CustomEvent<ModelAuthMessage>) => {
+            this.apiKey = e.detail.apiKey;
           }}
         ></promptlet-modal-auth>
 
@@ -319,6 +319,8 @@ export class PromptLetWordflow extends LitElement {
               this.floatingMenuToolButtonClickHandler(e)}
           ></promptlet-floating-menu>
         </div>
+
+        <promptlet-setting-window></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>

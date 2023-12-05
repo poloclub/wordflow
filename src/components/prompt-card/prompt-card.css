@@ -1,8 +1,8 @@
 @import url('../panel-community/tag.css');
 
 .prompt-card {
-  --padding-h: 12px;
-  --padding-v: 8px;
+  --padding-h: 16px;
+  --padding-v: 16px;
 
   width: 100%;
   height: 100%;
@@ -94,12 +94,11 @@
 .prompt {
   display: -webkit-box;
   line-height: 1.25;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 3px;
-  font-size: 13px;
-  font-family: 'Roboto Mono', 'SF Mono', monospace;
+  flex: 1 1 auto;
 }
 
 .tag-list {
@@ -124,15 +123,15 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: stretch;
-    gap: 4px;
+    gap: 5px;
     overflow: hidden;
 
     .separator {
-      width: 2px;
+      width: 1px;
       border-radius: 1px;
-      background-color: var(--gray-300);
-      transform: scale(1, 0.7);
+      transform: scale(1, 0.6);
       transform-origin: center;
+      background-color: var(--gray-400);
     }
 
     .name {

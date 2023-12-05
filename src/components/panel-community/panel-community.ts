@@ -63,6 +63,9 @@ export class PromptLetPanelCommunity extends LitElement {
   @query('.panel-community')
   panelElement: HTMLElement | undefined;
 
+  @query('.prompt-content')
+  promptContentElement: HTMLElement | undefined;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -184,8 +187,15 @@ export class PromptLetPanelCommunity extends LitElement {
   }
 
   pageClickedHandler(e: CustomEvent<number>) {
+    if (this.promptContentElement === undefined) {
+      throw Error('promptContentElement undefined');
+    }
+
     if (e.detail !== this.curPage) {
       this.curPage = e.detail;
+
+      // Scroll to the top
+      this.promptContentElement.scrollTop = 0;
     }
   }
 
