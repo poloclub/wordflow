@@ -27,6 +27,9 @@ export class PromptLetPromptCard extends LitElement {
   @property({ attribute: false })
   promptData: PromptDataRemote;
 
+  @property({ type: Boolean })
+  isLocalPrompt: boolean = false;
+
   @property({ type: String })
   curSelectedTag = '';
 
@@ -79,14 +82,16 @@ export class PromptLetPromptCard extends LitElement {
   render() {
     // Compose the tag list
     let tagList = html``;
-    for (const tag of this.promptData.tags) {
-      tagList = html`${tagList}
-        <span
-          class="tag"
-          ?is-selected=${this.curSelectedTag === tag}
-          @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
-          >${tag}</span
-        >`;
+    if (!this.isLocalPrompt) {
+      for (const tag of this.promptData.tags) {
+        tagList = html`${tagList}
+          <span
+            class="tag"
+            ?is-selected=${this.curSelectedTag === tag}
+            @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
+            >${tag}</span
+          >`;
+      }
     }
 
     // Compose the share info
@@ -103,8 +108,16 @@ export class PromptLetPromptCard extends LitElement {
     const user =
       this.promptData.userName === '' ? 'Anonymous' : this.promptData.userName;
 
+    let userTemplate = html``;
+    if (!this.isLocalPrompt) {
+      userTemplate = html`
+        <span class="name" title=${user}>${user}</span>
+        <span class="separator"></span>
+      `;
+    }
+
     return html`
-      <div class="prompt-card">
+      <div class="prompt-card" ?is-local=${this.isLocalPrompt}>
         <div class="header">
           <span class="icon"><span>${this.promptData.icon}</span></span>
           <span class="name-wrapper">
@@ -123,8 +136,7 @@ export class PromptLetPromptCard extends LitElement {
             >${numFormatter(this.promptData.promptRunCount)} runs</span
           >
           <span class="share-info">
-            <span class="name" title=${user}>${user}</span>
-            <span class="separator"></span>
+            ${userTemplate}
             <span class="date" title=${fullTimeFormatter(date)}
               >${dateFormatter(date)}</span
             >

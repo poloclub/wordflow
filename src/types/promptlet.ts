@@ -14,6 +14,19 @@ export interface PromptDataRemote {
   title: string;
 }
 
+export interface PromptDataLocal {
+  prompt: string;
+  tags?: string[];
+  userID: string;
+  userName?: string;
+  description?: string;
+  icon: string;
+  forkFrom?: string;
+  promptRunCount: number;
+  created: string;
+  title: string;
+}
+
 /**
  * Promptlet object describing a prompt functionality.
  */

@@ -141,3 +141,12 @@
     }
   }
 }
+
+/* Special styles for the local prompt card */
+.prompt-card[is-local] {
+  gap: 2px;
+
+  .prompt {
+    margin: 0;
+  }
+}
