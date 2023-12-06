@@ -38,7 +38,7 @@
 
 .window {
   background-color: white;
-  box-shadow: var(--shadow-border-large);
+  box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.1);
   border-radius: 8px;
   overflow: hidden;
   width: max-content;

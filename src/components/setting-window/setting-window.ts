@@ -32,7 +32,7 @@ export class PromptLetSettingWindow extends LitElement {
   //                              Class Properties                            ||
   //==========================================================================||
   @state()
-  activeMenuItemIndex = 1;
+  activeMenuItemIndex = 0;
 
   menuItems: MenuItem[] = [
     {
