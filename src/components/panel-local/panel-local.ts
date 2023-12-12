@@ -108,7 +108,7 @@ export class PromptLetPanelLocal extends LitElement {
       await new Promise<void>(resolve => {
         setTimeout(() => {
           resolve();
-        }, 1000);
+        }, 800);
       });
       this.maxPromptCount += promptCountIncrement;
       await this.updateComplete;
@@ -214,9 +214,26 @@ export class PromptLetPanelLocal extends LitElement {
           </div>
 
           <div class="fav-prompts">
-            <div class="fav-prompt-slot">Prompt 1</div>
-            <div class="fav-prompt-slot">Prompt 2</div>
-            <div class="fav-prompt-slot">Prompt 3</div>
+            <div class="fav-prompt-slot">
+              <div class="prompt-mini-card">
+                <span class="icon">${this.allPrompts[0].icon}</span>
+                <span class="title">${this.allPrompts[0].title}</span>
+              </div>
+            </div>
+
+            <div class="fav-prompt-slot">
+              <div class="prompt-mini-card">
+                <span class="icon">${this.allPrompts[1].icon}</span>
+                <span class="title">${this.allPrompts[1].title}</span>
+              </div>
+            </div>
+
+            <div class="fav-prompt-slot">
+              <div class="prompt-mini-card">
+                <span class="icon">${this.allPrompts[2].icon}</span>
+                <span class="title">${this.allPrompts[2].title}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

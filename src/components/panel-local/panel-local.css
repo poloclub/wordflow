@@ -44,44 +44,6 @@ button {
   all: unset;
 }
 
-.fav-panel {
-  width: 100%;
-  display: flex;
-  flex-flow: column;
-  padding: var(--padding-v) var(--padding-h) 16px var(--padding-h);
-  gap: 10px;
-  box-sizing: border-box;
-  font-size: var(--font-d1);
-
-  .header {
-    display: flex;
-    flex-flow: row;
-    align-items: baseline;
-    gap: 10px;
-
-    .title {
-      font-weight: 800;
-      font-size: var(--font-u2);
-    }
-  }
-
-  .fav-prompts {
-    display: flex;
-    flex-flow: row;
-    gap: 10px;
-
-    .fav-prompt-slot {
-      flex: 1 0 auto;
-      height: 60px;
-      background-color: var(--gray-200);
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  }
-}
-
 .prompt-panel {
   width: 100%;
   display: flex;
@@ -281,12 +243,92 @@ button {
   }
 
   .circle-loader {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    border: 4px solid;
+    border: 3px solid;
     border-color: color-mix(in lab, var(--gray-300) 100%, white 30%);
-    border-right-color: var(--gray-600);
+    border-right-color: var(--gray-500);
     animation: circle-loader-animation 1s infinite linear;
+  }
+}
+
+.fav-panel {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  padding: var(--padding-v) var(--padding-h) 16px var(--padding-h);
+  gap: 10px;
+  box-sizing: border-box;
+  font-size: var(--font-d1);
+
+  .header {
+    display: flex;
+    flex-flow: row;
+    align-items: baseline;
+    gap: 10px;
+
+    .title {
+      font-weight: 800;
+      font-size: var(--font-u2);
+    }
+  }
+
+  .fav-prompts {
+    display: flex;
+    flex-flow: row;
+    gap: 10px;
+    overflow: hidden;
+  }
+}
+
+.fav-prompt-slot {
+  flex: 1 1 auto;
+  height: 60px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--gray-300);
+  font-size: var(--font-d2);
+
+  .prompt-mini-card {
+    display: flex;
+    flex-flow: row;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .title {
+    display: inline-flex;
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    text-align: center;
+    transform-origin: center center 0px;
+
+    border-radius: 100%;
+    border: 1px solid var(--gray-300);
+    position: relative;
+
+    box-sizing: border-box;
+    transition: box-shadow linear 100ms;
+
+    & span {
+      /* Trick to horizontally align emojis */
+      font-size: 34px;
+      transform: scale(0.5);
+
+      color: var(--gray-700);
+      font-weight: 700;
+      line-height: 1;
+    }
   }
 }

@@ -145,8 +145,13 @@
 /* Special styles for the local prompt card */
 .prompt-card[is-local] {
   gap: 2px;
+  cursor: grab;
 
   .prompt {
     margin: 0;
+  }
+
+  &:active:not(:has(.tag:active)) {
+    transform: unset;
   }
 }
