@@ -354,7 +354,7 @@ promptlet-prompt-card {
     overflow-y: hidden;
   }
 
-  .fav-prompt-slot {
+  .fav-prompt-slot:not([is-temp]) {
     border: 1px dashed var(--gray-500);
 
     &.drag-over {

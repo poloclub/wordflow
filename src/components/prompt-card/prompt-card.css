@@ -27,6 +27,7 @@
     box-shadow linear 100ms,
     transform linear 100ms;
   transform-origin: center;
+  background-color: white;
 
   &:hover {
     box-shadow:

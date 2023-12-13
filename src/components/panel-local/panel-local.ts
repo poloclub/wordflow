@@ -30,6 +30,14 @@ export class PromptLetPanelLocal extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @property({ attribute: false })
+  favPrompts: PromptDataLocal[] = [];
+
+  @property({ attribute: false })
+  updateFavPrompts: (newFavPrompts: PromptDataLocal[]) => void = (
+    _: PromptDataLocal[]
+  ) => {};
+
   @state()
   allPrompts: PromptDataLocal[] = [];
 
@@ -44,6 +52,8 @@ export class PromptLetPanelLocal extends LitElement {
 
   @query('.prompt-loader')
   promptLoaderElement: HTMLElement | undefined;
+
+  draggingImageElement: HTMLElement | null = null;
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -135,6 +145,40 @@ export class PromptLetPanelLocal extends LitElement {
     target.classList.add('dragging');
     console.log('start dragging');
     document.body.style.setProperty('cursor', 'grabbing');
+
+    // Mimic the current slot width
+    let slotWidth = 200;
+    if (this.shadowRoot) {
+      const favPrompt = this.shadowRoot.querySelector(
+        '.fav-prompt-slot'
+      ) as HTMLElement;
+      slotWidth = favPrompt.getBoundingClientRect().width;
+    }
+
+    // Set the dragging image
+    const tempFavSlot = document.createElement('div');
+    tempFavSlot.classList.add('fav-prompt-slot');
+    tempFavSlot.setAttribute('is-temp', 'true');
+    tempFavSlot.style.setProperty('width', `${slotWidth}px`);
+
+    const miniCard = document.createElement('div');
+    miniCard.classList.add('prompt-mini-card');
+
+    const icon = document.createElement('span');
+    icon.classList.add('icon');
+    icon.innerText = target.promptData.icon;
+
+    const title = document.createElement('span');
+    title.classList.add('title');
+    title.innerText = target.promptData.title;
+
+    miniCard.appendChild(icon);
+    miniCard.appendChild(title);
+    tempFavSlot.appendChild(miniCard);
+
+    this.promptContainerElement?.append(tempFavSlot);
+    this.draggingImageElement = tempFavSlot;
+    e.dataTransfer?.setDragImage(tempFavSlot, 10, 10);
   }
 
   promptCardDragEnded(e: DragEvent) {
@@ -143,6 +187,10 @@ export class PromptLetPanelLocal extends LitElement {
     target.classList.remove('dragging');
     console.log('end dragging');
     document.body.style.removeProperty('cursor');
+
+    // Remove the temporary slot element
+    this.draggingImageElement?.remove();
+    this.draggingImageElement = null;
   }
 
   favPromptSlotDragEntered(e: DragEvent) {
@@ -185,6 +233,26 @@ export class PromptLetPanelLocal extends LitElement {
             this.promptCardDragEnded(e);
           }}
         ></promptlet-prompt-card> `;
+    }
+
+    // Compose the fav prompts
+    let favPrompts = html``;
+    for (const favPrompt of this.favPrompts) {
+      favPrompts = html`${favPrompts}
+        <div
+          class="fav-prompt-slot"
+          @dragenter=${(e: DragEvent) => {
+            this.favPromptSlotDragEntered(e);
+          }}
+          @dragleave=${(e: DragEvent) => {
+            this.favPromptSlotDragLeft(e);
+          }}
+        >
+          <div class="prompt-mini-card">
+            <span class="icon">${favPrompt.icon}</span>
+            <span class="title">${favPrompt.title}</span>
+          </div>
+        </div>`;
     }
 
     return html`
@@ -250,36 +318,7 @@ export class PromptLetPanelLocal extends LitElement {
             >
           </div>
 
-          <div class="fav-prompts">
-            <div
-              class="fav-prompt-slot"
-              @dragenter=${(e: DragEvent) => {
-                this.favPromptSlotDragEntered(e);
-              }}
-              @dragleave=${(e: DragEvent) => {
-                this.favPromptSlotDragLeft(e);
-              }}
-            >
-              <div class="prompt-mini-card">
-                <span class="icon">${this.allPrompts[0].icon}</span>
-                <span class="title">${this.allPrompts[0].title}</span>
-              </div>
-            </div>
-
-            <div class="fav-prompt-slot">
-              <div class="prompt-mini-card">
-                <span class="icon">${this.allPrompts[1].icon}</span>
-                <span class="title">${this.allPrompts[1].title}</span>
-              </div>
-            </div>
-
-            <div class="fav-prompt-slot">
-              <div class="prompt-mini-card">
-                <span class="icon">${this.allPrompts[2].icon}</span>
-                <span class="title">${this.allPrompts[2].title}</span>
-              </div>
-            </div>
-          </div>
+          <div class="fav-prompts">${favPrompts}</div>
         </div>
       </div>
     `;

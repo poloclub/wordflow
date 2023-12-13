@@ -13,6 +13,9 @@ import '../panel-community/panel-community';
 import '../panel-local/panel-local';
 import '../panel-setting/panel-setting';
 
+// Types
+import type { PromptDataLocal } from '../../types/promptlet';
+
 // Assets
 import componentCSS from './setting-window.css?inline';
 import crossIcon from '../../images/icon-cross.svg?raw';
@@ -31,23 +34,16 @@ export class PromptLetSettingWindow extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @property({ attribute: false })
+  favPrompts: PromptDataLocal[] = [];
+
+  @property({ attribute: false })
+  updateFavPrompts: (newFavPrompts: PromptDataLocal[]) => void = (
+    _: PromptDataLocal[]
+  ) => {};
+
   @state()
   activeMenuItemIndex = 0;
-
-  menuItems: MenuItem[] = [
-    {
-      name: 'My Prompts',
-      component: html`<promptlet-panel-local></promptlet-panel-local>`
-    },
-    {
-      name: 'Community',
-      component: html`<promptlet-panel-community></promptlet-panel-community>`
-    },
-    {
-      name: 'Settings',
-      component: html`<promptlet-panel-setting></promptlet-panel-setting>`
-    }
-  ];
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -82,9 +78,27 @@ export class PromptLetSettingWindow extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
+    const menuItems: MenuItem[] = [
+      {
+        name: 'My Prompts',
+        component: html`<promptlet-panel-local
+          .favPrompts=${this.favPrompts}
+          .updateFavPrompts=${this.updateFavPrompts}
+        ></promptlet-panel-local>`
+      },
+      {
+        name: 'Community',
+        component: html`<promptlet-panel-community></promptlet-panel-community>`
+      },
+      {
+        name: 'Settings',
+        component: html`<promptlet-panel-setting></promptlet-panel-setting>`
+      }
+    ];
+
     // Compose the menu items
     let menuItemsTemplate = html``;
-    for (const [i, item] of this.menuItems.entries()) {
+    for (const [i, item] of menuItems.entries()) {
       menuItemsTemplate = html`${menuItemsTemplate}
         <div
           class="menu-item"
@@ -106,7 +120,7 @@ export class PromptLetSettingWindow extends LitElement {
           <div class="content">
             <div class="menu">${menuItemsTemplate}</div>
             <div class="panel">
-              ${this.menuItems[this.activeMenuItemIndex].component}
+              ${menuItems[this.activeMenuItemIndex].component}
             </div>
           </div>
         </div>

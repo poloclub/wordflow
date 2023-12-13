@@ -13,7 +13,7 @@ import { config } from '../../config/config';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
-import type { Promptlet } from '../../types/promptlet';
+import type { Promptlet, PromptDataLocal } from '../../types/promptlet';
 import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
@@ -28,9 +28,13 @@ import '../setting-window/setting-window';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
+import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
+const fakePrompts = fakePromptsJSON as PromptDataLocal[];
+
+// Constants
 
 export interface UpdateSidebarMenuProps {
   anchor: Element | VirtualElement;
@@ -71,6 +75,9 @@ export class PromptLetWordflow extends LitElement {
 
   @state()
   apiKey: string | null = null;
+
+  @state()
+  favPrompts: PromptDataLocal[] = fakePrompts.slice(0, 3);
 
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
@@ -224,6 +231,10 @@ export class PromptLetWordflow extends LitElement {
     floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
   };
 
+  updateFavPrompts(newFavPrompts: PromptDataLocal[]) {
+    this.favPrompts = newFavPrompts;
+  }
+
   // ===== Event Methods ======
   resizeHandler() {
     this.updateSidebarMenuXPos(
@@ -320,7 +331,11 @@ export class PromptLetWordflow extends LitElement {
           ></promptlet-floating-menu>
         </div>
 
-        <promptlet-setting-window></promptlet-setting-window>
+        <promptlet-setting-window
+          .favPrompts=${this.favPrompts}
+          .updateFavPrompts=${(newFavPrompts: PromptDataLocal[]) =>
+            this.updateFavPrompts(newFavPrompts)}
+        ></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>
