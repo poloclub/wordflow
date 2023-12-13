@@ -28,16 +28,7 @@
     transform linear 100ms;
   transform-origin: center;
   background-color: white;
-
-  &:hover {
-    box-shadow:
-      0 0 10px hsla(0, 0%, 0%, 0.05),
-      0 0 4px hsla(0, 0%, 0%, 0.05);
-  }
-
-  &:active:not(:has(.tag:active)) {
-    transform: translate(0, 1px);
-  }
+  overflow: hidden;
 }
 
 .header {
@@ -148,9 +139,5 @@
 
   .prompt {
     margin: 0;
-  }
-
-  &:active:not(:has(.tag:active)) {
-    transform: unset;
   }
 }

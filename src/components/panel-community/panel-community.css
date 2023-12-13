@@ -187,4 +187,11 @@
 
 promptlet-prompt-card {
   cursor: pointer;
+  border-radius: 10px;
+
+  &:hover {
+    box-shadow:
+      0 0 10px hsla(0, 0%, 0%, 0.05),
+      0 0 4px hsla(0, 0%, 0%, 0.05);
+  }
 }

@@ -73,6 +73,8 @@ button {
     gap: 10px;
 
     .result {
+      user-select: none;
+      -webkit-user-select: none;
       font-weight: 800;
       font-size: var(--font-u2);
     }
@@ -267,6 +269,8 @@ button {
     flex-flow: row;
     align-items: baseline;
     gap: 10px;
+    user-select: none;
+    -webkit-user-select: none;
 
     .title {
       font-weight: 800;
@@ -340,12 +344,85 @@ button {
   }
 }
 
+.prompt-card-container {
+  flex: 0 0 auto;
+  position: relative;
+  display: flex;
+  width: 100%;
+
+  .prompt-card-menu {
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 0px;
+
+    background-color: var(--gray-800);
+    color: var(--gray-100);
+
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    transform: translate(0, -50%);
+    box-shadow: 0 2px 5px hsla(0, 0%, 0%, 0.2);
+
+    opacity: 1;
+    pointer-events: unset;
+    transition: opacity 150ms;
+
+    &[is-hidden] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    button {
+      width: 100%;
+      height: 100%;
+      padding: 3px 6px;
+      cursor: pointer;
+
+      &:first-child {
+        padding-left: 10px;
+      }
+
+      &:last-child {
+        padding-right: 10px;
+      }
+
+      &:hover {
+        background-color: var(--gray-600);
+      }
+
+      &:active {
+        background-color: var(--gray-700);
+      }
+    }
+  }
+
+  &:has(.prompt-card-menu:hover) {
+    promptlet-prompt-card {
+      box-shadow:
+        0 0 10px hsla(0, 0%, 0%, 0.05),
+        0 0 4px hsla(0, 0%, 0%, 0.05);
+    }
+  }
+}
+
 promptlet-prompt-card {
+  width: 100%;
   cursor: grab;
+  border-radius: 10px;
 
   &.dragging {
     opacity: 0.5;
     cursor: unset;
+  }
+
+  &:hover {
+    box-shadow:
+      0 0 10px hsla(0, 0%, 0%, 0.05),
+      0 0 4px hsla(0, 0%, 0%, 0.05);
   }
 }
 
@@ -355,7 +432,7 @@ promptlet-prompt-card {
   }
 
   .fav-prompt-slot:not([is-temp]) {
-    border: 1px dashed var(--gray-500);
+    border: 1px dashed var(--gray-600);
 
     &.drag-over {
       background-color: var(--gray-200);

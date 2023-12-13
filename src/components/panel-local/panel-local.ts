@@ -9,11 +9,13 @@ import '../pagination/pagination';
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
 import type { PromptLetPromptCard } from '../prompt-card/prompt-card';
 
+// Assets
 import componentCSS from './panel-local.css?inline';
 import searchIcon from '../../images/icon-search.svg?raw';
 import crossIcon from '../../images/icon-cross-thick.svg?raw';
 import sortIcon from '../../images/icon-decrease.svg?raw';
-
+import deleteIcon from '../../images/icon-delete.svg?raw';
+import editIcon from '../../images/icon-edit-pen.svg?raw';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
@@ -46,6 +48,9 @@ export class PromptLetPanelLocal extends LitElement {
 
   @state()
   isDraggingPromptCard = false;
+
+  @state()
+  hoveringPromptCardIndex: number | null = null;
 
   @query('.prompt-container')
   promptContainerElement: HTMLElement | undefined;
@@ -149,6 +154,8 @@ export class PromptLetPanelLocal extends LitElement {
     target.classList.add('dragging');
     document.body.style.setProperty('cursor', 'grabbing');
 
+    this.hoveringPromptCardIndex = null;
+
     // Set the current prompt to data transfer
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'copy';
@@ -240,6 +247,16 @@ export class PromptLetPanelLocal extends LitElement {
     e.preventDefault();
   }
 
+  promptCardMouseEntered(e: MouseEvent, index: number) {
+    e.preventDefault();
+    this.hoveringPromptCardIndex = index;
+  }
+
+  promptCardMouseLeft(e: MouseEvent) {
+    e.preventDefault();
+    this.hoveringPromptCardIndex = null;
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -250,26 +267,48 @@ export class PromptLetPanelLocal extends LitElement {
   render() {
     // Compose the prompt cards
     let promptCards = html``;
-    for (const curPromptData of this.allPrompts.slice(
-      0,
-      Math.min(this.maxPromptCount, this.allPrompts.length)
-    )) {
+    for (const [i, curPromptData] of this.allPrompts
+      .slice(0, Math.min(this.maxPromptCount, this.allPrompts.length))
+      .entries()) {
       const promptData = curPromptData as PromptDataRemote;
       promptCards = html`${promptCards}
-        <promptlet-prompt-card
-          draggable="true"
-          .promptData=${promptData}
-          .isLocalPrompt=${true}
-          @click=${() => {
-            this.promptCardClicked(promptData);
+        <div
+          class="prompt-card-container"
+          @mouseenter=${(e: MouseEvent) => {
+            this.promptCardMouseEntered(e, i);
           }}
-          @dragstart=${(e: DragEvent) => {
-            this.promptCardDragStarted(e);
+          @mouseleave=${(e: MouseEvent) => {
+            this.promptCardMouseLeft(e);
           }}
-          @dragend=${(e: DragEvent) => {
-            this.promptCardDragEnded(e);
-          }}
-        ></promptlet-prompt-card> `;
+        >
+          <div
+            class="prompt-card-menu"
+            ?is-hidden="${this.hoveringPromptCardIndex !== i}"
+          >
+            <button class="edit-button">
+              <span class="svg-icon">${unsafeHTML(editIcon)}</span>
+            </button>
+
+            <button class="delete-button">
+              <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>
+            </button>
+          </div>
+
+          <promptlet-prompt-card
+            draggable="true"
+            .promptData=${promptData}
+            .isLocalPrompt=${true}
+            @click=${() => {
+              this.promptCardClicked(promptData);
+            }}
+            @dragstart=${(e: DragEvent) => {
+              this.promptCardDragStarted(e);
+            }}
+            @dragend=${(e: DragEvent) => {
+              this.promptCardDragEnded(e);
+            }}
+          ></promptlet-prompt-card>
+        </div>`;
     }
 
     // Compose the fav prompts
