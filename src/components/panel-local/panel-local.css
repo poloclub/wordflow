@@ -291,6 +291,12 @@ button {
   align-items: center;
   border: 1px solid var(--gray-300);
   font-size: var(--font-d2);
+  background-color: white;
+  transition: background-color 100ms;
+
+  & * {
+    pointer-events: none;
+  }
 
   .prompt-mini-card {
     display: flex;
@@ -313,6 +319,7 @@ button {
     vertical-align: middle;
     text-align: center;
     transform-origin: center center 0px;
+    background-color: white;
 
     border-radius: 100%;
     border: 1px solid var(--gray-300);
@@ -329,6 +336,29 @@ button {
       color: var(--gray-700);
       font-weight: 700;
       line-height: 1;
+    }
+  }
+}
+
+promptlet-prompt-card {
+  cursor: grab;
+
+  &.dragging {
+    opacity: 0.5;
+    cursor: unset;
+  }
+}
+
+.panel-local[is-dragging] {
+  .prompt-container {
+    overflow-y: hidden;
+  }
+
+  .fav-prompt-slot {
+    border: 1px dashed var(--gray-500);
+
+    &.drag-over {
+      background-color: var(--gray-200);
     }
   }
 }

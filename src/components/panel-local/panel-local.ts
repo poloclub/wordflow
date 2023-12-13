@@ -7,6 +7,7 @@ import '../pagination/pagination';
 
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
+import type { PromptLetPromptCard } from '../prompt-card/prompt-card';
 
 import componentCSS from './panel-local.css?inline';
 import searchIcon from '../../images/icon-search.svg?raw';
@@ -34,6 +35,9 @@ export class PromptLetPanelLocal extends LitElement {
 
   @state()
   maxPromptCount = 18;
+
+  @state()
+  isDraggingPromptCard = false;
 
   @query('.prompt-container')
   promptContainerElement: HTMLElement | undefined;
@@ -125,6 +129,32 @@ export class PromptLetPanelLocal extends LitElement {
     }
   }
 
+  promptCardDragStarted(e: DragEvent) {
+    this.isDraggingPromptCard = true;
+    const target = e.target as PromptLetPromptCard;
+    target.classList.add('dragging');
+    console.log('start dragging');
+    document.body.style.setProperty('cursor', 'grabbing');
+  }
+
+  promptCardDragEnded(e: DragEvent) {
+    this.isDraggingPromptCard = false;
+    const target = e.target as PromptLetPromptCard;
+    target.classList.remove('dragging');
+    console.log('end dragging');
+    document.body.style.removeProperty('cursor');
+  }
+
+  favPromptSlotDragEntered(e: DragEvent) {
+    const currentTarget = e.currentTarget as HTMLDivElement;
+    currentTarget.classList.add('drag-over');
+  }
+
+  favPromptSlotDragLeft(e: DragEvent) {
+    const currentTarget = e.currentTarget as HTMLDivElement;
+    currentTarget.classList.remove('drag-over');
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -142,16 +172,23 @@ export class PromptLetPanelLocal extends LitElement {
       const promptData = curPromptData as PromptDataRemote;
       promptCards = html`${promptCards}
         <promptlet-prompt-card
+          draggable="true"
           .promptData=${promptData}
           .isLocalPrompt=${true}
           @click=${() => {
             this.promptCardClicked(promptData);
           }}
+          @dragstart=${(e: DragEvent) => {
+            this.promptCardDragStarted(e);
+          }}
+          @dragend=${(e: DragEvent) => {
+            this.promptCardDragEnded(e);
+          }}
         ></promptlet-prompt-card> `;
     }
 
     return html`
-      <div class="panel-local">
+      <div class="panel-local" ?is-dragging=${this.isDraggingPromptCard}>
         <div class="prompt-panel">
           <div class="search-panel">
             <div class="search-group">
@@ -214,7 +251,15 @@ export class PromptLetPanelLocal extends LitElement {
           </div>
 
           <div class="fav-prompts">
-            <div class="fav-prompt-slot">
+            <div
+              class="fav-prompt-slot"
+              @dragenter=${(e: DragEvent) => {
+                this.favPromptSlotDragEntered(e);
+              }}
+              @dragleave=${(e: DragEvent) => {
+                this.favPromptSlotDragLeft(e);
+              }}
+            >
               <div class="prompt-mini-card">
                 <span class="icon">${this.allPrompts[0].icon}</span>
                 <span class="title">${this.allPrompts[0].title}</span>

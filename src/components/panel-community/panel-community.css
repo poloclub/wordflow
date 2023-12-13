@@ -184,3 +184,7 @@
     display: none;
   }
 }
+
+promptlet-prompt-card {
+  cursor: pointer;
+}

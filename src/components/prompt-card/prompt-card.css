@@ -20,7 +20,6 @@
   border-radius: 10px;
   font-size: var(--font-d2);
   overflow: hidden;
-  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
 
@@ -145,7 +144,6 @@
 /* Special styles for the local prompt card */
 .prompt-card[is-local] {
   gap: 2px;
-  cursor: grab;
 
   .prompt {
     margin: 0;
