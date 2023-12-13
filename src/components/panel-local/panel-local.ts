@@ -139,12 +139,25 @@ export class PromptLetPanelLocal extends LitElement {
     }
   }
 
+  /**
+   * Event handler for drag starting from the prompt card
+   * @param e Drag event
+   */
   promptCardDragStarted(e: DragEvent) {
     this.isDraggingPromptCard = true;
     const target = e.target as PromptLetPromptCard;
     target.classList.add('dragging');
-    console.log('start dragging');
     document.body.style.setProperty('cursor', 'grabbing');
+
+    // Set the current prompt to data transfer
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData(
+        'newPromptData',
+        JSON.stringify(target.promptData)
+      );
+    }
 
     // Mimic the current slot width
     let slotWidth = 200;
@@ -181,11 +194,14 @@ export class PromptLetPanelLocal extends LitElement {
     e.dataTransfer?.setDragImage(tempFavSlot, 10, 10);
   }
 
+  /**
+   * Event handler for drag ending from the prompt card
+   * @param e Drag event
+   */
   promptCardDragEnded(e: DragEvent) {
     this.isDraggingPromptCard = false;
     const target = e.target as PromptLetPromptCard;
     target.classList.remove('dragging');
-    console.log('end dragging');
     document.body.style.removeProperty('cursor');
 
     // Remove the temporary slot element
@@ -201,6 +217,27 @@ export class PromptLetPanelLocal extends LitElement {
   favPromptSlotDragLeft(e: DragEvent) {
     const currentTarget = e.currentTarget as HTMLDivElement;
     currentTarget.classList.remove('drag-over');
+  }
+
+  /**
+   * Copy prompt data to the favorite prompt slot
+   * @param e Drag event
+   * @param index Index of the current fav prompt slot
+   */
+  favPromptSlotDropped(e: DragEvent, index: number) {
+    if (e.dataTransfer) {
+      const newPromptDataString = e.dataTransfer.getData('newPromptData');
+      const newPromptData = JSON.parse(newPromptDataString) as PromptDataLocal;
+      this.favPrompts[index] = newPromptData;
+      const newFavPrompts = structuredClone(this.favPrompts);
+      newFavPrompts[index] = newPromptData;
+      this.updateFavPrompts(newFavPrompts);
+    }
+
+    // Cancel the drag event because dragleave would not be fired after drop
+    const currentTarget = e.currentTarget as HTMLDivElement;
+    currentTarget.classList.remove('drag-over');
+    e.preventDefault();
   }
 
   //==========================================================================||
@@ -237,7 +274,7 @@ export class PromptLetPanelLocal extends LitElement {
 
     // Compose the fav prompts
     let favPrompts = html``;
-    for (const favPrompt of this.favPrompts) {
+    for (const [i, favPrompt] of this.favPrompts.entries()) {
       favPrompts = html`${favPrompts}
         <div
           class="fav-prompt-slot"
@@ -246,6 +283,12 @@ export class PromptLetPanelLocal extends LitElement {
           }}
           @dragleave=${(e: DragEvent) => {
             this.favPromptSlotDragLeft(e);
+          }}
+          @dragover=${(e: DragEvent) => {
+            e.preventDefault();
+          }}
+          @drop=${(e: DragEvent) => {
+            this.favPromptSlotDropped(e, i);
           }}
         >
           <div class="prompt-mini-card">
