@@ -306,11 +306,15 @@ button {
     display: flex;
     flex-flow: row;
     padding: 12px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .title {
-    display: inline-flex;
+    display: -webkit-box;
+    line-height: 1.2;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .icon {
