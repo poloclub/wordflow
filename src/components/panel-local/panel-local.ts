@@ -1,9 +1,11 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { getEmptyPromptData } from '../panel-community/panel-community';
 
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
+import '../prompt-editor/prompt-editor';
 
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
@@ -52,11 +54,20 @@ export class PromptLetPanelLocal extends LitElement {
   @state()
   hoveringPromptCardIndex: number | null = null;
 
+  @state()
+  selectedPrompt: PromptDataLocal | null = fakePrompts[0];
+
+  @query('.prompt-content')
+  promptContentElement: HTMLElement | undefined;
+
   @query('.prompt-container')
   promptContainerElement: HTMLElement | undefined;
 
   @query('.prompt-loader')
   promptLoaderElement: HTMLElement | undefined;
+
+  @query('.prompt-modal')
+  promptModalElement: HTMLDialogElement | undefined;
 
   draggingImageElement: HTMLElement | null = null;
 
@@ -84,20 +95,18 @@ export class PromptLetPanelLocal extends LitElement {
   //==========================================================================||
 
   promptCardClicked(promptData: PromptDataRemote) {
-    // if (
-    //   this.promptModalElement === undefined ||
-    //   this.promptContentElement === undefined
-    // ) {
-    //   throw Error('promptModalElement is undefined.');
-    // }
-    // this.selectedPrompt = promptData;
-    // this.promptModalElement.style.setProperty(
-    //   'top',
-    //   `${this.promptContentElement.scrollTop}px`
-    // );
-    // this.promptModalElement.classList.remove('hidden');
-    // // Disable scrolling
-    // this.promptContentElement.classList.add('no-scroll');
+    if (
+      this.promptModalElement === undefined ||
+      this.promptContentElement === undefined
+    ) {
+      throw Error('promptModalElement is undefined.');
+    }
+    this.selectedPrompt = promptData;
+    this.promptModalElement.style.setProperty(
+      'top',
+      `${this.promptContentElement.scrollTop}px`
+    );
+    this.promptModalElement.classList.remove('hidden');
   }
 
   /**
@@ -196,7 +205,7 @@ export class PromptLetPanelLocal extends LitElement {
     miniCard.appendChild(title);
     tempFavSlot.appendChild(miniCard);
 
-    this.promptContainerElement?.append(tempFavSlot);
+    this.promptContentElement?.append(tempFavSlot);
     this.draggingImageElement = tempFavSlot;
     e.dataTransfer?.setDragImage(tempFavSlot, 10, 10);
   }
@@ -376,31 +385,41 @@ export class PromptLetPanelLocal extends LitElement {
             </div>
           </div>
 
-          <div
-            class="prompt-container"
-            @scroll=${() => {
-              this.promptContainerScrolled();
-            }}
-          >
-            ${promptCards}
+          <div class="prompt-content">
+            <div
+              class="prompt-container"
+              @scroll=${() => {
+                this.promptContainerScrolled();
+              }}
+            >
+              ${promptCards}
 
-            <div class="prompt-loader hidden">
-              <div class="loader-container">
-                <div class="circle-loader"></div>
+              <div class="prompt-loader hidden">
+                <div class="loader-container">
+                  <div class="circle-loader"></div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="fav-panel">
-          <div class="header">
-            <span class="title">Favorite Prompts</span>
-            <span class="description"
-              >Drag prompts here to customize the toolbar</span
-            >
-          </div>
+            <div class="fav-panel">
+              <div class="header">
+                <span class="title">Favorite Prompts</span>
+                <span class="description"
+                  >Drag prompts here to customize the toolbar</span
+                >
+              </div>
 
-          <div class="fav-prompts">${favPrompts}</div>
+              <div class="fav-prompts">${favPrompts}</div>
+            </div>
+
+            <div class="prompt-modal hidden">
+              <promptlet-prompt-editor
+                .promptData=${this.selectedPrompt
+                  ? this.selectedPrompt
+                  : getEmptyPromptData()}
+              ></promptlet-prompt-editor>
+            </div>
+          </div>
         </div>
       </div>
     `;
