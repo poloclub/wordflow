@@ -14,7 +14,8 @@ import d3 from '../../utils/d3-import';
 import type { PromptDataLocal } from '../../types/promptlet';
 
 import crossIcon from '../../images/icon-cross.svg?raw';
-
+import infoIcon from '../../images/icon-info.svg?raw';
+import arrowIcon from '../../images/icon-caret-down.svg?raw';
 import componentCSS from './prompt-editor.css?inline';
 
 interface InfoPair {
@@ -36,6 +37,12 @@ export class PromptLetPromptEditor extends LitElement {
 
   @property({ type: String })
   curSelectedTag: string = '';
+
+  @state()
+  showAdvancedOptions = false;
+
+  @state()
+  showSharingOptions = false;
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -76,6 +83,17 @@ export class PromptLetPromptEditor extends LitElement {
     // this.dispatchEvent(event);
   }
 
+  accordionHeaderClicked(e: MouseEvent, type: 'advanced' | 'sharing') {
+    e.preventDefault();
+    console.log('clicked');
+    if (type === 'advanced') {
+      this.showAdvancedOptions = !this.showAdvancedOptions;
+    } else if (type === 'sharing') {
+      console.log('fliping');
+      this.showSharingOptions = !this.showSharingOptions;
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -98,97 +116,134 @@ export class PromptLetPromptEditor extends LitElement {
     // Compose the share info
     const numFormatter = d3.format(',');
     // d3.timeFormat('%m/%d/%Y');
-    let dateFormatter = d3.timeFormat('%b %d, %Y');
+    const dateFormatter = d3.timeFormat('%b %d, %Y');
     const fullTimeFormatter = d3.timeFormat('%b %d, %Y %H:%M');
     const date = d3.isoParse(this.promptData.created)!;
     const curDate = new Date();
-
-    // Ignore the year if it is the same year as today
-    if (date.getFullYear == curDate.getFullYear) {
-      dateFormatter = d3.timeFormat('%b %d');
-    }
-    const user =
-      this.promptData.userName === '' ? 'Anonymous' : this.promptData.userName;
-
-    // Compose the tag list
-    let tagList = html``;
-    for (const tag of this.promptData.tags) {
-      tagList = html`${tagList}
-        <span
-          class="tag"
-          ?is-selected=${this.curSelectedTag === tag}
-          @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
-          >${tag}</span
-        >`;
-    }
-
-    // Compose the info table
-    const infoPairs = this.getInfoPairs();
-    let infoContent = html``;
-    for (const pair of infoPairs) {
-      infoContent = html`${infoContent}
-        <span class="key">${pair.key}</span>
-        <span></span>
-        <span class="value">${pair.value}</span> `;
-    }
-
-    // Add a report row
-    infoContent = html`${infoContent}
-      <span class="key">Report</span>
-      <span></span>
-      <span class="value"
-        ><a href="mailto:jayw@gatech.edu">Report a concern</a></span
-      > `;
 
     return html`
       <div class="prompt-editor">
         <div class="prompt-window">
           <div class="header">
             <div class="title-bar">
-              <span class="icon"><span>${this.promptData.icon}</span></span>
-              <span class="name">${this.promptData.title}</span>
+              <span class="name">Edit Prompt</span>
               <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
-            </div>
-
-            <div class="info-bar">
-              <span class="user-name-wrapper">
-                <span class="user-name" title=${user}>${user}</span>
-              </span>
-              <div class="separator"></div>
-
-              <span class="date" title=${fullTimeFormatter(date)}
-                >${dateFormatter(date)}</span
-              >
-              <div class="separator"></div>
-
-              <span class="run-info"
-                >${numFormatter(this.promptData.promptRunCount)} runs</span
-              >
-
-              <button class="add-button">Add</button>
             </div>
           </div>
 
           <div class="content">
-            <section class="content-block">
-              <div class="name">Description</div>
-              <div class="content-text">${this.promptData.description}</div>
+            <div class="two-section-container">
+              <section class="content-block content-block-title">
+                <div class="name-row">
+                  <div class="name">Title</div>
+                  <span class="svg-icon info-icon"
+                    >${unsafeHTML(infoIcon)}</span
+                  >
+                </div>
+                <input type="text" class="content-text" />
+              </section>
+
+              <section class="content-block content-block-icon">
+                <div class="name-row">
+                  <div class="name">Icon</div>
+                  <span class="svg-icon info-icon"
+                    >${unsafeHTML(infoIcon)}</span
+                  >
+                </div>
+                <div class="content-icon-wrapper">
+                  <input type="text" class="content-text" />
+                </div>
+              </section>
+            </div>
+
+            <section class="content-block content-block-prompt">
+              <div class="name-row">
+                <div class="name">Prompt</div>
+                <span class="svg-icon info-icon">${unsafeHTML(infoIcon)}</span>
+              </div>
+              <textarea
+                type="text"
+                class="content-text prompt-input"
+              ></textarea>
             </section>
 
-            <section class="content-block">
-              <div class="name">Prompt</div>
-              <div class="content-text">${this.promptData.prompt}</div>
-            </section>
+            <div
+              class="accordion-container"
+              ?hide-content=${!this.showAdvancedOptions}
+            >
+              <div
+                class="accordion-header"
+                @click=${(e: MouseEvent) => {
+                  this.accordionHeaderClicked(e, 'advanced');
+                }}
+              >
+                <div class="name">Advanced Settings</div>
+                <span class="svg-icon arrow-icon"
+                  >${unsafeHTML(arrowIcon)}</span
+                >
+              </div>
 
-            <section class="content-block">
-              <div class="name">Tags</div>
-              <div class="tag-list">${tagList}</div>
-            </section>
+              <div class="accordion-content">
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Output Parsing</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <input type="text" class="content-text" />
+                </section>
 
-            <section class="content-block">
-              <div class="name">More Info</div>
-              <div class="info-table">${infoContent}</div>
-            </section>
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Injection Mode</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <input type="text" class="content-text" />
+                </section>
+              </div>
+            </div>
+
+            <div
+              class="accordion-container"
+              ?hide-content=${!this.showSharingOptions}
+            >
+              <div
+                class="accordion-header"
+                @click=${(e: MouseEvent) => {
+                  this.accordionHeaderClicked(e, 'sharing');
+                }}
+              >
+                <div class="name">Sharing Settings</div>
+                <span class="svg-icon arrow-icon"
+                  >${unsafeHTML(arrowIcon)}</span
+                >
+              </div>
+
+              <div class="accordion-content">
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Output Parsing</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <input type="text" class="content-text" />
+                </section>
+
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Injection Mode</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <input type="text" class="content-text" />
+                </section>
+              </div>
+            </div>
           </div>
         </div>
       </div>

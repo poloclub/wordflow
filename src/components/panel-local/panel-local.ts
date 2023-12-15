@@ -6,6 +6,7 @@ import { getEmptyPromptData } from '../panel-community/panel-community';
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
 import '../prompt-editor/prompt-editor';
+import '../confirm-dialog/confirm-dialog';
 
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
@@ -412,7 +413,7 @@ export class PromptLetPanelLocal extends LitElement {
               <div class="fav-prompts">${favPrompts}</div>
             </div>
 
-            <div class="prompt-modal hidden">
+            <div class="prompt-modal">
               <promptlet-prompt-editor
                 .promptData=${this.selectedPrompt
                   ? this.selectedPrompt
@@ -421,6 +422,8 @@ export class PromptLetPanelLocal extends LitElement {
             </div>
           </div>
         </div>
+
+        <nightjar-confirm-dialog></nightjar-confirm-dialog>
       </div>
     `;
   }
