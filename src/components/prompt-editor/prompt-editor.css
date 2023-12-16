@@ -20,7 +20,7 @@ button {
 
 .prompt-editor {
   --padding-h: 20px;
-  --padding-v: 16px;
+  --padding-v: 10px;
 
   width: 100%;
   height: 100%;
@@ -64,12 +64,12 @@ button {
 
   animation: scale-up 100ms;
   width: 460px;
-  max-height: 420px;
+  height: 440px;
   position: relative;
 }
 
 .header {
-  padding: var(--padding-v) var(--padding-h) 10px var(--padding-h);
+  padding: var(--padding-v) var(--padding-h) var(--padding-v) var(--padding-h);
   display: flex;
   flex-flow: column;
   align-items: flex-start;
@@ -201,14 +201,11 @@ button {
 }
 
 .content {
+  flex: 1 1 auto;
   padding: 10px 0 var(--padding-v) 0;
   display: flex;
   flex-flow: column;
   overflow-y: auto;
-}
-
-.footer {
-  padding: 10px var(--padding-h) var(--padding-v) var(--padding-h);
 }
 
 .two-section-container {
@@ -323,23 +320,44 @@ button {
   }
 }
 
-.add-button {
+.footer {
+  padding: var(--padding-v) var(--padding-h) var(--padding-v) var(--padding-h);
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  border-top: 1px solid var(--gray-300);
+  font-size: var(--font-d1);
+}
+
+.footer-button {
   flex: 0 1 auto;
-  line-height: 1;
   display: flex;
   align-items: center;
   padding: 1px 12px;
-  background-color: var(--green-600);
+  background-color: var(--blue-400);
   color: white;
-  border-radius: 3px;
+  border-radius: 5px;
   cursor: pointer;
+  font-weight: 600;
 
   &:hover {
-    background-color: color-mix(in lab, var(--green-600), white 7%);
+    background-color: color-mix(in lab, var(--blue-400), white 7%);
   }
 
   &:active {
-    background-color: color-mix(in lab, var(--green-600), white 0%);
+    background-color: color-mix(in lab, var(--blue-400), white 0%);
+  }
+
+  &.delete-button {
+    background-color: var(--pink-200);
+
+    &:hover {
+      background-color: color-mix(in lab, var(--pink-200), white 7%);
+    }
+
+    &:active {
+      background-color: color-mix(in lab, var(--pink-200), white 0%);
+    }
   }
 }
 
@@ -362,6 +380,10 @@ button {
 
     &:hover {
       background-color: var(--gray-200);
+    }
+
+    &:active {
+      background-color: var(--gray-300);
     }
 
     .arrow-icon {

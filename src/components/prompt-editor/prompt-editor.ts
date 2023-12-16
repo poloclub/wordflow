@@ -245,6 +245,11 @@ export class PromptLetPromptEditor extends LitElement {
               </div>
             </div>
           </div>
+
+          <div class="footer">
+            <button class="footer-button share-button">Share</button>
+            <button class="footer-button delete-button">Delete</button>
+          </div>
         </div>
       </div>
     `;
