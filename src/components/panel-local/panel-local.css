@@ -81,9 +81,11 @@ button {
     .create-button {
       line-height: 1;
       display: flex;
+      gap: 6px;
       align-items: center;
       padding: 0px 12px;
       margin: 1px 0;
+
       background-color: var(--green-600);
       color: white;
       border-radius: 5px;

@@ -324,7 +324,7 @@ button {
   padding: var(--padding-v) var(--padding-h) var(--padding-v) var(--padding-h);
   display: flex;
   flex-flow: row nowrap;
-  gap: 10px;
+  gap: 12px;
   border-top: 1px solid var(--gray-300);
   font-size: var(--font-d1);
 }
@@ -334,30 +334,18 @@ button {
   display: flex;
   align-items: center;
   padding: 1px 12px;
-  background-color: var(--blue-400);
-  color: white;
+  background-color: var(--gray-200);
+  gap: 6px;
+
   border-radius: 5px;
   cursor: pointer;
-  font-weight: 600;
 
   &:hover {
-    background-color: color-mix(in lab, var(--blue-400), white 7%);
+    background-color: color-mix(in lab, var(--gray-200), black 3%);
   }
 
   &:active {
-    background-color: color-mix(in lab, var(--blue-400), white 0%);
-  }
-
-  &.delete-button {
-    background-color: var(--pink-200);
-
-    &:hover {
-      background-color: color-mix(in lab, var(--pink-200), white 7%);
-    }
-
-    &:active {
-      background-color: color-mix(in lab, var(--pink-200), white 0%);
-    }
+    background-color: color-mix(in lab, var(--gray-200), black 7%);
   }
 }
 

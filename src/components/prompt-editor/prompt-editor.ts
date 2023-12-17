@@ -13,9 +13,12 @@ import d3 from '../../utils/d3-import';
 // Types
 import type { PromptDataLocal } from '../../types/promptlet';
 
+// Assets
 import crossIcon from '../../images/icon-cross.svg?raw';
 import infoIcon from '../../images/icon-info.svg?raw';
 import arrowIcon from '../../images/icon-caret-down.svg?raw';
+import deleteIcon from '../../images/icon-delete.svg?raw';
+import shareIcon from '../../images/icon-share.svg?raw';
 import componentCSS from './prompt-editor.css?inline';
 
 interface InfoPair {
@@ -247,8 +250,12 @@ export class PromptLetPromptEditor extends LitElement {
           </div>
 
           <div class="footer">
-            <button class="footer-button share-button">Share</button>
-            <button class="footer-button delete-button">Delete</button>
+            <button class="footer-button share-button">
+              <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
+            </button>
+            <button class="footer-button delete-button">
+              <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
+            </button>
           </div>
         </div>
       </div>

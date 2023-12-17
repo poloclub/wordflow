@@ -19,6 +19,7 @@ import crossIcon from '../../images/icon-cross-thick.svg?raw';
 import sortIcon from '../../images/icon-decrease.svg?raw';
 import deleteIcon from '../../images/icon-delete.svg?raw';
 import editIcon from '../../images/icon-edit-pen.svg?raw';
+import addIcon from '../../images/icon-plus-circle.svg?raw';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
@@ -354,7 +355,9 @@ export class PromptLetPanelLocal extends LitElement {
             <div class="search-group">
               <div class="result">${this.allPrompts.length} Prompts</div>
 
-              <button class="create-button">New Prompt</button>
+              <button class="create-button">
+                <span class="svg-icon">${unsafeHTML(addIcon)}</span>New Prompt
+              </button>
             </div>
 
             <div class="search-group">
