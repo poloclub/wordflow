@@ -9,6 +9,7 @@ import {
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptData } from '../panel-community/panel-community';
 import d3 from '../../utils/d3-import';
+import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 // Types
 import type { PromptDataLocal } from '../../types/promptlet';
@@ -31,6 +32,12 @@ interface LLMModel {
   name: string;
 }
 
+interface FieldInfo {
+  placeholder: string;
+  description: string;
+  tooltip: string;
+}
+
 const ALL_MODELS: LLMModel[] = [
   { label: 'GPT 3.5', name: 'gpt-3.5' },
   { label: 'GPT 4', name: 'gpt-4' },
@@ -47,6 +54,67 @@ const INJECTION_MODE_MAP = {
 };
 
 const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '💛', '💧', '👓'];
+
+enum Field {
+  title = 'Title',
+  icon = 'Icon',
+  prompt = 'Prompt',
+  outputParsing = 'Output Parsing',
+  injectionMode = 'Injection Mode',
+  description = 'Description',
+  tags = 'Tags',
+  userName = 'User Name',
+  recommendedModels = 'Recommended Models'
+}
+
+const FIELD_INFO: Record<Field, FieldInfo> = {
+  [Field.title]: {
+    description: 'Name for your prompt (< 40 characters)',
+    placeholder: 'Shorten the text',
+    tooltip: 'Shorten the text'
+  },
+  [Field.icon]: {
+    description: '',
+    placeholder: '',
+    tooltip: 'Shorten the text'
+  },
+  [Field.prompt]: {
+    description: 'Prompt content',
+    placeholder:
+      'You are an experienced writer. Given some input text, you will make it succinct and clear.',
+    tooltip: 'Shorten the text'
+  },
+  [Field.outputParsing]: {
+    description: 'Optional rule to parse the LLM output',
+    placeholder: '',
+    tooltip: 'Shorten the text'
+  },
+  [Field.injectionMode]: {
+    description: 'How should the LLM output be added?',
+    placeholder: '',
+    tooltip: 'Shorten the text'
+  },
+  [Field.description]: {
+    description: 'What does your prompt do?',
+    placeholder: 'This prompt helps users shorten any English text.',
+    tooltip: 'Shorten the text'
+  },
+  [Field.tags]: {
+    description: 'One to three tags separated by comma',
+    placeholder: 'shorten, summary',
+    tooltip: 'Shorten the text'
+  },
+  [Field.userName]: {
+    description: 'Optional user name',
+    placeholder: '',
+    tooltip: 'Shorten the text'
+  },
+  [Field.recommendedModels]: {
+    description: 'Suggested LLMs to use this prompt',
+    placeholder: '',
+    tooltip: 'Shorten the text'
+  }
+};
 
 /**
  * Prompt editor element.
@@ -139,6 +207,8 @@ export class PromptLetPromptEditor extends LitElement {
     this.dispatchEvent(event);
   }
 
+  infoIconMouseEntered() {}
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -196,24 +266,26 @@ export class PromptLetPromptEditor extends LitElement {
             <div class="two-section-container">
               <section class="content-block content-block-title">
                 <div class="name-row">
-                  <div class="name required-name">Title</div>
-                  <span class="svg-icon info-icon"
+                  <div class="name required-name">${Field.title}</div>
+                  <span
+                    class="svg-icon info-icon"
+                    @mouseenter=${e => this.infoIconMouseEntered()}
                     >${unsafeHTML(infoIcon)}</span
                   >
                   <span class="name-info"
-                    >Name for your prompt (&lt;40 characters)</span
+                    >${FIELD_INFO[Field.title].description}</span
                   >
                 </div>
                 <input
                   type="text"
                   class="content-text"
-                  placeholder="Shorten the text"
+                  placeholder=${FIELD_INFO[Field.title].placeholder}
                 />
               </section>
 
               <section class="content-block content-block-icon">
                 <div class="name-row">
-                  <div class="name required-name">Icon</div>
+                  <div class="name required-name">${Field.icon}</div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
                   >
@@ -230,14 +302,16 @@ export class PromptLetPromptEditor extends LitElement {
 
             <section class="content-block content-block-prompt">
               <div class="name-row">
-                <div class="name required-name">Prompt</div>
+                <div class="name required-name">${Field.prompt}</div>
                 <span class="svg-icon info-icon">${unsafeHTML(infoIcon)}</span>
-                <span class="name-info">Prompt content</span>
+                <span class="name-info"
+                  >${FIELD_INFO[Field.prompt].description}</span
+                >
               </div>
               <textarea
                 type="text"
                 class="content-text prompt-input"
-                placeholder="You are an expert writer. Given an input text, you will make it succinct and clear."
+                placeholder="${FIELD_INFO[Field.prompt].placeholder}"
               ></textarea>
             </section>
 
@@ -260,12 +334,12 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Output Parsing</div>
+                    <div class="name">${Field.outputParsing}</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
                     <span class="name-info"
-                      >Optional rule to parse LLM output</span
+                      >${FIELD_INFO[Field.outputParsing].description}</span
                     >
                   </div>
                   <input type="text" class="content-text" />
@@ -273,12 +347,12 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Injection Mode</div>
+                    <div class="name">${Field.injectionMode}</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
                     <span class="name-info"
-                      >How should the LLM output be added?</span
+                      >${FIELD_INFO[Field.injectionMode].description}</span
                     >
                   </div>
                   <span class="injection-button">
@@ -327,55 +401,61 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name required-name share">Description</div>
+                    <div class="name required-name share">
+                      ${Field.description}
+                    </div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
-                    <span class="name-info">What does your prompt do?</span>
+                    <span class="name-info"
+                      >${FIELD_INFO[Field.description].description}</span
+                    >
                   </div>
                   <textarea
                     type="text"
                     class="content-text prompt-description"
-                    placeholder="This prompt helps you shorten any English text."
+                    placeholder=${FIELD_INFO[Field.description].placeholder}
                   ></textarea>
                 </section>
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name required-name share">Tags</div>
+                    <div class="name required-name share">${Field.tags}</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
                     <span class="name-info"
-                      >One to three tags separated by comma</span
+                      >${FIELD_INFO[Field.tags].description}</span
                     >
                   </div>
                   <input
                     type="text"
                     class="content-text"
-                    placeholder="shorten, summary"
+                    placeholder=${FIELD_INFO[Field.tags].placeholder}
                   />
                 </section>
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">User Name</div>
+                    <div class="name">${Field.userName}</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
-                    <span class="name-info">Optional user name</span>
+                    <span class="name-info"
+                      >${FIELD_INFO[Field.userName].description}</span
+                    >
                   </div>
                   <input type="text" class="content-text" />
                 </section>
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Recommended Models</div>
+                    <div class="name">${Field.recommendedModels}</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
                     <span class="name-info"
-                      >Suggested LLMs to use this prompt</span
+                      >${FIELD_INFO[Field.recommendedModels].description}</span
                     >
                   </div>
                   <form class="model-checkbox-container">
@@ -395,6 +475,15 @@ export class PromptLetPromptEditor extends LitElement {
             </button>
           </div>
         </div>
+      </div>
+
+      <div
+        id="popper-tooltip-editor"
+        class="popper-tooltip hidden"
+        role="tooltip"
+      >
+        <span class="popper-content"></span>
+        <div class="popper-arrow"></div>
       </div>
     `;
   }
