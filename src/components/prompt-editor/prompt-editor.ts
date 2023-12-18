@@ -46,6 +46,8 @@ const INJECTION_MODE_MAP = {
   append: 'Append after input text'
 };
 
+const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '💛', '💧', '👓'];
+
 /**
  * Prompt editor element.
  *
@@ -73,6 +75,8 @@ export class PromptLetPromptEditor extends LitElement {
   @state()
   injectionMode: 'replace' | 'append' = 'replace';
 
+  placeholderEmoji: string;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -81,7 +85,8 @@ export class PromptLetPromptEditor extends LitElement {
     this.promptData = getEmptyPromptData();
 
     this.availableModels = structuredClone(ALL_MODELS);
-    // this.availableModels.sort((a, b) => a.name.localeCompare(b.name));
+    this.placeholderEmoji =
+      EMOJI_CANDIDATES[Math.floor(Math.random() * EMOJI_CANDIDATES.length)];
   }
 
   /**
@@ -199,7 +204,11 @@ export class PromptLetPromptEditor extends LitElement {
                     >Name for your prompt (&lt;40 characters)</span
                   >
                 </div>
-                <input type="text" class="content-text" />
+                <input
+                  type="text"
+                  class="content-text"
+                  placeholder="Shorten the text"
+                />
               </section>
 
               <section class="content-block content-block-icon">
@@ -210,7 +219,11 @@ export class PromptLetPromptEditor extends LitElement {
                   >
                 </div>
                 <div class="content-icon-wrapper">
-                  <input type="text" class="content-text" />
+                  <input
+                    type="text"
+                    class="content-text"
+                    placeholder="${this.placeholderEmoji}"
+                  />
                 </div>
               </section>
             </div>
@@ -224,6 +237,7 @@ export class PromptLetPromptEditor extends LitElement {
               <textarea
                 type="text"
                 class="content-text prompt-input"
+                placeholder="You are an expert writer. Given an input text, you will make it succinct and clear."
               ></textarea>
             </section>
 
@@ -322,6 +336,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <textarea
                     type="text"
                     class="content-text prompt-description"
+                    placeholder="This prompt helps you shorten any English text."
                   ></textarea>
                 </section>
 
@@ -335,7 +350,11 @@ export class PromptLetPromptEditor extends LitElement {
                       >One to three tags separated by comma</span
                     >
                   </div>
-                  <input type="text" class="content-text" />
+                  <input
+                    type="text"
+                    class="content-text"
+                    placeholder="shorten, summary"
+                  />
                 </section>
 
                 <section class="content-block">

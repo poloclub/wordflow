@@ -237,6 +237,10 @@ button {
       width: 33px;
       height: 33px;
       text-align: center;
+
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1;
     }
   }
 
@@ -277,6 +281,10 @@ button {
       outline: 2px solid var(--focus-border-color);
       border: 1px solid var(--focus-border-color);
     }
+
+    &::placeholder {
+      color: var(--gray-600);
+    }
   }
 
   textarea {
@@ -298,6 +306,10 @@ button {
 
     &.prompt-description {
       height: 80px;
+    }
+
+    &::placeholder {
+      color: var(--gray-600);
     }
   }
 
