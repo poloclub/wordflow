@@ -230,7 +230,7 @@ button {
   &.content-block-icon {
     flex: 0 1 auto;
 
-    & input {
+    & input[type='text'] {
       padding: 5px 5px;
       border-radius: 100%;
       width: 2em;
@@ -264,7 +264,7 @@ button {
     pointer-events: none;
   }
 
-  input {
+  input[type='text'] {
     all: unset;
     border: 1px solid var(--gray-300);
     border-radius: 5px;
@@ -292,7 +292,11 @@ button {
     }
 
     &.prompt-input {
-      height: 100px;
+      height: 160px;
+    }
+
+    &.prompt-description {
+      height: 80px;
     }
   }
 
@@ -317,6 +321,15 @@ button {
       height: 13px;
       top: 1px;
     }
+
+    .name.required-name {
+      &:after {
+        content: '*';
+        position: relative;
+        left: 2px;
+        color: var(--red-300);
+      }
+    }
   }
 }
 
@@ -335,7 +348,7 @@ button {
   align-items: center;
   padding: 1px 12px;
   background-color: var(--gray-200);
-  gap: 6px;
+  gap: 5px;
 
   border-radius: 5px;
   cursor: pointer;
@@ -400,6 +413,24 @@ button {
 
     .arrow-icon {
       transform: rotate(0);
+    }
+  }
+}
+
+.model-checkbox-container {
+  display: flex;
+  flex-flow: row wrap;
+  column-gap: 10px;
+  row-gap: 4px;
+  margin-top: 2px;
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    input[type='checkbox'] {
+      margin: 0;
     }
   }
 }

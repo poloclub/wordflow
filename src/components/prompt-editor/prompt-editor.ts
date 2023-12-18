@@ -26,6 +26,21 @@ interface InfoPair {
   value: string;
 }
 
+interface LLMModel {
+  label: string;
+  name: string;
+}
+
+const ALL_MODELS: LLMModel[] = [
+  { label: 'GPT 3.5', name: 'gpt-3.5' },
+  { label: 'GPT 4', name: 'gpt-4' },
+  { label: 'PALM 2', name: 'palm-2' },
+  { label: 'Gemini Pro', name: 'gemini-pro' },
+  { label: 'Claude 1', name: 'claude-1' },
+  { label: 'Claude 2', name: 'claude-2' },
+  { label: 'Llama 2', name: 'llama-2' }
+];
+
 /**
  * Prompt editor element.
  *
@@ -47,12 +62,18 @@ export class PromptLetPromptEditor extends LitElement {
   @state()
   showSharingOptions = false;
 
+  @state()
+  availableModels: LLMModel[];
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
   constructor() {
     super();
     this.promptData = getEmptyPromptData();
+
+    this.availableModels = structuredClone(ALL_MODELS);
+    // this.availableModels.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   /**
@@ -88,11 +109,9 @@ export class PromptLetPromptEditor extends LitElement {
 
   accordionHeaderClicked(e: MouseEvent, type: 'advanced' | 'sharing') {
     e.preventDefault();
-    console.log('clicked');
     if (type === 'advanced') {
       this.showAdvancedOptions = !this.showAdvancedOptions;
     } else if (type === 'sharing') {
-      console.log('fliping');
       this.showSharingOptions = !this.showSharingOptions;
     }
   }
@@ -124,6 +143,20 @@ export class PromptLetPromptEditor extends LitElement {
     const date = d3.isoParse(this.promptData.created)!;
     const curDate = new Date();
 
+    // Compose the model checkbox lists
+    let modelCheckboxes = html``;
+    for (const model of this.availableModels) {
+      modelCheckboxes = html`${modelCheckboxes}
+        <div class="checkbox-group">
+          <input
+            type="checkbox"
+            name="${model.name}"
+            id="model-checkbox-${model.name}"
+          />
+          <label for="model-checkbox-${model.name}">${model.label}</label>
+        </div> `;
+    }
+
     return html`
       <div class="prompt-editor">
         <div class="prompt-window">
@@ -138,7 +171,7 @@ export class PromptLetPromptEditor extends LitElement {
             <div class="two-section-container">
               <section class="content-block content-block-title">
                 <div class="name-row">
-                  <div class="name">Title</div>
+                  <div class="name required-name">Title</div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
                   >
@@ -148,7 +181,7 @@ export class PromptLetPromptEditor extends LitElement {
 
               <section class="content-block content-block-icon">
                 <div class="name-row">
-                  <div class="name">Icon</div>
+                  <div class="name required-name">Icon</div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
                   >
@@ -161,7 +194,7 @@ export class PromptLetPromptEditor extends LitElement {
 
             <section class="content-block content-block-prompt">
               <div class="name-row">
-                <div class="name">Prompt</div>
+                <div class="name required-name">Prompt</div>
                 <span class="svg-icon info-icon">${unsafeHTML(infoIcon)}</span>
               </div>
               <textarea
@@ -228,7 +261,20 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Output Parsing</div>
+                    <div class="name">Description</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <textarea
+                    type="text"
+                    class="content-text prompt-description"
+                  ></textarea>
+                </section>
+
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Tags</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
@@ -238,22 +284,34 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Injection Mode</div>
+                    <div class="name">User Name</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
                   </div>
                   <input type="text" class="content-text" />
                 </section>
+
+                <section class="content-block">
+                  <div class="name-row">
+                    <div class="name">Recommended Models</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
+                  <form class="model-checkbox-container">
+                    ${modelCheckboxes}
+                  </form>
+                </section>
               </div>
             </div>
           </div>
 
           <div class="footer">
-            <button class="footer-button share-button">
+            <button class="footer-button">
               <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
             </button>
-            <button class="footer-button delete-button">
+            <button class="footer-button">
               <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
             </button>
           </div>
