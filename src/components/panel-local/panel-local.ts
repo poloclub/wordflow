@@ -268,6 +268,13 @@ export class PromptLetPanelLocal extends LitElement {
     this.hoveringPromptCardIndex = null;
   }
 
+  modalCloseClickHandler() {
+    if (this.promptModalElement === undefined) {
+      throw Error('promptModalElement is undefined.');
+    }
+    this.promptModalElement.classList.add('hidden');
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -421,6 +428,7 @@ export class PromptLetPanelLocal extends LitElement {
                 .promptData=${this.selectedPrompt
                   ? this.selectedPrompt
                   : getEmptyPromptData()}
+                @close-clicked=${() => this.modalCloseClickHandler()}
               ></promptlet-prompt-editor>
             </div>
           </div>

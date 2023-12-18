@@ -41,6 +41,11 @@ const ALL_MODELS: LLMModel[] = [
   { label: 'Llama 2', name: 'llama-2' }
 ];
 
+const INJECTION_MODE_MAP = {
+  replace: 'Replace input text',
+  append: 'Append after input text'
+};
+
 /**
  * Prompt editor element.
  *
@@ -64,6 +69,9 @@ export class PromptLetPromptEditor extends LitElement {
 
   @state()
   availableModels: LLMModel[];
+
+  @state()
+  injectionMode: 'replace' | 'append' = 'replace';
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -116,6 +124,16 @@ export class PromptLetPromptEditor extends LitElement {
     }
   }
 
+  closeButtonClicked() {
+    // Notify the parent
+    console.log('firing');
+    const event = new Event('close-clicked', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -163,7 +181,9 @@ export class PromptLetPromptEditor extends LitElement {
           <div class="header">
             <div class="title-bar">
               <span class="name">Edit Prompt</span>
-              <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
+              <span class="svg-icon" @click=${() => this.closeButtonClicked()}
+                >${unsafeHTML(crossIcon)}</span
+              >
             </div>
           </div>
 
@@ -174,6 +194,9 @@ export class PromptLetPromptEditor extends LitElement {
                   <div class="name required-name">Title</div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
+                  >
+                  <span class="name-info"
+                    >Name for your prompt (&lt;40 characters)</span
                   >
                 </div>
                 <input type="text" class="content-text" />
@@ -196,6 +219,7 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="name-row">
                 <div class="name required-name">Prompt</div>
                 <span class="svg-icon info-icon">${unsafeHTML(infoIcon)}</span>
+                <span class="name-info">Prompt content</span>
               </div>
               <textarea
                 type="text"
@@ -226,6 +250,9 @@ export class PromptLetPromptEditor extends LitElement {
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
+                    <span class="name-info"
+                      >Optional rule to parse LLM output</span
+                    >
                   </div>
                   <input type="text" class="content-text" />
                 </section>
@@ -236,8 +263,33 @@ export class PromptLetPromptEditor extends LitElement {
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
+                    <span class="name-info"
+                      >How should the LLM output be added?</span
+                    >
                   </div>
-                  <input type="text" class="content-text" />
+                  <span class="injection-button">
+                    <span class="injection-mode-text"
+                      >${INJECTION_MODE_MAP[this.injectionMode]}</span
+                    >
+                    <select
+                      class="injection-mode-select"
+                      @change=${(e: InputEvent) => {
+                        const select = e.currentTarget as HTMLSelectElement;
+                        if (select.value === 'replace') {
+                          this.injectionMode = 'replace';
+                        } else {
+                          this.injectionMode = 'append';
+                        }
+                      }}
+                    >
+                      <option value="replace">
+                        ${INJECTION_MODE_MAP.replace}
+                      </option>
+                      <option value="append">
+                        ${INJECTION_MODE_MAP.append}
+                      </option>
+                    </select>
+                  </span>
                 </section>
               </div>
             </div>
@@ -261,10 +313,11 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Description</div>
+                    <div class="name required-name share">Description</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
+                    <span class="name-info">What does your prompt do?</span>
                   </div>
                   <textarea
                     type="text"
@@ -274,9 +327,12 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">Tags</div>
+                    <div class="name required-name share">Tags</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
+                    >
+                    <span class="name-info"
+                      >One to three tags separated by comma</span
                     >
                   </div>
                   <input type="text" class="content-text" />
@@ -288,6 +344,7 @@ export class PromptLetPromptEditor extends LitElement {
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
                     >
+                    <span class="name-info">Optional user name</span>
                   </div>
                   <input type="text" class="content-text" />
                 </section>
@@ -297,6 +354,9 @@ export class PromptLetPromptEditor extends LitElement {
                     <div class="name">Recommended Models</div>
                     <span class="svg-icon info-icon"
                       >${unsafeHTML(infoIcon)}</span
+                    >
+                    <span class="name-info"
+                      >Suggested LLMs to use this prompt</span
                     >
                   </div>
                   <form class="model-checkbox-container">
