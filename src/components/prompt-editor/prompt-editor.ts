@@ -13,6 +13,7 @@ import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 // Types
 import type { PromptDataLocal } from '../../types/promptlet';
+import type { TooltipConfig } from '@xiaohk/utils';
 
 // Assets
 import crossIcon from '../../images/icon-cross.svg?raw';
@@ -53,13 +54,14 @@ const INJECTION_MODE_MAP = {
   append: 'Append after input text'
 };
 
-const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '💛', '💧', '👓'];
+const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '👾', '💧', '👓'];
 
 enum Field {
   title = 'Title',
   icon = 'Icon',
   prompt = 'Prompt',
-  outputParsing = 'Output Parsing',
+  outputParsingPattern = 'Output Parsing - Pattern',
+  outputParsingReplacement = 'Output Parsing - Replacement',
   injectionMode = 'Injection Mode',
   description = 'Description',
   tags = 'Tags',
@@ -71,48 +73,58 @@ const FIELD_INFO: Record<Field, FieldInfo> = {
   [Field.title]: {
     description: 'Name for your prompt (< 40 characters)',
     placeholder: 'Shorten the text',
-    tooltip: 'Shorten the text'
+    tooltip:
+      'A short name for your prompt. It should have less than 40 characters.'
   },
   [Field.icon]: {
     description: '',
     placeholder: '',
-    tooltip: 'Shorten the text'
+    tooltip: 'Choose an emoji or a character as the icon for your prompt'
   },
   [Field.prompt]: {
     description: 'Prompt content',
     placeholder:
       'You are an experienced writer. Given some input text, you will make it succinct and clear.',
-    tooltip: 'Shorten the text'
+    tooltip:
+      'By default, the input text will be added to the end of prompt. To place input text elsewhere, insert {{INPUT}} in the prompt where you want the text.'
   },
-  [Field.outputParsing]: {
-    description: 'Optional rule to parse the LLM output',
-    placeholder: '',
-    tooltip: 'Shorten the text'
+  [Field.outputParsingPattern]: {
+    description: 'Regex to parse the LLM output',
+    placeholder: '(.*)',
+    tooltip:
+      'Regular expression pattern (JavaScript flavor) to parse the LLM output string.'
+  },
+  [Field.outputParsingReplacement]: {
+    description: 'Regex match replacement',
+    placeholder: '$1',
+    tooltip:
+      'Replacement string for the matched occurrence in the LLM output string'
   },
   [Field.injectionMode]: {
     description: 'How should the LLM output be added?',
     placeholder: '',
-    tooltip: 'Shorten the text'
+    tooltip:
+      'Replace: replace the input text with the LLM output. Append: add the LLM output to the end of hte input text.'
   },
   [Field.description]: {
     description: 'What does your prompt do?',
     placeholder: 'This prompt helps users shorten any English text.',
-    tooltip: 'Shorten the text'
+    tooltip: 'A short description for your prompt.'
   },
   [Field.tags]: {
     description: 'One to three tags separated by comma',
     placeholder: 'shorten, summary',
-    tooltip: 'Shorten the text'
+    tooltip: 'One to three tags to help other users discover your prompt.'
   },
   [Field.userName]: {
     description: 'Optional user name',
     placeholder: '',
-    tooltip: 'Shorten the text'
+    tooltip: 'Optional user name associated with your prompt.'
   },
   [Field.recommendedModels]: {
     description: 'Suggested LLMs to use this prompt',
     placeholder: '',
-    tooltip: 'Shorten the text'
+    tooltip: 'Best LLM models to use with this prompt.'
   }
 };
 
@@ -143,6 +155,10 @@ export class PromptLetPromptEditor extends LitElement {
   @state()
   injectionMode: 'replace' | 'append' = 'replace';
 
+  @query('#popper-tooltip-editor')
+  popperElement: HTMLElement | undefined;
+  tooltipConfig: TooltipConfig | null = null;
+
   placeholderEmoji: string;
 
   //==========================================================================||
@@ -155,6 +171,17 @@ export class PromptLetPromptEditor extends LitElement {
     this.availableModels = structuredClone(ALL_MODELS);
     this.placeholderEmoji =
       EMOJI_CANDIDATES[Math.floor(Math.random() * EMOJI_CANDIDATES.length)];
+  }
+
+  firstUpdated() {
+    // Bind the tooltip
+    if (this.popperElement) {
+      this.tooltipConfig = {
+        tooltipElement: this.popperElement,
+        mouseenterTimer: null,
+        mouseleaveTimer: null
+      };
+    }
   }
 
   /**
@@ -207,7 +234,24 @@ export class PromptLetPromptEditor extends LitElement {
     this.dispatchEvent(event);
   }
 
-  infoIconMouseEntered() {}
+  infoIconMouseEntered(e: MouseEvent, field: Field) {
+    const target = (e.currentTarget as HTMLElement).querySelector(
+      '.info-icon'
+    ) as HTMLElement;
+    tooltipMouseEnter(
+      e,
+      FIELD_INFO[field].tooltip,
+      'top',
+      this.tooltipConfig,
+      200,
+      target,
+      10
+    );
+  }
+
+  infoIconMouseLeft() {
+    tooltipMouseLeave(this.tooltipConfig);
+  }
 
   //==========================================================================||
   //                             Private Helpers                              ||
@@ -266,12 +310,17 @@ export class PromptLetPromptEditor extends LitElement {
             <div class="two-section-container">
               <section class="content-block content-block-title">
                 <div class="name-row">
-                  <div class="name required-name">${Field.title}</div>
-                  <span
-                    class="svg-icon info-icon"
-                    @mouseenter=${e => this.infoIconMouseEntered()}
-                    >${unsafeHTML(infoIcon)}</span
+                  <div
+                    class="name-container"
+                    @mouseenter=${(e: MouseEvent) =>
+                      this.infoIconMouseEntered(e, Field.title)}
+                    @mouseleave=${() => this.infoIconMouseLeft()}
                   >
+                    <div class="name required-name">${Field.title}</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
                   <span class="name-info"
                     >${FIELD_INFO[Field.title].description}</span
                   >
@@ -285,10 +334,17 @@ export class PromptLetPromptEditor extends LitElement {
 
               <section class="content-block content-block-icon">
                 <div class="name-row">
-                  <div class="name required-name">${Field.icon}</div>
-                  <span class="svg-icon info-icon"
-                    >${unsafeHTML(infoIcon)}</span
+                  <div
+                    class="name-container"
+                    @mouseenter=${(e: MouseEvent) =>
+                      this.infoIconMouseEntered(e, Field.icon)}
+                    @mouseleave=${() => this.infoIconMouseLeft()}
                   >
+                    <div class="name required-name">${Field.icon}</div>
+                    <span class="svg-icon info-icon"
+                      >${unsafeHTML(infoIcon)}</span
+                    >
+                  </div>
                 </div>
                 <div class="content-icon-wrapper">
                   <input
@@ -302,8 +358,17 @@ export class PromptLetPromptEditor extends LitElement {
 
             <section class="content-block content-block-prompt">
               <div class="name-row">
-                <div class="name required-name">${Field.prompt}</div>
-                <span class="svg-icon info-icon">${unsafeHTML(infoIcon)}</span>
+                <div
+                  class="name-container"
+                  @mouseenter=${(e: MouseEvent) =>
+                    this.infoIconMouseEntered(e, Field.prompt)}
+                  @mouseleave=${() => this.infoIconMouseLeft()}
+                >
+                  <div class="name required-name">${Field.prompt}</div>
+                  <span class="svg-icon info-icon"
+                    >${unsafeHTML(infoIcon)}</span
+                  >
+                </div>
                 <span class="name-info"
                   >${FIELD_INFO[Field.prompt].description}</span
                 >
@@ -334,23 +399,75 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">${Field.outputParsing}</div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(
+                          e,
+                          Field.outputParsingPattern
+                        )}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name">${Field.outputParsingPattern}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
-                      >${FIELD_INFO[Field.outputParsing].description}</span
+                      >${FIELD_INFO[Field.outputParsingPattern]
+                        .description}</span
                     >
                   </div>
-                  <input type="text" class="content-text" />
+                  <input
+                    type="text"
+                    class="content-text"
+                    placeholder=${FIELD_INFO[Field.outputParsingPattern]
+                      .placeholder}
+                  />
                 </section>
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">${Field.injectionMode}</div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(
+                          e,
+                          Field.outputParsingReplacement
+                        )}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name">${Field.outputParsingReplacement}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
+                    <span class="name-info"
+                      >${FIELD_INFO[Field.outputParsingReplacement]
+                        .description}</span
+                    >
+                  </div>
+                  <input
+                    type="text"
+                    class="content-text"
+                    placeholder=${FIELD_INFO[Field.outputParsingReplacement]
+                      .placeholder}
+                  />
+                </section>
+
+                <section class="content-block">
+                  <div class="name-row">
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.injectionMode)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
+                    >
+                      <div class="name">${Field.injectionMode}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
                       >${FIELD_INFO[Field.injectionMode].description}</span
                     >
@@ -401,12 +518,19 @@ export class PromptLetPromptEditor extends LitElement {
               <div class="accordion-content">
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name required-name share">
-                      ${Field.description}
-                    </div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.description)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name required-name share">
+                        ${Field.description}
+                      </div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
                       >${FIELD_INFO[Field.description].description}</span
                     >
@@ -420,10 +544,17 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name required-name share">${Field.tags}</div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.tags)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name required-name share">${Field.tags}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
                       >${FIELD_INFO[Field.tags].description}</span
                     >
@@ -437,10 +568,17 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">${Field.userName}</div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.userName)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name">${Field.userName}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
                       >${FIELD_INFO[Field.userName].description}</span
                     >
@@ -450,10 +588,17 @@ export class PromptLetPromptEditor extends LitElement {
 
                 <section class="content-block">
                   <div class="name-row">
-                    <div class="name">${Field.recommendedModels}</div>
-                    <span class="svg-icon info-icon"
-                      >${unsafeHTML(infoIcon)}</span
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.recommendedModels)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
                     >
+                      <div class="name">${Field.recommendedModels}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
                     <span class="name-info"
                       >${FIELD_INFO[Field.recommendedModels].description}</span
                     >

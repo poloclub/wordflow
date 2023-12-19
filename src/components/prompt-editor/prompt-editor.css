@@ -328,8 +328,16 @@ button {
     user-select: none;
     -webkit-user-select: none;
 
+    .name-container {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      cursor: help;
+    }
+
     .info-icon {
       position: relative;
+
       width: 13px;
       height: 13px;
       top: 1px;
@@ -527,14 +535,14 @@ button {
   left: 0px;
   top: 0px;
   z-index: 20;
-  background: $gray-800;
+  background: var(--gray-800);
   color: white;
   box-shadow:
     0 0 1px hsla(0, 0%, 0%, 0.6),
     0 0 3px hsla(0, 0%, 0%, 0.05);
   padding: 0px 5px 3px;
   border-radius: 4px;
-  font-size: $font-d3;
+  font-size: var(--font-d3);
 
   display: flex;
   justify-content: center;
@@ -569,21 +577,21 @@ button {
     }
 
     .instruction-text {
-      color: $gray-400;
+      color: var(--gray-400);
     }
 
     .warn-text {
-      color: $orange-a200;
+      color: var(--orange-a200);
     }
 
     .alert-text {
-      color: $red-a100;
+      color: var(--red-a100);
     }
   }
 
   .popper-arrow {
     position: absolute;
-    background: $gray-800;
+    background: var(--gray-800);
     width: 8px;
     height: 8px;
     transform: rotate(45deg);
