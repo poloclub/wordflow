@@ -356,6 +356,21 @@ button {
       }
     }
   }
+
+  .length-input-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    .length-counter {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translate(0, -50%);
+      color: var(--gray-500);
+    }
+  }
 }
 
 .footer {

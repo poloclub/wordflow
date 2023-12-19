@@ -56,6 +56,8 @@ const INJECTION_MODE_MAP = {
 
 const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '👾', '💧', '👓'];
 
+const MAX_TITLE_LENGTH = 40;
+
 enum Field {
   title = 'Title',
   icon = 'Icon',
@@ -71,10 +73,9 @@ enum Field {
 
 const FIELD_INFO: Record<Field, FieldInfo> = {
   [Field.title]: {
-    description: 'Name for your prompt (< 40 characters)',
+    description: `Name for your prompt (< ${MAX_TITLE_LENGTH} characters)`,
     placeholder: 'Shorten the text',
-    tooltip:
-      'A short name for your prompt. It should have less than 40 characters.'
+    tooltip: `A short name for your prompt. It should have less than ${MAX_TITLE_LENGTH} characters.`
   },
   [Field.icon]: {
     description: '',
@@ -159,6 +160,9 @@ export class PromptLetPromptEditor extends LitElement {
   popperElement: HTMLElement | undefined;
   tooltipConfig: TooltipConfig | null = null;
 
+  @state()
+  titleLengthRemain = MAX_TITLE_LENGTH;
+
   placeholderEmoji: string;
 
   //==========================================================================||
@@ -215,6 +219,11 @@ export class PromptLetPromptEditor extends LitElement {
     // this.dispatchEvent(event);
   }
 
+  /**
+   * Event handler for clicking the accordion header
+   * @param e Event
+   * @param type Accordion type
+   */
   accordionHeaderClicked(e: MouseEvent, type: 'advanced' | 'sharing') {
     e.preventDefault();
     if (type === 'advanced') {
@@ -224,6 +233,9 @@ export class PromptLetPromptEditor extends LitElement {
     }
   }
 
+  /**
+   * Event handler for clicking the close button
+   */
   closeButtonClicked() {
     // Notify the parent
     console.log('firing');
@@ -234,6 +246,11 @@ export class PromptLetPromptEditor extends LitElement {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Event handler for mouse entering the info icon in each filed
+   * @param e Mouse event
+   * @param field Field type
+   */
   infoIconMouseEntered(e: MouseEvent, field: Field) {
     const target = (e.currentTarget as HTMLElement).querySelector(
       '.info-icon'
@@ -249,6 +266,9 @@ export class PromptLetPromptEditor extends LitElement {
     );
   }
 
+  /**
+   * Event handler for mouse leaving the info icon in each filed
+   */
   infoIconMouseLeft() {
     tooltipMouseLeave(this.tooltipConfig);
   }
@@ -325,11 +345,22 @@ export class PromptLetPromptEditor extends LitElement {
                     >${FIELD_INFO[Field.title].description}</span
                   >
                 </div>
-                <input
-                  type="text"
-                  class="content-text"
-                  placeholder=${FIELD_INFO[Field.title].placeholder}
-                />
+                <div class="length-input-container">
+                  <input
+                    type="text"
+                    class="content-text title-input"
+                    maxlength="${MAX_TITLE_LENGTH}"
+                    placeholder=${FIELD_INFO[Field.title].placeholder}
+                    @input=${(e: InputEvent) => {
+                      const inputElement = e.currentTarget as HTMLInputElement;
+                      this.titleLengthRemain =
+                        MAX_TITLE_LENGTH - inputElement.value.length;
+                    }}
+                  />
+                  <span class="length-counter title-length-counter"
+                    >${this.titleLengthRemain}</span
+                  >
+                </div>
               </section>
 
               <section class="content-block content-block-icon">
@@ -351,6 +382,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     placeholder="${this.placeholderEmoji}"
+                    maxlength="2"
                   />
                 </div>
               </section>
