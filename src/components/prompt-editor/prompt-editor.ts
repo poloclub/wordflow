@@ -357,13 +357,62 @@ export class PromptLetPromptEditor extends LitElement {
     }
 
     // TODO: Add the prompt
+    this.toastComponent.hide();
   }
 
   /**
    * Share the current prompt.
    */
   sharePrompt() {
-    // TODO
+    if (this.toastComponent === undefined) {
+      throw Error('toastComponent is undefined.');
+    }
+
+    // Parse the input fields
+    const newPromptData = this.parseForm();
+
+    // Validate the data
+    if (newPromptData.title.length === 0) {
+      this.toastMessage = "Title can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (newPromptData.icon.length === 0) {
+      this.toastMessage = "Icon can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (newPromptData.prompt.length === 0) {
+      this.toastMessage = "Prompt can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (
+      newPromptData.description === undefined ||
+      newPromptData.description.length === 0
+    ) {
+      this.toastMessage =
+        "Description (under Sharing Settings) can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (newPromptData.tags === undefined || newPromptData.tags.length === 0) {
+      this.toastMessage = "Tags (under Sharing Settings) can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    // TODO: Share the prompt
+    this.toastComponent.hide();
   }
 
   /**
@@ -508,10 +557,12 @@ export class PromptLetPromptEditor extends LitElement {
     return html`
       <div class="prompt-editor">
         <div class="prompt-window">
-          <nightjar-toast
-            message=${this.toastMessage}
-            type=${this.toastType}
-          ></nightjar-toast>
+          <div class="toast-container">
+            <nightjar-toast
+              message=${this.toastMessage}
+              type=${this.toastType}
+            ></nightjar-toast>
+          </div>
 
           <div class="header">
             <div class="title-bar">
@@ -867,10 +918,10 @@ export class PromptLetPromptEditor extends LitElement {
               </button>
             </div>
             <div class="button-container">
-              <button class="footer-button">
+              <button class="footer-button" @click=${() => this.sharePrompt()}>
                 <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
               </button>
-              <button class="footer-button">
+              <button class="footer-button" @click=${() => this.deletePrompt()}>
                 <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
               </button>
             </div>

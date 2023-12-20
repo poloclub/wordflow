@@ -101,6 +101,8 @@ export class NightjarToast extends LitElement {
   @state()
   isHidden = true;
 
+  timer: null | number = null;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -127,7 +129,11 @@ export class NightjarToast extends LitElement {
 
     // Hide the element after delay
     if (this.duration > 0) {
-      setTimeout(() => {
+      if (this.timer !== null) {
+        clearTimeout(this.timer);
+      }
+
+      this.timer = setTimeout(() => {
         this.hide();
       }, this.duration);
     }

@@ -625,10 +625,15 @@ button {
   }
 }
 
-nightjar-toast {
+.toast-container {
   position: absolute;
   top: 7px;
-  left: 50%;
-  transform: translate(-50%, 0);
   z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  nightjar-toast {
+    max-width: 300px;
+  }
 }
