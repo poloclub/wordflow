@@ -376,7 +376,11 @@ export const getEmptyPromptData = () => {
     forkFrom: '',
     promptRunCount: 0,
     created: '',
-    title: ''
+    title: '',
+    outputParsingPattern: '',
+    outputParsingReplacement: '',
+    recommendedModels: [],
+    injectionMode: 'replace'
   };
   return data;
 };

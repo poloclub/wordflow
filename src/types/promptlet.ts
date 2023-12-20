@@ -12,6 +12,10 @@ export interface PromptDataRemote {
   promptRunCount: number;
   created: string;
   title: string;
+  outputParsingPattern: string;
+  outputParsingReplacement: string;
+  recommendedModels: string[];
+  injectionMode: 'replace' | 'append';
 }
 
 export interface PromptDataLocal {
@@ -25,6 +29,10 @@ export interface PromptDataLocal {
   promptRunCount: number;
   created: string;
   title: string;
+  outputParsingPattern?: string;
+  outputParsingReplacement?: string;
+  recommendedModels: string[];
+  injectionMode: 'replace' | 'append';
 }
 
 /**

@@ -58,6 +58,12 @@ const INJECTION_MODE_MAP = {
 const EMOJI_CANDIDATES = ['✍️', '✉️', '🎓', '😎', '🌱', '👾', '💧', '👓'];
 
 const MAX_TITLE_LENGTH = 40;
+const MAX_PROMPT_LENGTH = 2000;
+const MAX_OUTPUT_PARSING_LENGTH = 500;
+const MAX_DESCRIPTION_LENGTH = 2000;
+const MAX_TAGS_LENGTH = 100;
+const MAX_TAGS_COUNT = 3;
+const MAX_USER_NAME_LENGTH = 40;
 
 enum Field {
   title = 'Title',
@@ -201,7 +207,8 @@ export class PromptLetPromptEditor extends LitElement {
   async initData() {}
 
   /**
-   * Create a prompt object by parsing the current form
+   * Create a prompt object by parsing the current form. This function does not
+   * validate the user's inputs.
    */
   parseForm() {
     if (this.shadowRoot === null) {
@@ -217,7 +224,7 @@ export class PromptLetPromptEditor extends LitElement {
     if (title.length === 0) {
       console.error('Title is empty.');
     }
-    newPromptData.title = title;
+    newPromptData.title = title.slice(0, MAX_TITLE_LENGTH);
 
     // Parse the icon
     const icon = (
@@ -236,7 +243,101 @@ export class PromptLetPromptEditor extends LitElement {
     }
     newPromptData.icon = iconChar;
 
-    console.log(newPromptData);
+    // Parse the prompt
+    const prompt = (
+      this.shadowRoot.querySelector('#text-input-prompt') as HTMLInputElement
+    ).value;
+    if (prompt.length === 0) {
+      console.error('Prompt is empty.');
+    }
+    newPromptData.prompt = prompt.slice(0, MAX_PROMPT_LENGTH);
+
+    // Parse output parsing - pattern
+    const outputParsingPattern = (
+      this.shadowRoot.querySelector(
+        '#text-input-output-parsing-pattern'
+      ) as HTMLInputElement
+    ).value;
+    newPromptData.outputParsingPattern = outputParsingPattern.slice(
+      0,
+      MAX_OUTPUT_PARSING_LENGTH
+    );
+
+    // Parse output parsing - replacement
+    const outputParsingReplacement = (
+      this.shadowRoot.querySelector(
+        '#text-input-output-parsing-replacement'
+      ) as HTMLInputElement
+    ).value;
+    newPromptData.outputParsingReplacement = outputParsingReplacement.slice(
+      0,
+      MAX_OUTPUT_PARSING_LENGTH
+    );
+
+    // Parse injection mode
+    newPromptData.injectionMode = this.injectionMode;
+
+    // Parse the prompt description
+    const description = (
+      this.shadowRoot.querySelector(
+        '#text-input-description'
+      ) as HTMLInputElement
+    ).value;
+    newPromptData.description = description.slice(0, MAX_DESCRIPTION_LENGTH);
+
+    // Parse the tags
+    const tags = (
+      this.shadowRoot.querySelector('#text-input-tags') as HTMLInputElement
+    ).value;
+    if (tags.length > 0) {
+      const tagsArray = tags.split(/\s*,\s*/);
+      const formattedTags = tagsArray.map(tag =>
+        tag.replace(/\s+/g, '-').toLowerCase()
+      );
+      newPromptData.tags = formattedTags.slice(0, MAX_TAGS_COUNT);
+    }
+
+    // Parse the user name
+    const userName = (
+      this.shadowRoot.querySelector('#text-input-user-name') as HTMLInputElement
+    ).value;
+    newPromptData.userName = userName.slice(0, MAX_USER_NAME_LENGTH);
+
+    // Parse the recommended models
+    const modelCheckboxes =
+      this.shadowRoot.querySelectorAll<HTMLInputElement>('.model-checkbox');
+    const recommendedModels: string[] = [];
+
+    for (const checkbox of modelCheckboxes) {
+      if (checkbox.checked) {
+        recommendedModels.push(checkbox.name);
+      }
+    }
+    newPromptData.recommendedModels = recommendedModels;
+
+    return newPromptData;
+  }
+
+  /**
+   * Save the user's input as a prompt. It creates a new prompt or updates an
+   * existing prompt.
+   */
+  savePrompt() {
+    // TODO
+  }
+
+  /**
+   * Share the current prompt.
+   */
+  sharePrompt() {
+    // TODO
+  }
+
+  /**
+   * Delete the current prompt.
+   */
+  deletePrompt() {
+    // TODO
   }
 
   //==========================================================================||
@@ -278,7 +379,6 @@ export class PromptLetPromptEditor extends LitElement {
    */
   closeButtonClicked() {
     // Notify the parent
-    console.log('firing');
     const event = new Event('close-clicked', {
       bubbles: true,
       composed: true
@@ -365,6 +465,7 @@ export class PromptLetPromptEditor extends LitElement {
           <input
             type="checkbox"
             name="${model.name}"
+            class="model-checkbox"
             id="model-checkbox-${model.name}"
           />
           <label for="model-checkbox-${model.name}">${model.label}</label>
@@ -469,6 +570,7 @@ export class PromptLetPromptEditor extends LitElement {
                 type="text"
                 class="content-text prompt-input"
                 id="text-input-prompt"
+                maxlength="${MAX_PROMPT_LENGTH}"
                 placeholder="${FIELD_INFO[Field.prompt].placeholder}"
               ></textarea>
             </section>
@@ -515,6 +617,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-output-parsing-pattern"
+                    maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                     placeholder=${FIELD_INFO[Field.outputParsingPattern]
                       .placeholder}
                   />
@@ -545,6 +648,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-output-parsing-replacement"
+                    maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                     placeholder=${FIELD_INFO[Field.outputParsingReplacement]
                       .placeholder}
                   />
@@ -634,6 +738,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text prompt-description"
                     id="text-input-description"
+                    maxlength="${MAX_DESCRIPTION_LENGTH}"
                     placeholder=${FIELD_INFO[Field.description].placeholder}
                   ></textarea>
                 </section>
@@ -659,6 +764,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-tags"
+                    maxlength="${MAX_TAGS_LENGTH}"
                     placeholder=${FIELD_INFO[Field.tags].placeholder}
                   />
                 </section>
@@ -684,6 +790,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-user-name"
+                    maxlength="${MAX_USER_NAME_LENGTH}"
                   />
                 </section>
 
