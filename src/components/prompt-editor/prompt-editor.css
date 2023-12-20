@@ -30,6 +30,7 @@ button {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  position: relative;
 
   box-sizing: border-box;
   font-size: var(--font-d2);
@@ -622,4 +623,12 @@ button {
       opacity: 0;
     }
   }
+}
+
+nightjar-toast {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1;
 }

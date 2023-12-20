@@ -11,9 +11,12 @@ import { getEmptyPromptData } from '../panel-community/panel-community';
 import d3 from '../../utils/d3-import';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
+import '../toast/toast';
+
 // Types
 import type { PromptDataLocal } from '../../types/promptlet';
 import type { TooltipConfig } from '@xiaohk/utils';
+import type { NightjarToast } from '../toast/toast';
 
 // Assets
 import crossIcon from '../../images/icon-cross.svg?raw';
@@ -170,6 +173,15 @@ export class PromptLetPromptEditor extends LitElement {
   @state()
   titleLengthRemain = MAX_TITLE_LENGTH;
 
+  @state()
+  toastMessage = '';
+
+  @state()
+  toastType: 'success' | 'warning' | 'error' = 'success';
+
+  @query('nightjar-toast')
+  toastComponent: NightjarToast | undefined;
+
   placeholderEmoji: string;
 
   //==========================================================================||
@@ -221,18 +233,12 @@ export class PromptLetPromptEditor extends LitElement {
     const title = (
       this.shadowRoot.querySelector('#text-input-title') as HTMLInputElement
     ).value;
-    if (title.length === 0) {
-      console.error('Title is empty.');
-    }
     newPromptData.title = title.slice(0, MAX_TITLE_LENGTH);
 
     // Parse the icon
     const icon = (
       this.shadowRoot.querySelector('#text-input-icon') as HTMLInputElement
     ).value;
-    if (icon.length === 0) {
-      console.error('Icon is empty.');
-    }
 
     const regex = /\p{Emoji}(\u200d\p{Emoji})*/gu;
     const match = icon.match(regex);
@@ -247,9 +253,7 @@ export class PromptLetPromptEditor extends LitElement {
     const prompt = (
       this.shadowRoot.querySelector('#text-input-prompt') as HTMLInputElement
     ).value;
-    if (prompt.length === 0) {
-      console.error('Prompt is empty.');
-    }
+
     newPromptData.prompt = prompt.slice(0, MAX_PROMPT_LENGTH);
 
     // Parse output parsing - pattern
@@ -323,7 +327,36 @@ export class PromptLetPromptEditor extends LitElement {
    * existing prompt.
    */
   savePrompt() {
-    // TODO
+    if (this.toastComponent === undefined) {
+      throw Error('toastComponent is undefined.');
+    }
+
+    // Parse the input fields
+    const newPromptData = this.parseForm();
+
+    // Validate the data
+    if (newPromptData.title.length === 0) {
+      this.toastMessage = "Title can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (newPromptData.icon.length === 0) {
+      this.toastMessage = "Icon can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    if (newPromptData.prompt.length === 0) {
+      this.toastMessage = "Prompt can't be empty.";
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
+    // TODO: Add the prompt
   }
 
   /**
@@ -475,6 +508,11 @@ export class PromptLetPromptEditor extends LitElement {
     return html`
       <div class="prompt-editor">
         <div class="prompt-window">
+          <nightjar-toast
+            message=${this.toastMessage}
+            type=${this.toastType}
+          ></nightjar-toast>
+
           <div class="header">
             <div class="title-bar">
               <span class="name">Edit Prompt</span>
@@ -824,7 +862,7 @@ export class PromptLetPromptEditor extends LitElement {
 
           <div class="footer">
             <div class="button-container">
-              <button class="footer-button" @click=${() => this.parseForm()}>
+              <button class="footer-button" @click=${() => this.savePrompt()}>
                 <span class="svg-icon">${unsafeHTML(saveIcon)}</span>Save
               </button>
             </div>

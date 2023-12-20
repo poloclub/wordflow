@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="icon-check-circle-solid">
+        <path d="M39.618,79.15C18.134,79.15 0.214,61.279 0.214,39.746C0.214,18.213 18.085,0.342 39.569,0.342C61.102,0.342 79.071,18.213 79.071,39.746C79.071,61.279 61.151,79.15 39.618,79.15ZM35.321,58.545C36.786,58.545 38.056,57.861 38.983,56.396L56.366,28.857C56.952,27.978 57.489,26.953 57.489,25.977C57.489,23.877 55.731,22.607 53.778,22.607C52.606,22.607 51.483,23.291 50.702,24.658L35.126,49.854L28.095,40.478C27.02,39.014 26.044,38.623 24.823,38.623C22.772,38.623 21.308,40.234 21.308,42.236C21.308,43.213 21.649,44.189 22.333,45.019L31.415,56.396C32.587,57.959 33.808,58.545 35.321,58.545Z"/>
+    </g>
+</svg>

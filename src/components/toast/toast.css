@@ -1,0 +1,100 @@
+.toast {
+  height: 100%;
+  max-width: 300px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 6px;
+
+  border-radius: 5px;
+
+  padding: 5px 12px;
+  box-sizing: border-box;
+
+  font-size: var(--font-d2);
+  background-color: var(--green-50);
+  border: 1px solid color-mix(in lab, var(--green-50) 100%, var(--gray-500) 20%);
+  color: var(--green-800);
+  box-shadow:
+    0 1px 2px hsla(0, 0%, 0%, 0.05),
+    0 0px 5px hsla(0, 0%, 0%, 0.05);
+
+  animation: toastPop 100ms ease-in-out forwards;
+
+  &[toast-type='warning'] {
+    background-color: var(--orange-50);
+    border: 1px solid
+      color-mix(in lab, var(--orange-50) 100%, var(--gray-500) 20%);
+    color: var(--orange-800);
+  }
+
+  &[toast-type='error'] {
+    background-color: var(--red-50);
+    border: 1px solid color-mix(in lab, var(--red-50) 100%, var(--gray-500) 20%);
+    color: var(--red-800);
+  }
+
+  &[is-hidden] {
+    display: none;
+  }
+}
+
+@keyframes toastPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  90% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.svg-icon {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1em;
+  height: 1em;
+
+  color: currentColor;
+  transition: transform 80ms linear;
+  transform-origin: center;
+
+  position: relative;
+  top: 3px;
+
+  & svg {
+    fill: currentColor;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.cross-icon {
+  color: var(--gray-800);
+  width: 10px;
+  height: 10px;
+  top: 5px;
+  margin-left: 12px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--gray-600);
+  }
+
+  &:active {
+    color: var(--gray-700);
+  }
+}
+
+.message {
+  width: 100%;
+  line-height: 1.2;
+}

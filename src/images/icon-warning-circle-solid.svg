@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="icon-warning-circle-solid">
+        <path d="M40.391,79.15C18.907,79.15 0.987,61.279 0.987,39.746C0.987,18.213 18.858,0.342 40.343,0.342C61.876,0.342 79.845,18.213 79.845,39.746C79.845,61.279 61.925,79.15 40.391,79.15ZM40.391,46.973C42.589,46.973 43.809,45.752 43.858,43.457L44.444,22.705C44.493,20.41 42.735,18.701 40.343,18.701C37.95,18.701 36.241,20.361 36.29,22.656L36.876,43.457C36.925,45.703 38.145,46.973 40.391,46.973ZM40.391,60.205C42.882,60.205 45.079,58.301 45.079,55.762C45.079,53.223 42.931,51.269 40.391,51.269C37.901,51.269 35.753,53.271 35.753,55.762C35.753,58.252 37.95,60.205 40.391,60.205Z"/>
+    </g>
+</svg>
