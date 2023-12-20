@@ -21,6 +21,7 @@ import infoIcon from '../../images/icon-info.svg?raw';
 import arrowIcon from '../../images/icon-caret-down.svg?raw';
 import deleteIcon from '../../images/icon-delete.svg?raw';
 import shareIcon from '../../images/icon-share.svg?raw';
+import saveIcon from '../../images/icon-check-circle.svg?raw';
 import componentCSS from './prompt-editor.css?inline';
 
 interface InfoPair {
@@ -199,6 +200,45 @@ export class PromptLetPromptEditor extends LitElement {
   //==========================================================================||
   async initData() {}
 
+  /**
+   * Create a prompt object by parsing the current form
+   */
+  parseForm() {
+    if (this.shadowRoot === null) {
+      throw Error('Shadow root is null.');
+    }
+
+    const newPromptData = getEmptyPromptData() as PromptDataLocal;
+
+    // Parse the title
+    const title = (
+      this.shadowRoot.querySelector('#text-input-title') as HTMLInputElement
+    ).value;
+    if (title.length === 0) {
+      console.error('Title is empty.');
+    }
+    newPromptData.title = title;
+
+    // Parse the icon
+    const icon = (
+      this.shadowRoot.querySelector('#text-input-icon') as HTMLInputElement
+    ).value;
+    if (icon.length === 0) {
+      console.error('Icon is empty.');
+    }
+
+    const regex = /\p{Emoji}(\u200d\p{Emoji})*/gu;
+    const match = icon.match(regex);
+
+    let iconChar = icon.slice(0, 1);
+    if (match) {
+      iconChar = match[0];
+    }
+    newPromptData.icon = iconChar;
+
+    console.log(newPromptData);
+  }
+
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
@@ -273,6 +313,31 @@ export class PromptLetPromptEditor extends LitElement {
     tooltipMouseLeave(this.tooltipConfig);
   }
 
+  /**
+   * Only allow users to enter one character or one emoji in the icon input
+   * @param e Input event
+   */
+  iconInput(e: InputEvent) {
+    const iconElement = e.currentTarget as HTMLInputElement;
+
+    // Check if the delete key is pressed
+    if (e.inputType === 'deleteContentBackward') {
+      iconElement.value = ''; // Empty the input field
+    } else {
+      // Check if there is an emoji in the icon element
+      const regex = /\p{Emoji}(\u200d\p{Emoji})*/gu;
+      const match = iconElement.value.match(regex);
+
+      if (match === null) {
+        // Use the first character
+        iconElement.value = iconElement.value.slice(0, 1);
+      } else {
+        // Use the first emoji
+        iconElement.value = match[0];
+      }
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -292,14 +357,6 @@ export class PromptLetPromptEditor extends LitElement {
   //                           Templates and Styles                           ||
   //==========================================================================||
   render() {
-    // Compose the share info
-    const numFormatter = d3.format(',');
-    // d3.timeFormat('%m/%d/%Y');
-    const dateFormatter = d3.timeFormat('%b %d, %Y');
-    const fullTimeFormatter = d3.timeFormat('%b %d, %Y %H:%M');
-    const date = d3.isoParse(this.promptData.created)!;
-    const curDate = new Date();
-
     // Compose the model checkbox lists
     let modelCheckboxes = html``;
     for (const model of this.availableModels) {
@@ -349,6 +406,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <input
                     type="text"
                     class="content-text title-input"
+                    id="text-input-title"
                     maxlength="${MAX_TITLE_LENGTH}"
                     placeholder=${FIELD_INFO[Field.title].placeholder}
                     @input=${(e: InputEvent) => {
@@ -381,8 +439,10 @@ export class PromptLetPromptEditor extends LitElement {
                   <input
                     type="text"
                     class="content-text"
+                    id="text-input-icon"
+                    @input=${(e: InputEvent) => this.iconInput(e)}
                     placeholder="${this.placeholderEmoji}"
-                    maxlength="2"
+                    maxlength="20"
                   />
                 </div>
               </section>
@@ -408,6 +468,7 @@ export class PromptLetPromptEditor extends LitElement {
               <textarea
                 type="text"
                 class="content-text prompt-input"
+                id="text-input-prompt"
                 placeholder="${FIELD_INFO[Field.prompt].placeholder}"
               ></textarea>
             </section>
@@ -453,6 +514,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <input
                     type="text"
                     class="content-text"
+                    id="text-input-output-parsing-pattern"
                     placeholder=${FIELD_INFO[Field.outputParsingPattern]
                       .placeholder}
                   />
@@ -482,6 +544,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <input
                     type="text"
                     class="content-text"
+                    id="text-input-output-parsing-replacement"
                     placeholder=${FIELD_INFO[Field.outputParsingReplacement]
                       .placeholder}
                   />
@@ -570,6 +633,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <textarea
                     type="text"
                     class="content-text prompt-description"
+                    id="text-input-description"
                     placeholder=${FIELD_INFO[Field.description].placeholder}
                   ></textarea>
                 </section>
@@ -594,6 +658,7 @@ export class PromptLetPromptEditor extends LitElement {
                   <input
                     type="text"
                     class="content-text"
+                    id="text-input-tags"
                     placeholder=${FIELD_INFO[Field.tags].placeholder}
                   />
                 </section>
@@ -615,7 +680,11 @@ export class PromptLetPromptEditor extends LitElement {
                       >${FIELD_INFO[Field.userName].description}</span
                     >
                   </div>
-                  <input type="text" class="content-text" />
+                  <input
+                    type="text"
+                    class="content-text"
+                    id="text-input-user-name"
+                  />
                 </section>
 
                 <section class="content-block">
@@ -635,7 +704,10 @@ export class PromptLetPromptEditor extends LitElement {
                       >${FIELD_INFO[Field.recommendedModels].description}</span
                     >
                   </div>
-                  <form class="model-checkbox-container">
+                  <form
+                    class="model-checkbox-container"
+                    id="form-recommended-models"
+                  >
                     ${modelCheckboxes}
                   </form>
                 </section>
@@ -644,12 +716,19 @@ export class PromptLetPromptEditor extends LitElement {
           </div>
 
           <div class="footer">
-            <button class="footer-button">
-              <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
-            </button>
-            <button class="footer-button">
-              <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
-            </button>
+            <div class="button-container">
+              <button class="footer-button" @click=${() => this.parseForm()}>
+                <span class="svg-icon">${unsafeHTML(saveIcon)}</span>Save
+              </button>
+            </div>
+            <div class="button-container">
+              <button class="footer-button">
+                <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
+              </button>
+              <button class="footer-button">
+                <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -301,7 +301,7 @@ button {
     }
 
     &.prompt-input {
-      height: 160px;
+      height: 150px;
     }
 
     &.prompt-description {
@@ -377,9 +377,15 @@ button {
   padding: var(--padding-v) var(--padding-h) var(--padding-v) var(--padding-h);
   display: flex;
   flex-flow: row nowrap;
-  gap: 12px;
+  justify-content: space-between;
   border-top: 1px solid var(--gray-300);
   font-size: var(--font-d1);
+
+  .button-container {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 12px;
+  }
 }
 
 .footer-button {
