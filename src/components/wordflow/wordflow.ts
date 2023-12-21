@@ -10,6 +10,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptLetTextEditor } from '../text-editor/text-editor';
 import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 import { config } from '../../config/config';
+import { PromptManager } from './prompt-manager';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -77,7 +78,13 @@ export class PromptLetWordflow extends LitElement {
   apiKey: string | null = null;
 
   @state()
-  favPrompts: PromptDataLocal[] = fakePrompts.slice(0, 3);
+  promptManager: PromptManager;
+
+  @state()
+  favPrompts: PromptDataLocal[] = [];
+
+  @state()
+  localPrompts: PromptDataLocal[] = [];
 
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
@@ -86,6 +93,18 @@ export class PromptLetWordflow extends LitElement {
     super();
     const model = 'gpt';
     this.apiKey = localStorage.getItem(`${model}APIKey`);
+
+    const updateLocalPrompts = (newLocalPrompts: PromptDataLocal[]) => {
+      this.localPrompts = newLocalPrompts;
+    };
+    const updateFavPrompts = (newFavPrompts: PromptDataLocal[]) => {
+      this.favPrompts = newFavPrompts;
+    };
+
+    this.promptManager = new PromptManager(
+      updateLocalPrompts,
+      updateFavPrompts
+    );
   }
 
   firstUpdated() {
@@ -332,6 +351,8 @@ export class PromptLetWordflow extends LitElement {
         </div>
 
         <promptlet-setting-window
+          .promptManager=${this.promptManager}
+          .localPrompts=${this.promptManager.localPrompts}
           .favPrompts=${this.favPrompts}
           .updateFavPrompts=${(newFavPrompts: PromptDataLocal[]) =>
             this.updateFavPrompts(newFavPrompts)}

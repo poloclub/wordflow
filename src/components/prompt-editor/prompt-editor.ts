@@ -8,7 +8,7 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptData } from '../panel-community/panel-community';
-import d3 from '../../utils/d3-import';
+import { PromptManager } from '../wordflow/prompt-manager';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 import '../toast/toast';
@@ -162,6 +162,9 @@ export class PromptLetPromptEditor extends LitElement {
   @property({ type: Boolean })
   isNewPrompt = false;
 
+  @property({ attribute: false })
+  promptManager!: PromptManager;
+
   @state()
   showAdvancedOptions = false;
 
@@ -232,9 +235,7 @@ export class PromptLetPromptEditor extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {
-    console.log(this.isNewPrompt);
-  }
+  willUpdate(changedProperties: PropertyValues<this>) {}
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -379,8 +380,13 @@ export class PromptLetPromptEditor extends LitElement {
       return;
     }
 
-    // TODO: Add the prompt
+    // Add the new prompt
+    if (this.isNewPrompt) {
+      this.promptManager.addPrompt(newPromptData);
+    }
+
     this.toastComponent.hide();
+    this.closeButtonClicked();
   }
 
   /**

@@ -8,6 +8,7 @@ import {
 } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { PromptManager } from '../wordflow/prompt-manager';
 
 import '../panel-community/panel-community';
 import '../panel-local/panel-local';
@@ -34,6 +35,12 @@ export class PromptLetSettingWindow extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @property({ attribute: false })
+  promptManager!: PromptManager;
+
+  @property({ attribute: false })
+  localPrompts: PromptDataLocal[] = [];
+
   @property({ attribute: false })
   favPrompts: PromptDataLocal[] = [];
 
@@ -82,6 +89,8 @@ export class PromptLetSettingWindow extends LitElement {
       {
         name: 'My Prompts',
         component: html`<promptlet-panel-local
+          .promptManager=${this.promptManager}
+          .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
           .updateFavPrompts=${this.updateFavPrompts}
         ></promptlet-panel-local>`

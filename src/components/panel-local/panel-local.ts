@@ -2,6 +2,7 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptData } from '../panel-community/panel-community';
+import { PromptManager } from '../wordflow/prompt-manager';
 
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
@@ -36,6 +37,12 @@ export class PromptLetPanelLocal extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
+  @property({ attribute: false })
+  promptManager!: PromptManager;
+
+  @property({ attribute: false })
+  localPrompts: PromptDataLocal[] = [];
+
   @property({ attribute: false })
   favPrompts: PromptDataLocal[] = [];
 
@@ -297,7 +304,7 @@ export class PromptLetPanelLocal extends LitElement {
   render() {
     // Compose the prompt cards
     let promptCards = html``;
-    for (const [i, curPromptData] of this.allPrompts
+    for (const [i, curPromptData] of this.localPrompts
       .slice(0, Math.min(this.maxPromptCount, this.allPrompts.length))
       .entries()) {
       const promptData = curPromptData as PromptDataRemote;
@@ -444,6 +451,7 @@ export class PromptLetPanelLocal extends LitElement {
                   ? this.selectedPrompt
                   : getEmptyPromptData()}
                 .isNewPrompt=${this.shouldCreateNewPrompt}
+                .promptManager=${this.promptManager}
                 @close-clicked=${() => this.modalCloseClickHandler()}
               ></promptlet-prompt-editor>
             </div>

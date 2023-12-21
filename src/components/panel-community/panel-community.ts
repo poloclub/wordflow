@@ -375,7 +375,7 @@ export const getEmptyPromptData = () => {
     icon: '',
     forkFrom: '',
     promptRunCount: 0,
-    created: '',
+    created: new Date().toISOString(),
     title: '',
     outputParsingPattern: '',
     outputParsingReplacement: '',
