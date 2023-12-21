@@ -211,7 +211,7 @@ export class PromptLetPanelLocal extends LitElement {
     miniCard.appendChild(title);
     tempFavSlot.appendChild(miniCard);
 
-    this.promptContentElement?.append(tempFavSlot);
+    this.promptContainerElement?.append(tempFavSlot);
     this.draggingImageElement = tempFavSlot;
     e.dataTransfer?.setDragImage(tempFavSlot, 10, 10);
   }

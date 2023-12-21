@@ -596,7 +596,9 @@ export class PromptLetPromptEditor extends LitElement {
 
           <div class="header">
             <div class="title-bar">
-              <span class="name">Edit Prompt</span>
+              <span class="name"
+                >${this.isNewPrompt ? 'New Prompt' : 'Edit Prompt'}</span
+              >
               <span class="svg-icon" @click=${() => this.closeButtonClicked()}
                 >${unsafeHTML(crossIcon)}</span
               >

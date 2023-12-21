@@ -385,7 +385,7 @@ button {
     button {
       width: 100%;
       height: 100%;
-      padding: 3px 6px;
+      padding: 5px 6px;
       cursor: pointer;
 
       &:first-child {
@@ -402,6 +402,11 @@ button {
 
       &:active {
         background-color: var(--gray-700);
+      }
+
+      .svg-icon {
+        width: 13px;
+        height: 13px;
       }
     }
   }
@@ -434,14 +439,20 @@ promptlet-prompt-card {
 
 .panel-local[is-dragging] {
   .prompt-container {
-    overflow-y: hidden;
+    overflow: hidden;
   }
 
-  .fav-prompt-slot:not([is-temp]) {
-    border: 1px dashed var(--gray-600);
+  .fav-prompt-slot {
+    &[is-temp] {
+      transform: translateX(1000px);
+    }
 
-    &.drag-over {
-      background-color: var(--gray-200);
+    &:not([is-temp]) {
+      border: 1px dashed var(--gray-600);
+
+      &.drag-over {
+        background-color: var(--gray-200);
+      }
     }
   }
 }
