@@ -12,11 +12,16 @@ import d3 from '../../utils/d3-import';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 import '../toast/toast';
+import '../confirm-dialog/confirm-dialog';
 
 // Types
 import type { PromptDataLocal } from '../../types/promptlet';
 import type { TooltipConfig } from '@xiaohk/utils';
 import type { NightjarToast } from '../toast/toast';
+import type {
+  NightjarConfirmDialog,
+  DialogInfo
+} from '../confirm-dialog/confirm-dialog';
 
 // Assets
 import crossIcon from '../../images/icon-cross.svg?raw';
@@ -181,6 +186,19 @@ export class PromptLetPromptEditor extends LitElement {
 
   @query('nightjar-toast')
   toastComponent: NightjarToast | undefined;
+
+  @state()
+  dialogInfo: DialogInfo = {
+    header: 'Delete Item',
+    message:
+      'Are you sure you want to delete this prompt? This action cannot be undone.',
+    yesButtonText: 'Delete',
+    actionKey: 'delete-prompt',
+    confirmAction: () => {}
+  };
+
+  @query('nightjar-confirm-dialog')
+  confirmDialogComponent: NightjarConfirmDialog | undefined;
 
   placeholderEmoji: string;
 
@@ -419,6 +437,11 @@ export class PromptLetPromptEditor extends LitElement {
    * Delete the current prompt.
    */
   deletePrompt() {
+    if (this.confirmDialogComponent === undefined) {
+      throw Error('confirmDialogComponent is undefined');
+    }
+
+    this.confirmDialogComponent.show();
     // TODO
   }
 
@@ -937,6 +960,10 @@ export class PromptLetPromptEditor extends LitElement {
         <span class="popper-content"></span>
         <div class="popper-arrow"></div>
       </div>
+
+      <nightjar-confirm-dialog
+        .dialogInfo=${this.dialogInfo}
+      ></nightjar-confirm-dialog>
     `;
   }
 
