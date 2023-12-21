@@ -159,6 +159,9 @@ export class PromptLetPromptEditor extends LitElement {
   @property({ type: String })
   curSelectedTag: string = '';
 
+  @property({ type: Boolean })
+  isNewPrompt = false;
+
   @state()
   showAdvancedOptions = false;
 
@@ -229,7 +232,9 @@ export class PromptLetPromptEditor extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    console.log(this.isNewPrompt);
+  }
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -455,14 +460,6 @@ export class PromptLetPromptEditor extends LitElement {
   tagClicked(e: MouseEvent, tag: string) {
     e.preventDefault();
     e.stopPropagation();
-
-    // Notify the parent
-    // const event = new CustomEvent('tag-clicked', {
-    //   detail: tag,
-    //   bubbles: true,
-    //   composed: true
-    // });
-    // this.dispatchEvent(event);
   }
 
   /**
@@ -543,6 +540,13 @@ export class PromptLetPromptEditor extends LitElement {
     }
   }
 
+  promptEditorBackgroundClicked(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('prompt-editor')) {
+      this.closeButtonClicked();
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -578,7 +582,10 @@ export class PromptLetPromptEditor extends LitElement {
     }
 
     return html`
-      <div class="prompt-editor">
+      <div
+        class="prompt-editor"
+        @click=${(e: MouseEvent) => this.promptEditorBackgroundClicked(e)}
+      >
         <div class="prompt-window">
           <div class="toast-container">
             <nightjar-toast

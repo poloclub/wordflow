@@ -59,6 +59,9 @@ export class PromptLetPanelLocal extends LitElement {
   @state()
   selectedPrompt: PromptDataLocal | null = fakePrompts[0];
 
+  @state()
+  shouldCreateNewPrompt = false;
+
   @query('.prompt-content')
   promptContentElement: HTMLElement | undefined;
 
@@ -103,6 +106,7 @@ export class PromptLetPanelLocal extends LitElement {
     ) {
       throw Error('promptModalElement is undefined.');
     }
+    this.shouldCreateNewPrompt = false;
     this.selectedPrompt = promptData;
     this.promptModalElement.style.setProperty(
       'top',
@@ -275,6 +279,14 @@ export class PromptLetPanelLocal extends LitElement {
     this.promptModalElement.classList.add('hidden');
   }
 
+  creteButtonClicked() {
+    if (this.promptModalElement === undefined) {
+      throw Error('promptModalElement is undefined.');
+    }
+    this.shouldCreateNewPrompt = true;
+    this.promptModalElement.classList.remove('hidden');
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -362,7 +374,10 @@ export class PromptLetPanelLocal extends LitElement {
             <div class="search-group">
               <div class="result">${this.allPrompts.length} Prompts</div>
 
-              <button class="create-button">
+              <button
+                class="create-button"
+                @click=${() => this.creteButtonClicked()}
+              >
                 <span class="svg-icon">${unsafeHTML(addIcon)}</span>New Prompt
               </button>
             </div>
@@ -423,11 +438,12 @@ export class PromptLetPanelLocal extends LitElement {
               <div class="fav-prompts">${favPrompts}</div>
             </div>
 
-            <div class="prompt-modal">
+            <div class="prompt-modal hidden">
               <promptlet-prompt-editor
                 .promptData=${this.selectedPrompt
                   ? this.selectedPrompt
                   : getEmptyPromptData()}
+                .isNewPrompt=${this.shouldCreateNewPrompt}
                 @close-clicked=${() => this.modalCloseClickHandler()}
               ></promptlet-prompt-editor>
             </div>
