@@ -8,10 +8,10 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { getEmptyPromptData } from '../panel-community/panel-community';
+import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 
 // Types
-import type { PromptDataRemote } from '../../types/promptlet';
+import type { PromptDataRemote, PromptDataLocal } from '../../types/promptlet';
 
 import componentCSS from './prompt-card.css?inline';
 
@@ -25,7 +25,7 @@ export class PromptLetPromptCard extends LitElement {
   //                              Class Properties                            ||
   //==========================================================================||
   @property({ attribute: false })
-  promptData: PromptDataRemote;
+  promptData: PromptDataRemote | PromptDataLocal;
 
   @property({ type: Boolean })
   isLocalPrompt: boolean = false;
@@ -38,7 +38,7 @@ export class PromptLetPromptCard extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.promptData = getEmptyPromptData();
+    this.promptData = getEmptyPromptDataRemote();
   }
 
   /**
@@ -82,15 +82,17 @@ export class PromptLetPromptCard extends LitElement {
   render() {
     // Compose the tag list
     let tagList = html``;
-    if (!this.isLocalPrompt) {
-      for (const tag of this.promptData.tags) {
-        tagList = html`${tagList}
-          <span
-            class="tag"
-            ?is-selected=${this.curSelectedTag === tag}
-            @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
-            >${tag}</span
-          >`;
+    if (this.promptData.tags !== undefined) {
+      if (!this.isLocalPrompt) {
+        for (const tag of this.promptData.tags) {
+          tagList = html`${tagList}
+            <span
+              class="tag"
+              ?is-selected=${this.curSelectedTag === tag}
+              @click=${(e: MouseEvent) => this.tagClicked(e, tag)}
+              >${tag}</span
+            >`;
+        }
       }
     }
 
@@ -111,7 +113,7 @@ export class PromptLetPromptCard extends LitElement {
     let userTemplate = html``;
     if (!this.isLocalPrompt) {
       userTemplate = html`
-        <span class="name" title=${user}>${user}</span>
+        <span class="name" title=${user ? user : ''}>${user}</span>
         <span class="separator"></span>
       `;
     }

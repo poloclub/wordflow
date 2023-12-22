@@ -7,7 +7,7 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { getEmptyPromptData } from '../panel-community/panel-community';
+import { getEmptyPromptDataLocal } from '../panel-local/panel-local';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
@@ -213,7 +213,7 @@ export class PromptLetPromptEditor extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.promptData = getEmptyPromptData();
+    this.promptData = getEmptyPromptDataLocal();
 
     this.availableModels = structuredClone(ALL_MODELS);
     this.placeholderEmoji =
@@ -251,7 +251,7 @@ export class PromptLetPromptEditor extends LitElement {
       throw Error('Shadow root is null.');
     }
 
-    const newPromptData = getEmptyPromptData() as PromptDataLocal;
+    const newPromptData = getEmptyPromptDataLocal();
 
     // Parse the title
     const title = (

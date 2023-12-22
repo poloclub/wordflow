@@ -1,8 +1,9 @@
 import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { getEmptyPromptData } from '../panel-community/panel-community';
+import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 import { PromptManager } from '../wordflow/prompt-manager';
+import { v4 as uuidv4 } from 'uuid';
 
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
@@ -106,7 +107,7 @@ export class PromptLetPanelLocal extends LitElement {
   //                              Event Handlers                              ||
   //==========================================================================||
 
-  promptCardClicked(promptData: PromptDataRemote) {
+  promptCardClicked(promptData: PromptDataLocal) {
     if (
       this.promptModalElement === undefined ||
       this.promptContentElement === undefined
@@ -304,10 +305,9 @@ export class PromptLetPanelLocal extends LitElement {
   render() {
     // Compose the prompt cards
     let promptCards = html``;
-    for (const [i, curPromptData] of this.localPrompts
+    for (const [i, promptData] of this.localPrompts
       .slice(0, Math.min(this.maxPromptCount, this.allPrompts.length))
       .entries()) {
-      const promptData = curPromptData as PromptDataRemote;
       promptCards = html`${promptCards}
         <div
           class="prompt-card-container"
@@ -449,7 +449,7 @@ export class PromptLetPanelLocal extends LitElement {
               <promptlet-prompt-editor
                 .promptData=${this.selectedPrompt
                   ? this.selectedPrompt
-                  : getEmptyPromptData()}
+                  : getEmptyPromptDataLocal()}
                 .isNewPrompt=${this.shouldCreateNewPrompt}
                 .promptManager=${this.promptManager}
                 @close-clicked=${() => this.modalCloseClickHandler()}
@@ -475,3 +475,9 @@ declare global {
     'promptlet-panel-local': PromptLetPanelLocal;
   }
 }
+
+export const getEmptyPromptDataLocal = () => {
+  const dataRemote = getEmptyPromptDataRemote();
+  const dataLocal: PromptDataLocal = { ...dataRemote, key: uuidv4() };
+  return dataLocal;
+};

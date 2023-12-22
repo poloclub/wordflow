@@ -344,7 +344,7 @@ export class PromptLetPanelCommunity extends LitElement {
             <promptlet-prompt-viewer
               .promptData=${this.selectedPrompt
                 ? this.selectedPrompt
-                : getEmptyPromptData()}
+                : getEmptyPromptDataRemote()}
             ></promptlet-prompt-viewer>
           </div>
         </div>
@@ -365,10 +365,11 @@ declare global {
   }
 }
 
-export const getEmptyPromptData = () => {
+export const getEmptyPromptDataRemote = () => {
   const data: PromptDataRemote = {
     prompt: '',
     tags: [],
+    temperature: 0.2,
     userID: '',
     userName: '',
     description: '',

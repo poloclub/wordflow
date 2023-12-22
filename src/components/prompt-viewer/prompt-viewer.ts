@@ -7,7 +7,7 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { getEmptyPromptData } from '../panel-community/panel-community';
+import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 import d3 from '../../utils/d3-import';
 
 // Types
@@ -42,7 +42,7 @@ export class PromptLetPromptViewer extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.promptData = getEmptyPromptData();
+    this.promptData = getEmptyPromptDataRemote();
   }
 
   /**

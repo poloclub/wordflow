@@ -4,6 +4,7 @@
 export interface PromptDataRemote {
   prompt: string;
   tags: string[];
+  temperature: number;
   userID: string;
   userName: string;
   description: string;
@@ -20,7 +21,9 @@ export interface PromptDataRemote {
 
 export interface PromptDataLocal {
   prompt: string;
+  temperature: number;
   tags?: string[];
+  key: string;
   userID: string;
   userName?: string;
   description?: string;
