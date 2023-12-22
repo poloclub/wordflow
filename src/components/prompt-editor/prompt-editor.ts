@@ -486,12 +486,22 @@ export class PromptLetPromptEditor extends LitElement {
    * Event handler for clicking the close button
    */
   closeButtonClicked() {
+    if (this.shadowRoot === null) {
+      throw Error('shadowRoot is null');
+    }
+
     // Notify the parent
     const event = new Event('close-clicked', {
       bubbles: true,
       composed: true
     });
     this.dispatchEvent(event);
+
+    // Clean up the input
+    const formElement = this.shadowRoot.querySelector(
+      'form.content'
+    ) as HTMLFormElement;
+    formElement.reset();
   }
 
   /**
@@ -611,7 +621,7 @@ export class PromptLetPromptEditor extends LitElement {
             </div>
           </div>
 
-          <div class="content">
+          <form class="content">
             <div class="two-section-container">
               <section class="content-block content-block-title">
                 <div class="name-row">
@@ -938,16 +948,16 @@ export class PromptLetPromptEditor extends LitElement {
                       >${FIELD_INFO[Field.recommendedModels].description}</span
                     >
                   </div>
-                  <form
+                  <div
                     class="model-checkbox-container"
                     id="form-recommended-models"
                   >
                     ${modelCheckboxes}
-                  </form>
+                  </div>
                 </section>
               </div>
             </div>
-          </div>
+          </form>
 
           <div class="footer">
             <div class="button-container">
