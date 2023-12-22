@@ -11,6 +11,7 @@ const fakePrompts = fakePromptsJSON as PromptDataLocal[];
 
 for (const p of fakePrompts) {
   p.key = uuidv4();
+  p.injectionMode = 'replace';
 }
 
 export class PromptManager {
@@ -103,15 +104,26 @@ export class PromptManager {
   }
 
   /**
-   * Update the prompt at the index of localPrompts. This method doesn't change
+   * Update the prompt in the localPrompts. This method doesn't change
    * the prompt key.
-   * @param index Index of the prompt in localPrompts to update
    * @param newPrompt New prompt
    */
-  setPrompt(index: number, newPrompt: PromptDataLocal) {
+  setPrompt(newPrompt: PromptDataLocal) {
+    // Find the index of this prompt based on its key
+    let index = -1;
+    for (const [i, p] of this.localPrompts.entries()) {
+      if (p.key === newPrompt.key) {
+        index = i;
+      }
+    }
+
+    if (index === -1) {
+      throw Error(`Can't find they key ${newPrompt.key}.`);
+    }
+
     this.localPrompts[index] = newPrompt;
 
-    // Update the prompt in local storage
+    // Update the prompt in indexed db
     const key = this.promptKeys[index];
     set(`${PREFIX}-${key}`, newPrompt);
 

@@ -407,6 +407,10 @@ button {
   &:active {
     background-color: color-mix(in lab, var(--gray-200), black 7%);
   }
+
+  &[no-display] {
+    display: none;
+  }
 }
 
 .accordion-container {

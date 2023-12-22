@@ -291,6 +291,7 @@ export class PromptLetPanelLocal extends LitElement {
     if (this.promptModalElement === undefined) {
       throw Error('promptModalElement is undefined.');
     }
+    this.selectedPrompt = getEmptyPromptDataLocal();
     this.shouldCreateNewPrompt = true;
     this.promptModalElement.classList.remove('hidden');
   }

@@ -235,7 +235,11 @@ export class PromptLetPromptEditor extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    if (changedProperties.has('promptData')) {
+      this.injectionMode = this.promptData.injectionMode;
+    }
+  }
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -252,6 +256,11 @@ export class PromptLetPromptEditor extends LitElement {
     }
 
     const newPromptData = getEmptyPromptDataLocal();
+
+    // Use the same key if the user is editing an old prompt
+    if (!this.isNewPrompt) {
+      newPromptData.key = this.promptData.key;
+    }
 
     // Parse the title
     const title = (
@@ -272,6 +281,11 @@ export class PromptLetPromptEditor extends LitElement {
       iconChar = match[0];
     }
     newPromptData.icon = iconChar;
+
+    // If the user doesn't set an icon, use the placeholder instead
+    if (newPromptData.icon === '') {
+      newPromptData.icon = this.placeholderEmoji;
+    }
 
     // Parse the prompt
     const prompt = (
@@ -380,9 +394,12 @@ export class PromptLetPromptEditor extends LitElement {
       return;
     }
 
-    // Add the new prompt
     if (this.isNewPrompt) {
+      // Add the new prompt
       this.promptManager.addPrompt(newPromptData);
+    } else {
+      // Update the old prompt
+      this.promptManager.setPrompt(newPromptData);
     }
 
     this.toastComponent.hide();
@@ -645,6 +662,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text title-input"
                     id="text-input-title"
+                    value="${this.promptData.title}"
                     maxlength="${MAX_TITLE_LENGTH}"
                     placeholder=${FIELD_INFO[Field.title].placeholder}
                     @input=${(e: InputEvent) => {
@@ -678,6 +696,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-icon"
+                    value="${this.promptData.icon}"
                     @input=${(e: InputEvent) => this.iconInput(e)}
                     placeholder="${this.placeholderEmoji}"
                     maxlength="20"
@@ -709,7 +728,9 @@ export class PromptLetPromptEditor extends LitElement {
                 id="text-input-prompt"
                 maxlength="${MAX_PROMPT_LENGTH}"
                 placeholder="${FIELD_INFO[Field.prompt].placeholder}"
-              ></textarea>
+              >
+${this.promptData.prompt}</textarea
+              >
             </section>
 
             <div
@@ -754,6 +775,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-output-parsing-pattern"
+                    value="${this.promptData.outputParsingPattern || ''}"
                     maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                     placeholder=${FIELD_INFO[Field.outputParsingPattern]
                       .placeholder}
@@ -785,6 +807,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-output-parsing-replacement"
+                    value="${this.promptData.outputParsingReplacement || ''}"
                     maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                     placeholder=${FIELD_INFO[Field.outputParsingReplacement]
                       .placeholder}
@@ -814,6 +837,7 @@ export class PromptLetPromptEditor extends LitElement {
                     >
                     <select
                       class="injection-mode-select"
+                      value="${this.injectionMode}"
                       @change=${(e: InputEvent) => {
                         const select = e.currentTarget as HTMLSelectElement;
                         if (select.value === 'replace') {
@@ -877,7 +901,9 @@ export class PromptLetPromptEditor extends LitElement {
                     id="text-input-description"
                     maxlength="${MAX_DESCRIPTION_LENGTH}"
                     placeholder=${FIELD_INFO[Field.description].placeholder}
-                  ></textarea>
+                  >
+${this.promptData.description || ''}</textarea
+                  >
                 </section>
 
                 <section class="content-block">
@@ -901,6 +927,9 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-tags"
+                    value="${this.promptData.tags !== undefined
+                      ? this.promptData.tags.join(', ')
+                      : ''}"
                     maxlength="${MAX_TAGS_LENGTH}"
                     placeholder=${FIELD_INFO[Field.tags].placeholder}
                   />
@@ -927,6 +956,7 @@ export class PromptLetPromptEditor extends LitElement {
                     type="text"
                     class="content-text"
                     id="text-input-user-name"
+                    value="${this.promptData.userName || ''}"
                     maxlength="${MAX_USER_NAME_LENGTH}"
                   />
                 </section>
@@ -961,16 +991,20 @@ export class PromptLetPromptEditor extends LitElement {
 
           <div class="footer">
             <div class="button-container">
-              <button class="footer-button" @click=${() => this.savePrompt()}>
-                <span class="svg-icon">${unsafeHTML(saveIcon)}</span>Save
+              <button
+                ?no-display=${this.isNewPrompt}
+                class="footer-button"
+                @click=${() => this.deletePrompt()}
+              >
+                <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
               </button>
             </div>
             <div class="button-container">
               <button class="footer-button" @click=${() => this.sharePrompt()}>
                 <span class="svg-icon">${unsafeHTML(shareIcon)}</span>Share
               </button>
-              <button class="footer-button" @click=${() => this.deletePrompt()}>
-                <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>Delete
+              <button class="footer-button" @click=${() => this.savePrompt()}>
+                <span class="svg-icon">${unsafeHTML(saveIcon)}</span>Save
               </button>
             </div>
           </div>
