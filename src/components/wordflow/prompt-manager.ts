@@ -38,7 +38,10 @@ export class PromptManager {
     this.favPromptsUpdateCallback(this.favPrompts);
 
     // Reconstruct the prompts from the indexed db
-    this.restoreFinished = this.restoreFromStorage();
+    this.restoreFinished = this.restoreFromStorage().then(() => {
+      // Use recency as the default order
+      this.sortPrompts('created');
+    });
 
     // this._cleanStorage();
     // this._syncStorage();
@@ -89,12 +92,11 @@ export class PromptManager {
    * @param newPrompt New prompt
    */
   addPrompt(newPrompt: PromptDataLocal) {
-    const key = uuidv4();
-    this.promptKeys.push(key);
-    this.localPrompts.push(newPrompt);
+    this.promptKeys.unshift(newPrompt.key);
+    this.localPrompts.unshift(newPrompt);
 
     // Save the prompt and new keys in indexed db
-    set(`${PREFIX}-${key}`, newPrompt);
+    set(`${PREFIX}-${newPrompt.key}`, newPrompt);
     set(`${PREFIX}-keys`, this.promptKeys);
 
     this.localPromptsUpdateCallback(this.localPrompts);
@@ -148,7 +150,40 @@ export class PromptManager {
     this.favPromptsUpdateCallback(this.favPrompts);
   }
 
-  sortPrompts(order: 'name' | 'created' | 'runCount') {}
+  /**
+   * Sort the local prompts by an order
+   * @param order Order of the new local prompts
+   */
+  sortPrompts(order: 'name' | 'created' | 'runCount') {
+    switch (order) {
+      case 'name': {
+        this.localPrompts.sort((a, b) => a.title.localeCompare(b.title));
+
+        break;
+      }
+
+      case 'created': {
+        // Recent prompts at front
+        this.localPrompts.sort((a, b) => b.created.localeCompare(a.created));
+        break;
+      }
+
+      case 'runCount': {
+        this.localPrompts.sort((a, b) => b.promptRunCount - a.promptRunCount);
+        break;
+      }
+
+      default: {
+        throw Error(`Unknown order ${order}`);
+      }
+    }
+
+    this.promptKeys = this.localPrompts.map(d => d.key);
+    set(`${PREFIX}-keys`, this.promptKeys);
+
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    console.log(this.localPrompts);
+  }
 
   /**
    * Remove all local storage set by PromptManager.

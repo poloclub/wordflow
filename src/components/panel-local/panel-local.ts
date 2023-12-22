@@ -295,6 +295,18 @@ export class PromptLetPanelLocal extends LitElement {
     this.promptModalElement.classList.remove('hidden');
   }
 
+  sortOptionChanged(e: InputEvent) {
+    const selectElement = e.currentTarget as HTMLInputElement;
+    const sortOption = selectElement.value;
+    if (
+      sortOption === 'created' ||
+      sortOption === 'name' ||
+      sortOption === 'runCount'
+    ) {
+      this.promptManager.sortPrompts(sortOption);
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -409,10 +421,13 @@ export class PromptLetPanelLocal extends LitElement {
 
               <div class="sort-button">
                 <span class="svg-icon">${unsafeHTML(sortIcon)}</span>
-                <select class="sort-selection">
-                  <option>Name</option>
-                  <option>Recency</option>
-                  <option>Run Count</option>
+                <select
+                  class="sort-selection"
+                  @input=${(e: InputEvent) => this.sortOptionChanged(e)}
+                >
+                  <option value="created">Recency</option>
+                  <option value="name">Name</option>
+                  <option value="runCount">Run Count</option>
                 </select>
               </div>
             </div>

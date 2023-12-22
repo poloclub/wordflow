@@ -102,7 +102,7 @@ const FIELD_INFO: Record<Field, FieldInfo> = {
     placeholder:
       'You are an experienced writer. Given some input text, you will make it succinct and clear.',
     tooltip:
-      'By default, the input text will be added to the end of prompt. To place input text elsewhere, insert {{INPUT}} in the prompt where you want the text.'
+      'By default, the input text will be added to the end of prompt. To place input text elsewhere, insert {{text}} in the prompt where you want the text.'
   },
   [Field.outputParsingPattern]: {
     description: 'Regex to parse the LLM output',
