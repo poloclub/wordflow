@@ -132,16 +132,26 @@ export class PromptManager {
 
   /**
    * Delete a prompt in the localPrompts
-   * @param index Index of the prompt in localPrompts
+   * @param prompt The prompt to delete
    */
-  deletePrompt(index: number) {
-    const key = this.promptKeys[index];
+  deletePrompt(prompt: PromptDataLocal) {
+    // Find the index of this prompt based on its key
+    let index = -1;
+    for (const [i, p] of this.localPrompts.entries()) {
+      if (p.key === prompt.key) {
+        index = i;
+      }
+    }
+
+    if (index === -1) {
+      throw Error(`Can't find they key ${prompt.key}.`);
+    }
 
     this.localPrompts.splice(index, 1);
     this.promptKeys.splice(index, 1);
 
     // Remove the prompt from indexed db
-    del(`${PREFIX}-${key}`);
+    del(`${PREFIX}-${prompt.key}`);
     set(`${PREFIX}-keys`, this.promptKeys);
 
     this.localPromptsUpdateCallback(this.localPrompts);

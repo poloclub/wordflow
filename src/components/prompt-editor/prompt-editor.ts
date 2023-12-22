@@ -469,8 +469,11 @@ export class PromptLetPromptEditor extends LitElement {
       throw Error('confirmDialogComponent is undefined');
     }
 
+    this.dialogInfo.confirmAction = () => {
+      this.promptManager.deletePrompt(this.promptData);
+      this.closeButtonClicked();
+    };
     this.confirmDialogComponent.show();
-    // TODO
   }
 
   //==========================================================================||
