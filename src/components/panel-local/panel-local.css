@@ -305,6 +305,7 @@ button {
   }
 
   .prompt-mini-card {
+    width: 100%;
     display: flex;
     flex-flow: row;
     padding: 12px;

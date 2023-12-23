@@ -641,3 +641,19 @@ button {
     max-width: 300px;
   }
 }
+
+.slider-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+
+  input[type='text'].content-text {
+    width: 48px;
+  }
+
+  nightjar-slider {
+    width: 250px;
+  }
+}

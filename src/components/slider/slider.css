@@ -1,0 +1,110 @@
+.slider {
+  --thumb-width: 14px;
+
+  width: calc(100% - var(--thumb-width));
+  height: 5px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  box-sizing: border-box;
+  margin-left: calc(var(--thumb-width) / 2);
+  margin-right: calc(var(--thumb-width) / 2);
+  position: relative;
+  top: 1px;
+}
+
+.slider-track {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  display: flex;
+
+  &.background-track {
+    background: var(--background-color);
+  }
+
+  &.range-track {
+    width: 0px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    background: var(--foreground-color);
+  }
+}
+
+.middle-thumb {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: calc(var(--thumb-width) / -2);
+  transform: translateY(-50%);
+
+  width: var(--thumb-width);
+  height: var(--thumb-width);
+  border-radius: 100%;
+
+  background-color: var(--foreground-color);
+  color: var(--foreground-color);
+  box-shadow:
+    0px 2px 1px -1px hsla(0, 0%, 0%, 0.2),
+    0px 1px 1px 0px hsla(0, 0%, 0%, 0.14),
+    0px 1px 3px 0px hsla(0, 0%, 0%, 0.08);
+
+  cursor: grab;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    z-index: 1;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.2;
+    left: 50%;
+    top: 50%;
+    margin-top: -2.5px;
+    margin-left: -2.5px;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: scale(0.1);
+    transition: transform 300ms ease-in-out;
+  }
+
+  &:hover {
+    &::before {
+      transform: scale(5);
+    }
+
+    .thumb-label {
+      transition-delay: 200ms;
+      transform: translateX(-50%) translateY(100%) scale(1);
+    }
+  }
+
+  &:focus {
+    cursor: grabbing;
+    outline: none;
+
+    &::before {
+      transform: scale(7);
+    }
+
+    .thumb-label {
+      transform: translateX(-50%) translateY(100%) scale(1);
+    }
+  }
+
+  &.animating {
+    .thumb-label {
+      transform: translateX(-50%) translateY(100%) scale(1);
+    }
+  }
+}

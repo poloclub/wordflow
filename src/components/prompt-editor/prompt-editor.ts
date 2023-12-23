@@ -9,9 +9,10 @@ import {
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptDataLocal } from '../panel-local/panel-local';
 import { PromptManager } from '../wordflow/prompt-manager';
-import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
+import { tooltipMouseEnter, tooltipMouseLeave, round } from '@xiaohk/utils';
 
 import '../toast/toast';
+import '../slider/slider';
 import '../confirm-dialog/confirm-dialog';
 
 // Types
@@ -22,6 +23,7 @@ import type {
   NightjarConfirmDialog,
   DialogInfo
 } from '../confirm-dialog/confirm-dialog';
+import type { ValueChangedMessage, NightjarSlider } from '../slider/slider';
 
 // Assets
 import crossIcon from '../../images/icon-cross.svg?raw';
@@ -83,7 +85,8 @@ enum Field {
   description = 'Description',
   tags = 'Tags',
   userName = 'User Name',
-  recommendedModels = 'Recommended Models'
+  recommendedModels = 'Recommended Models',
+  temperature = 'Temperature'
 }
 
 const FIELD_INFO: Record<Field, FieldInfo> = {
@@ -141,6 +144,12 @@ const FIELD_INFO: Record<Field, FieldInfo> = {
     description: 'Suggested LLMs to use this prompt',
     placeholder: '',
     tooltip: 'Best LLM models to use with this prompt.'
+  },
+  [Field.temperature]: {
+    description: 'LLM temperature',
+    placeholder: '',
+    tooltip:
+      'Temperature controls randomness of the LLM output. As the value approaches 0, the output becomes deterministic and repetitive.'
   }
 };
 
@@ -177,6 +186,9 @@ export class PromptLetPromptEditor extends LitElement {
   @state()
   injectionMode: 'replace' | 'append' = 'replace';
 
+  @state()
+  temperature: number = 0;
+
   @query('#popper-tooltip-editor')
   popperElement: HTMLElement | undefined;
   tooltipConfig: TooltipConfig | null = null;
@@ -192,6 +204,9 @@ export class PromptLetPromptEditor extends LitElement {
 
   @query('nightjar-toast')
   toastComponent: NightjarToast | undefined;
+
+  @query('nightjar-slider')
+  sliderComponent: NightjarSlider | undefined;
 
   @state()
   dialogInfo: DialogInfo = {
@@ -237,6 +252,7 @@ export class PromptLetPromptEditor extends LitElement {
   willUpdate(changedProperties: PropertyValues<this>) {
     if (changedProperties.has('promptData')) {
       this.injectionMode = this.promptData.injectionMode;
+      this.temperature = this.promptData.temperature;
     }
   }
 
@@ -491,10 +507,18 @@ export class PromptLetPromptEditor extends LitElement {
    * @param e Event
    * @param type Accordion type
    */
-  accordionHeaderClicked(e: MouseEvent, type: 'advanced' | 'sharing') {
+  async accordionHeaderClicked(e: MouseEvent, type: 'advanced' | 'sharing') {
     e.preventDefault();
     if (type === 'advanced') {
+      if (!this.sliderComponent) {
+        throw Error('sliderComponent is not initialized');
+      }
       this.showAdvancedOptions = !this.showAdvancedOptions;
+
+      // Need to force the slider to sync thumb, because its first time would fail
+      // as all elements inside the accordion are not rendered yet.
+      await this.updateComplete;
+      this.sliderComponent.syncThumb();
     } else if (type === 'sharing') {
       this.showSharingOptions = !this.showSharingOptions;
     }
@@ -520,6 +544,10 @@ export class PromptLetPromptEditor extends LitElement {
       'form.content'
     ) as HTMLFormElement;
     formElement.reset();
+
+    // Collapse all accordions
+    this.showAdvancedOptions = false;
+    this.showSharingOptions = false;
   }
 
   /**
@@ -751,6 +779,47 @@ ${this.promptData.prompt}</textarea
               </div>
 
               <div class="accordion-content">
+                <section class="content-block">
+                  <div class="name-row">
+                    <div
+                      class="name-container"
+                      @mouseenter=${(e: MouseEvent) =>
+                        this.infoIconMouseEntered(e, Field.temperature)}
+                      @mouseleave=${() => this.infoIconMouseLeft()}
+                    >
+                      <div class="name">${Field.temperature}</div>
+                      <span class="svg-icon info-icon"
+                        >${unsafeHTML(infoIcon)}</span
+                      >
+                    </div>
+                    <span class="name-info"
+                      >${FIELD_INFO[Field.temperature].description}</span
+                    >
+                  </div>
+                  <div class="slider-container">
+                    <nightjar-slider
+                      min=${0}
+                      max=${1}
+                      curValue=${this.temperature}
+                      .styleConfig=${{
+                        foregroundColor: 'var(--gray-500)',
+                        backgroundColor: 'var(--gray-300)'
+                      }}
+                      @valueChanged=${(e: CustomEvent<ValueChangedMessage>) => {
+                        this.temperature = e.detail.value;
+                      }}
+                    ></nightjar-slider>
+                    <input
+                      type="text"
+                      class="content-text"
+                      id="text-input-output-parsing-pattern"
+                      value="${round(this.temperature, 2)}"
+                      maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
+                      placeholder=${this.temperature}
+                    />
+                  </div>
+                </section>
+
                 <section class="content-block">
                   <div class="name-row">
                     <div

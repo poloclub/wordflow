@@ -14,11 +14,11 @@ import '../prompt-card/prompt-card';
 import '../pagination/pagination';
 import '../prompt-editor/prompt-editor';
 import '../confirm-dialog/confirm-dialog';
-import '../confirm-dialog/confirm-dialog';
 
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
 import type { PromptLetPromptCard } from '../prompt-card/prompt-card';
+import type { PromptLetPromptEditor } from '../prompt-editor/prompt-editor';
 import type {
   NightjarConfirmDialog,
   DialogInfo
@@ -63,10 +63,7 @@ export class PromptLetPanelLocal extends LitElement {
   ) => {};
 
   @state()
-  allPrompts: PromptDataLocal[] = [];
-
-  @state()
-  maxPromptCount = 18;
+  maxPromptCount = 24;
 
   @state()
   isDraggingPromptCard = false;
@@ -115,7 +112,6 @@ export class PromptLetPanelLocal extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.allPrompts = fakePrompts.slice(0, 33);
   }
 
   firstUpdated() {
@@ -177,7 +173,7 @@ export class PromptLetPanelLocal extends LitElement {
         this.promptContainerElement.scrollTop <=
       this.promptContainerElement.clientHeight + 5;
 
-    if (isAtBottom && this.maxPromptCount < this.allPrompts.length) {
+    if (isAtBottom && this.maxPromptCount < this.localPrompts.length) {
       // Keep track the original scroll position
       const previousScrollTop = this.promptContainerElement.scrollTop;
 
@@ -199,7 +195,7 @@ export class PromptLetPanelLocal extends LitElement {
       this.promptContainerElement.scrollTop = previousScrollTop;
     }
 
-    if (this.maxPromptCount >= this.allPrompts.length) {
+    if (this.maxPromptCount >= this.localPrompts.length) {
       this.promptLoaderElement.classList.add('no-display');
     }
   }
@@ -395,7 +391,7 @@ export class PromptLetPanelLocal extends LitElement {
     // Compose the prompt cards
     let promptCards = html``;
     for (const [i, promptData] of this.localPrompts
-      .slice(0, Math.min(this.maxPromptCount, this.allPrompts.length))
+      .slice(0, Math.min(this.maxPromptCount, this.localPrompts.length))
       .entries()) {
       promptCards = html`${promptCards}
         <div
@@ -484,7 +480,7 @@ export class PromptLetPanelLocal extends LitElement {
         <div class="prompt-panel">
           <div class="search-panel">
             <div class="search-group">
-              <div class="result">${this.allPrompts.length} Prompts</div>
+              <div class="result">${this.localPrompts.length} Prompts</div>
 
               <button
                 class="create-button"
