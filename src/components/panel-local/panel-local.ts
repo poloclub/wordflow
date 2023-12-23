@@ -4,6 +4,11 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  tooltipMouseEnter,
+  tooltipMouseLeave,
+  TooltipConfig
+} from '@xiaohk/utils';
 
 import '../prompt-card/prompt-card';
 import '../pagination/pagination';
@@ -82,6 +87,10 @@ export class PromptLetPanelLocal extends LitElement {
   @query('.prompt-modal')
   promptModalElement: HTMLDialogElement | undefined;
 
+  @query('#popper-tooltip-local')
+  popperElement: HTMLElement | undefined;
+  tooltipConfig: TooltipConfig | null = null;
+
   draggingImageElement: HTMLElement | null = null;
 
   //==========================================================================||
@@ -90,6 +99,17 @@ export class PromptLetPanelLocal extends LitElement {
   constructor() {
     super();
     this.allPrompts = fakePrompts.slice(0, 33);
+  }
+
+  firstUpdated() {
+    // Bind the tooltip
+    if (this.popperElement) {
+      this.tooltipConfig = {
+        tooltipElement: this.popperElement,
+        mouseenterTimer: null,
+        mouseleaveTimer: null
+      };
+    }
   }
 
   /**
@@ -308,6 +328,32 @@ export class PromptLetPanelLocal extends LitElement {
     }
   }
 
+  /**
+   * Event handler for mouse entering the menu bar button
+   * @param e Mouse event
+   * @param button Button name
+   */
+  menuIconMouseEntered(e: MouseEvent, button: 'edit' | 'delete') {
+    const target = e.currentTarget as HTMLElement;
+
+    tooltipMouseEnter(
+      e,
+      button === 'edit' ? 'Edit' : 'Delete',
+      'top',
+      this.tooltipConfig,
+      200,
+      target,
+      10
+    );
+  }
+
+  /**
+   * Event handler for mouse leaving the info icon in each filed
+   */
+  menuIconMouseLeft() {
+    tooltipMouseLeave(this.tooltipConfig, 0);
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -335,11 +381,21 @@ export class PromptLetPanelLocal extends LitElement {
             class="prompt-card-menu"
             ?is-hidden="${this.hoveringPromptCardIndex !== i}"
           >
-            <button class="edit-button">
+            <button
+              class="edit-button"
+              @mouseenter=${(e: MouseEvent) =>
+                this.menuIconMouseEntered(e, 'edit')}
+              @mouseleave=${() => this.menuIconMouseLeft()}
+            >
               <span class="svg-icon">${unsafeHTML(editIcon)}</span>
             </button>
 
-            <button class="delete-button">
+            <button
+              class="delete-button"
+              @mouseenter=${(e: MouseEvent) =>
+                this.menuIconMouseEntered(e, 'delete')}
+              @mouseleave=${() => this.menuIconMouseLeft()}
+            >
               <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>
             </button>
           </div>
@@ -475,6 +531,15 @@ export class PromptLetPanelLocal extends LitElement {
         </div>
 
         <nightjar-confirm-dialog></nightjar-confirm-dialog>
+
+        <div
+          id="popper-tooltip-local"
+          class="popper-tooltip hidden"
+          role="tooltip"
+        >
+          <span class="popper-content"></span>
+          <div class="popper-arrow"></div>
+        </div>
       </div>
     `;
   }
