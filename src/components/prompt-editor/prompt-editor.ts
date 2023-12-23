@@ -199,8 +199,7 @@ export class PromptLetPromptEditor extends LitElement {
     message:
       'Are you sure you want to delete this prompt? This action cannot be undone.',
     yesButtonText: 'Delete',
-    actionKey: 'delete-prompt',
-    confirmAction: () => {}
+    actionKey: 'delete-prompt'
   };
 
   @query('nightjar-confirm-dialog')
@@ -469,11 +468,10 @@ export class PromptLetPromptEditor extends LitElement {
       throw Error('confirmDialogComponent is undefined');
     }
 
-    this.dialogInfo.confirmAction = () => {
+    this.confirmDialogComponent.show(() => {
       this.promptManager.deletePrompt(this.promptData);
       this.closeButtonClicked();
-    };
-    this.confirmDialogComponent.show();
+    });
   }
 
   //==========================================================================||

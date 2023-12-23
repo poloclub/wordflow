@@ -32,11 +32,11 @@ export class PromptManager {
   ) {
     this.localPrompts = fakePrompts.slice(0, 4);
     this.localPromptsUpdateCallback = localPromptsUpdateCallback;
-    this.localPromptsUpdateCallback(this.localPrompts);
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
 
     this.favPrompts = fakePrompts.slice(0, 3);
     this.favPromptsUpdateCallback = favPromptsUpdateCallback;
-    this.favPromptsUpdateCallback(this.favPrompts);
+    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
 
     // Reconstruct the prompts from the indexed db
     this.restoreFinished = this.restoreFromStorage().then(() => {
@@ -72,7 +72,7 @@ export class PromptManager {
     }
 
     // Notify the consumers
-    this.localPromptsUpdateCallback(this.localPrompts);
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
 
     // Restore the fav prompts
     const favPromptKeys = (await get(`${PREFIX}-fav-keys`)) as
@@ -100,7 +100,7 @@ export class PromptManager {
     set(`${PREFIX}-${newPrompt.key}`, newPrompt);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this.localPromptsUpdateCallback(this.localPrompts);
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
   }
 
   /**
@@ -127,7 +127,7 @@ export class PromptManager {
     const key = this.promptKeys[index];
     set(`${PREFIX}-${key}`, newPrompt);
 
-    this.localPromptsUpdateCallback(this.localPrompts);
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
   }
 
   /**
@@ -154,7 +154,7 @@ export class PromptManager {
     del(`${PREFIX}-${prompt.key}`);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this.localPromptsUpdateCallback(this.localPrompts);
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
   }
 
   /**
@@ -169,7 +169,7 @@ export class PromptManager {
     // Update indexed db
     set(`${PREFIX}-fav-keys`, this.favPromptKeys);
 
-    this.favPromptsUpdateCallback(this.favPrompts);
+    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
   }
 
   /**

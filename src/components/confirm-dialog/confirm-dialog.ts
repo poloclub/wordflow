@@ -12,7 +12,6 @@ export interface DialogInfo {
    * Used to identify actions to skip
    */
   actionKey: string;
-  confirmAction: () => void;
 }
 
 /**
@@ -31,13 +30,15 @@ export class NightjarConfirmDialog extends LitElement {
     message:
       'Are you sure you want to delete this item? This action cannot be undone.',
     yesButtonText: 'Delete',
-    actionKey: 'deletion',
-    confirmAction: () => {}
+    actionKey: 'deletion'
   };
+
+  confirmAction: () => void;
 
   // ===== Lifecycle Methods ======
   constructor() {
     super();
+    this.confirmAction = () => {};
   }
 
   firstUpdated() {
@@ -53,13 +54,15 @@ export class NightjarConfirmDialog extends LitElement {
   // ===== Custom Methods ======
   initData = async () => {};
 
-  show() {
+  show(confirmAction: () => void) {
+    this.confirmAction = confirmAction;
+
     // First check if the user has skipped this action
     const skipDialog = localStorage.getItem(
       `<skip-confirm>${this.dialogInfo.actionKey}`
     );
     if (skipDialog === 'true') {
-      this.dialogInfo.confirmAction();
+      this.confirmAction();
     } else {
       if (this.dialogElement) {
         this.dialogElement.showModal();
@@ -94,7 +97,7 @@ export class NightjarConfirmDialog extends LitElement {
         localStorage.setItem(key, 'true');
       }
 
-      this.dialogInfo.confirmAction();
+      this.confirmAction();
       this.dialogElement.close();
     }
   }

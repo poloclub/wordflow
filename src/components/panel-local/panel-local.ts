@@ -102,8 +102,7 @@ export class PromptLetPanelLocal extends LitElement {
     message:
       'Are you sure you want to delete this prompt? This action cannot be undone.',
     yesButtonText: 'Delete',
-    actionKey: 'delete-prompt-local',
-    confirmAction: () => {}
+    actionKey: 'delete-prompt-local'
   };
 
   @query('nightjar-confirm-dialog')
@@ -372,6 +371,19 @@ export class PromptLetPanelLocal extends LitElement {
     tooltipMouseLeave(this.tooltipConfig, 0);
   }
 
+  /**
+   * Delete the current prompt.
+   */
+  menuDeleteClicked(promptData: PromptDataLocal) {
+    if (this.confirmDialogComponent === undefined) {
+      throw Error('confirmDialogComponent is undefined');
+    }
+
+    this.confirmDialogComponent.show(() => {
+      this.promptManager.deletePrompt(promptData);
+    });
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -394,9 +406,6 @@ export class PromptLetPanelLocal extends LitElement {
           @mouseleave=${(e: MouseEvent) => {
             this.promptCardMouseLeft(e);
           }}
-          @click=${() => {
-            this.promptCardClicked(promptData);
-          }}
         >
           <div
             class="prompt-card-menu"
@@ -407,6 +416,9 @@ export class PromptLetPanelLocal extends LitElement {
               @mouseenter=${(e: MouseEvent) =>
                 this.menuIconMouseEntered(e, 'edit')}
               @mouseleave=${() => this.menuIconMouseLeft()}
+              @click=${() => {
+                this.promptCardClicked(promptData);
+              }}
             >
               <span class="svg-icon">${unsafeHTML(editIcon)}</span>
             </button>
@@ -416,6 +428,9 @@ export class PromptLetPanelLocal extends LitElement {
               @mouseenter=${(e: MouseEvent) =>
                 this.menuIconMouseEntered(e, 'delete')}
               @mouseleave=${() => this.menuIconMouseLeft()}
+              @click=${() => {
+                this.menuDeleteClicked(promptData);
+              }}
             >
               <span class="svg-icon">${unsafeHTML(deleteIcon)}</span>
             </button>
