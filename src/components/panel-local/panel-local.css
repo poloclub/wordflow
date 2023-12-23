@@ -437,6 +437,18 @@ promptlet-prompt-card {
   }
 }
 
+@keyframes flash {
+  0% {
+    border-color: var(--gray-700);
+  }
+  50% {
+    border-color: var(--gray-300);
+  }
+  100% {
+    border-color: var(--gray-700);
+  }
+}
+
 .panel-local[is-dragging] {
   .prompt-container {
     overflow: hidden;
@@ -444,11 +456,14 @@ promptlet-prompt-card {
 
   .fav-prompt-slot {
     &[is-temp] {
-      transform: translateX(1000px);
+      position: absolute;
+      z-index: -1;
+      left: 1000px;
     }
 
     &:not([is-temp]) {
-      border: 1px dashed var(--gray-600);
+      border: 1px dashed var(--gray-700);
+      animation: flash 900ms ease-in-out infinite;
 
       &.drag-over {
         background-color: var(--gray-200);

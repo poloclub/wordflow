@@ -14,10 +14,15 @@ import '../prompt-card/prompt-card';
 import '../pagination/pagination';
 import '../prompt-editor/prompt-editor';
 import '../confirm-dialog/confirm-dialog';
+import '../confirm-dialog/confirm-dialog';
 
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
 import type { PromptLetPromptCard } from '../prompt-card/prompt-card';
+import type {
+  NightjarConfirmDialog,
+  DialogInfo
+} from '../confirm-dialog/confirm-dialog';
 
 // Assets
 import componentCSS from './panel-local.css?inline';
@@ -90,6 +95,19 @@ export class PromptLetPanelLocal extends LitElement {
   @query('#popper-tooltip-local')
   popperElement: HTMLElement | undefined;
   tooltipConfig: TooltipConfig | null = null;
+
+  @state()
+  dialogInfo: DialogInfo = {
+    header: 'Delete Item',
+    message:
+      'Are you sure you want to delete this prompt? This action cannot be undone.',
+    yesButtonText: 'Delete',
+    actionKey: 'delete-prompt-local',
+    confirmAction: () => {}
+  };
+
+  @query('nightjar-confirm-dialog')
+  confirmDialogComponent: NightjarConfirmDialog | undefined;
 
   draggingImageElement: HTMLElement | null = null;
 
@@ -375,6 +393,9 @@ export class PromptLetPanelLocal extends LitElement {
           }}
           @mouseleave=${(e: MouseEvent) => {
             this.promptCardMouseLeft(e);
+          }}
+          @click=${() => {
+            this.promptCardClicked(promptData);
           }}
         >
           <div
