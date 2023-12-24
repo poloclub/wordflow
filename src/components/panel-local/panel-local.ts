@@ -76,6 +76,9 @@ export class PromptLetPanelLocal extends LitElement {
   @state()
   shouldCreateNewPrompt = false;
 
+  @state()
+  showSearchBarCancelButton = false;
+
   @query('.prompt-content')
   promptContentElement: HTMLElement | undefined;
 
@@ -105,6 +108,8 @@ export class PromptLetPanelLocal extends LitElement {
   confirmDialogComponent: NightjarConfirmDialog | undefined;
 
   draggingImageElement: HTMLElement | null = null;
+
+  searchBarDebounceTimer: number | null = null;
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -379,6 +384,23 @@ export class PromptLetPanelLocal extends LitElement {
     });
   }
 
+  searchBarEntered(e: InputEvent) {
+    const inputElement = e.currentTarget as HTMLInputElement;
+    const query = inputElement.value;
+    if (query.length > 0) {
+      this.showSearchBarCancelButton = true;
+    } else {
+      this.showSearchBarCancelButton = false;
+    }
+
+    if (this.searchBarDebounceTimer !== null) {
+      clearTimeout(this.searchBarDebounceTimer);
+    }
+    this.searchBarDebounceTimer = setTimeout(() => {
+      this.promptManager.searchPrompt(query);
+    }, 300);
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -501,10 +523,14 @@ export class PromptLetPanelLocal extends LitElement {
                   id="search-bar-input"
                   type="text"
                   name="search-bar-input"
+                  @input=${(e: InputEvent) => this.searchBarEntered(e)}
                   placeholder="Search my prompts"
                 />
 
-                <span class="icon-container">
+                <span
+                  class="icon-container"
+                  ?is-hidden=${!this.showSearchBarCancelButton}
+                >
                   <span class="svg-icon cross">${unsafeHTML(crossIcon)}</span>
                 </span>
               </div>

@@ -166,14 +166,20 @@ button {
     align-items: center;
     justify-content: center;
     padding: 0 5px;
+    cursor: pointer;
+
+    transition: opacity 100ms ease-in-out;
+
+    &[is-hidden] {
+      opacity: 0;
+      pointer-events: none;
+    }
   }
 
   .svg-icon {
-    color: var(--gray-600);
-
     &.cross {
       border-radius: 100%;
-      background-color: var(--gray-600);
+      background-color: var(--gray-500);
       color: white;
       padding: 2px;
       box-sizing: border-box;
@@ -181,6 +187,10 @@ button {
       & svg {
         width: 60%;
         height: 60%;
+      }
+
+      &:hover {
+        opacity: 0.9;
       }
     }
   }

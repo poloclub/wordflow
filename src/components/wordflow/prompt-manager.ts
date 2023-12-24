@@ -17,14 +17,15 @@ for (const p of fakePrompts) {
 }
 
 export class PromptManager {
-  localPrompts: PromptDataLocal[];
+  localPrompts: PromptDataLocal[] = [];
+  localPromptsProjection: PromptDataLocal[] | null = null;
   localPromptsUpdateCallback: (newLocalPrompts: PromptDataLocal[]) => void;
 
   favPrompts: [
     PromptDataLocal | null,
     PromptDataLocal | null,
     PromptDataLocal | null
-  ];
+  ] = [null, null, null];
   favPromptsUpdateCallback: (
     newFavPrompts: [
       PromptDataLocal | null,
@@ -265,7 +266,29 @@ export class PromptManager {
     set(`${PREFIX}-keys`, this.promptKeys);
 
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
-    console.log(this.localPrompts);
+  }
+
+  /**
+   * Search all prompts and only show prompts including the query
+   * @param query Search query
+   */
+  searchPrompt(query: string) {
+    // Create a projection of the local prompts that only include search results
+    this.localPromptsProjection = [];
+    const queryLower = query.toLowerCase();
+
+    for (const prompt of this.localPrompts) {
+      const promptInfoString = JSON.stringify(prompt).toLocaleLowerCase();
+      if (promptInfoString.includes(queryLower)) {
+        this.localPromptsProjection.push(prompt);
+      }
+    }
+
+    console.log(this.localPromptsProjection);
+
+    this.localPromptsUpdateCallback(
+      structuredClone(this.localPromptsProjection)
+    );
   }
 
   /**

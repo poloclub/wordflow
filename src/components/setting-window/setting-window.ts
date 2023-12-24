@@ -67,7 +67,9 @@ export class PromptLetSettingWindow extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    console.log(changedProperties);
+  }
 
   //==========================================================================||
   //                              Custom Methods                              ||
