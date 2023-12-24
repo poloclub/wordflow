@@ -359,7 +359,7 @@ export class PromptLetWordflow extends LitElement {
 
         <promptlet-setting-window
           .promptManager=${this.promptManager}
-          .localPrompts=${this.promptManager.localPrompts}
+          .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
         ></promptlet-setting-window>
 

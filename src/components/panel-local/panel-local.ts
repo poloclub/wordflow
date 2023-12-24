@@ -54,6 +54,9 @@ export class PromptLetPanelLocal extends LitElement {
   @property({ attribute: false })
   localPrompts: PromptDataLocal[] = [];
 
+  @state()
+  totalLocalPrompts = 0;
+
   @property({ attribute: false })
   favPrompts: [
     PromptDataLocal | null,
@@ -384,10 +387,19 @@ export class PromptLetPanelLocal extends LitElement {
     });
   }
 
+  /**
+   * Handler for the search bar input event
+   * @param e Input event
+   */
   searchBarEntered(e: InputEvent) {
     const inputElement = e.currentTarget as HTMLInputElement;
     const query = inputElement.value;
     if (query.length > 0) {
+      if (!this.showSearchBarCancelButton) {
+        // Record the total number of local prompts
+        this.totalLocalPrompts = this.localPrompts.length;
+      }
+
       this.showSearchBarCancelButton = true;
     } else {
       this.showSearchBarCancelButton = false;
@@ -395,10 +407,38 @@ export class PromptLetPanelLocal extends LitElement {
 
     if (this.searchBarDebounceTimer !== null) {
       clearTimeout(this.searchBarDebounceTimer);
+      this.searchBarDebounceTimer = null;
     }
+
     this.searchBarDebounceTimer = setTimeout(() => {
       this.promptManager.searchPrompt(query);
-    }, 300);
+      this.searchBarDebounceTimer = null;
+    }, 150);
+  }
+
+  /**
+   * Handler for the search bar cancel click event
+   */
+  showSearchBarCancelButtonClicked() {
+    if (this.shadowRoot === null) {
+      throw Error('shadowRoot is null.');
+    }
+
+    const inputElement = this.shadowRoot.querySelector(
+      '#search-bar-input'
+    ) as HTMLInputElement;
+    inputElement.value = '';
+    this.showSearchBarCancelButton = false;
+
+    if (this.searchBarDebounceTimer !== null) {
+      clearTimeout(this.searchBarDebounceTimer);
+      this.searchBarDebounceTimer = null;
+    }
+
+    this.searchBarDebounceTimer = setTimeout(() => {
+      this.promptManager.searchPrompt('');
+      this.searchBarDebounceTimer = null;
+    }, 150);
   }
 
   //==========================================================================||
@@ -498,12 +538,24 @@ export class PromptLetPanelLocal extends LitElement {
         </div>`;
     }
 
+    // Compose the prompt count label
+    let promptCountLabel = html`${Math.max(
+      this.localPrompts.length,
+      this.totalLocalPrompts
+    )}
+    Prompts`;
+
+    if (this.showSearchBarCancelButton) {
+      promptCountLabel = html`${this.localPrompts.length} /
+      ${this.totalLocalPrompts} Prompts`;
+    }
+
     return html`
       <div class="panel-local" ?is-dragging=${this.isDraggingPromptCard}>
         <div class="prompt-panel">
           <div class="search-panel">
             <div class="search-group">
-              <div class="result">${this.localPrompts.length} Prompts</div>
+              <div class="result">${promptCountLabel}</div>
 
               <button
                 class="create-button"
@@ -529,6 +581,7 @@ export class PromptLetPanelLocal extends LitElement {
 
                 <span
                   class="icon-container"
+                  @click=${() => this.showSearchBarCancelButtonClicked()}
                   ?is-hidden=${!this.showSearchBarCancelButton}
                 >
                   <span class="svg-icon cross">${unsafeHTML(crossIcon)}</span>

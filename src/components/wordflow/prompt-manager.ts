@@ -284,8 +284,6 @@ export class PromptManager {
       }
     }
 
-    console.log(this.localPromptsProjection);
-
     this.localPromptsUpdateCallback(
       structuredClone(this.localPromptsProjection)
     );

@@ -201,6 +201,7 @@ button {
   padding: 16px var(--padding-h) 16px var(--padding-h);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: flex-start;
   gap: 16px;
   overflow-y: auto;
 }
@@ -373,7 +374,6 @@ button {
 }
 
 .prompt-card-container {
-  flex: 0 0 auto;
   position: relative;
   display: flex;
   width: 100%;
