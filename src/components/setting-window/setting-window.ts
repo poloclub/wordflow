@@ -42,7 +42,11 @@ export class PromptLetSettingWindow extends LitElement {
   localPrompts: PromptDataLocal[] = [];
 
   @property({ attribute: false })
-  favPrompts: PromptDataLocal[] = [];
+  favPrompts: [
+    PromptDataLocal | null,
+    PromptDataLocal | null,
+    PromptDataLocal | null
+  ] = [null, null, null];
 
   @property({ attribute: false })
   updateFavPrompts: (newFavPrompts: PromptDataLocal[]) => void = (
@@ -92,7 +96,6 @@ export class PromptLetSettingWindow extends LitElement {
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
-          .updateFavPrompts=${this.updateFavPrompts}
         ></promptlet-panel-local>`
       },
       {

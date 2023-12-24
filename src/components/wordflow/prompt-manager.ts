@@ -20,23 +20,47 @@ export class PromptManager {
   localPrompts: PromptDataLocal[];
   localPromptsUpdateCallback: (newLocalPrompts: PromptDataLocal[]) => void;
 
-  favPrompts: PromptDataLocal[];
-  favPromptsUpdateCallback: (newFavPrompts: PromptDataLocal[]) => void;
+  favPrompts: [
+    PromptDataLocal | null,
+    PromptDataLocal | null,
+    PromptDataLocal | null
+  ];
+  favPromptsUpdateCallback: (
+    newFavPrompts: [
+      PromptDataLocal | null,
+      PromptDataLocal | null,
+      PromptDataLocal | null
+    ]
+  ) => void;
 
   promptKeys: string[] = [];
-  favPromptKeys: string[] = [];
+  favPromptKeys: [string | null, string | null, string | null] = [
+    null,
+    null,
+    null
+  ];
 
   restoreFinished: Promise<void>;
 
   constructor(
     localPromptsUpdateCallback: (newLocalPrompts: PromptDataLocal[]) => void,
-    favPromptsUpdateCallback: (newFavPrompts: PromptDataLocal[]) => void
+    favPromptsUpdateCallback: (
+      newFavPrompts: [
+        PromptDataLocal | null,
+        PromptDataLocal | null,
+        PromptDataLocal | null
+      ]
+    ) => void
   ) {
     this.localPrompts = fakePrompts.slice(0, 4);
     this.localPromptsUpdateCallback = localPromptsUpdateCallback;
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
 
-    this.favPrompts = fakePrompts.slice(0, 3);
+    this.favPrompts = [null, null, null];
+    this.favPrompts[0] = fakePrompts[0];
+    this.favPrompts[1] = fakePrompts[1];
+    this.favPrompts[2] = fakePrompts[2];
+
     this.favPromptsUpdateCallback = favPromptsUpdateCallback;
     this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
 
@@ -73,17 +97,26 @@ export class PromptManager {
       }
     }
 
-    // Notify the consumers
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
-
     // Restore the fav prompts
     const favPromptKeys = (await get(`${PREFIX}-fav-keys`)) as
-      | string[]
+      | [string | null, string | null, string | null]
       | undefined;
 
     if (favPromptKeys !== undefined) {
       this.favPromptKeys = favPromptKeys;
+
+      this.favPrompts = [null, null, null];
+      for (const [i, key] of this.favPromptKeys.slice(0, 3).entries()) {
+        if (key !== null) {
+          const promptIndex = this.promptKeys.indexOf(key);
+          this.favPrompts[i] = this.localPrompts[promptIndex];
+        }
+      }
     }
+
+    // Notify the consumers
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
 
     console.log(this.promptKeys);
     console.log(this.localPrompts);
@@ -226,9 +259,9 @@ export class PromptManager {
       set(`${PREFIX}-${prompt.key}`, prompt);
     }
 
-    this.favPromptKeys = [];
+    this.favPromptKeys = [null, null, null];
     for (const prompt of this.favPrompts) {
-      this.favPromptKeys.push(prompt.key);
+      this.favPromptKeys.push(prompt ? prompt.key : null);
     }
 
     set(`${PREFIX}-keys`, this.promptKeys);

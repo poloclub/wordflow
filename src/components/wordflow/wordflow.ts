@@ -81,7 +81,11 @@ export class PromptLetWordflow extends LitElement {
   promptManager: PromptManager;
 
   @state()
-  favPrompts: PromptDataLocal[] = [];
+  favPrompts: [
+    PromptDataLocal | null,
+    PromptDataLocal | null,
+    PromptDataLocal | null
+  ] = [null, null, null];
 
   @state()
   localPrompts: PromptDataLocal[] = [];
@@ -97,7 +101,14 @@ export class PromptLetWordflow extends LitElement {
     const updateLocalPrompts = (newLocalPrompts: PromptDataLocal[]) => {
       this.localPrompts = newLocalPrompts;
     };
-    const updateFavPrompts = (newFavPrompts: PromptDataLocal[]) => {
+
+    const updateFavPrompts = (
+      newFavPrompts: [
+        PromptDataLocal | null,
+        PromptDataLocal | null,
+        PromptDataLocal | null
+      ]
+    ) => {
       this.favPrompts = newFavPrompts;
     };
 
@@ -250,10 +261,6 @@ export class PromptLetWordflow extends LitElement {
     floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
   };
 
-  updateFavPrompts(newFavPrompts: PromptDataLocal[]) {
-    this.favPrompts = newFavPrompts;
-  }
-
   // ===== Event Methods ======
   resizeHandler() {
     this.updateSidebarMenuXPos(
@@ -354,8 +361,6 @@ export class PromptLetWordflow extends LitElement {
           .promptManager=${this.promptManager}
           .localPrompts=${this.promptManager.localPrompts}
           .favPrompts=${this.favPrompts}
-          .updateFavPrompts=${(newFavPrompts: PromptDataLocal[]) =>
-            this.updateFavPrompts(newFavPrompts)}
         ></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">

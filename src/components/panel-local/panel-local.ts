@@ -55,12 +55,11 @@ export class PromptLetPanelLocal extends LitElement {
   localPrompts: PromptDataLocal[] = [];
 
   @property({ attribute: false })
-  favPrompts: PromptDataLocal[] = [];
-
-  @property({ attribute: false })
-  updateFavPrompts: (newFavPrompts: PromptDataLocal[]) => void = (
-    _: PromptDataLocal[]
-  ) => {};
+  favPrompts: [
+    PromptDataLocal | null,
+    PromptDataLocal | null,
+    PromptDataLocal | null
+  ] = [null, null, null];
 
   @state()
   maxPromptCount = 24;
@@ -294,7 +293,7 @@ export class PromptLetPanelLocal extends LitElement {
       this.favPrompts[index] = newPromptData;
       const newFavPrompts = structuredClone(this.favPrompts);
       newFavPrompts[index] = newPromptData;
-      this.updateFavPrompts(newFavPrompts);
+      this.promptManager.setFavPrompt(index, newPromptData);
     }
 
     // Cancel the drag event because dragleave would not be fired after drop
@@ -469,8 +468,10 @@ export class PromptLetPanelLocal extends LitElement {
           }}
         >
           <div class="prompt-mini-card">
-            <span class="icon">${favPrompt.icon}</span>
-            <span class="title">${favPrompt.title}</span>
+            <span class="icon">${favPrompt ? favPrompt.icon : ''}</span>
+            <span class="title"
+              >${favPrompt ? favPrompt.title : 'Drag prompt here'}</span
+            >
           </div>
         </div>`;
     }
