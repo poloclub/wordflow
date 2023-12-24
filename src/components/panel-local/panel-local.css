@@ -310,6 +310,17 @@ button {
     flex-flow: row;
     padding: 12px;
     gap: 8px;
+
+    &[is-empty] {
+      .title {
+        display: flex;
+        align-items: center;
+        line-height: 1;
+        top: -1px;
+        position: relative;
+        color: var(--gray-500);
+      }
+    }
   }
 
   .title {

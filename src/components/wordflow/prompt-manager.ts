@@ -182,6 +182,7 @@ export class PromptManager {
       throw Error(`Can't find they key ${prompt.key}.`);
     }
 
+    // Remove it from local prompts
     this.localPrompts.splice(index, 1);
     this.promptKeys.splice(index, 1);
 
@@ -190,6 +191,31 @@ export class PromptManager {
     set(`${PREFIX}-keys`, this.promptKeys);
 
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+
+    // If this prompt is a fav prompt, also remove it from fav prompts
+    const allFavIndexes = this.favPromptKeys.reduce(
+      (
+        indexes: number[],
+        currentValue: string | null,
+        currentIndex: number
+      ) => {
+        if (currentValue === prompt.key) {
+          indexes.push(currentIndex);
+        }
+        return indexes;
+      },
+      []
+    );
+
+    if (allFavIndexes.length !== 0) {
+      for (const favIndex of allFavIndexes) {
+        this.favPromptKeys[favIndex] = null;
+        this.favPrompts[favIndex] = null;
+      }
+
+      set(`${PREFIX}-fav-keys`, this.favPromptKeys);
+      this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
+    }
   }
 
   /**
