@@ -630,7 +630,9 @@ export class PromptLetPromptEditor extends LitElement {
   render() {
     // Compose the model checkbox lists
     let modelCheckboxes = html``;
+
     for (const model of this.availableModels) {
+      // Check if the model is included in the recommended model list
       modelCheckboxes = html`${modelCheckboxes}
         <div class="checkbox-group">
           <input
@@ -638,6 +640,7 @@ export class PromptLetPromptEditor extends LitElement {
             name="${model.name}"
             class="model-checkbox"
             id="model-checkbox-${model.name}"
+            ?checked=${this.promptData.recommendedModels.includes(model.name)}
           />
           <label for="model-checkbox-${model.name}">${model.label}</label>
         </div> `;

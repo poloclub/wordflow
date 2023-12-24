@@ -13,6 +13,7 @@ for (const p of fakePrompts) {
   p.key = uuidv4();
   p.injectionMode = 'replace';
   p.temperature = 0.2;
+  p.recommendedModels = [];
 }
 
 export class PromptManager {
