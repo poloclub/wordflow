@@ -197,11 +197,11 @@ button {
 }
 
 .prompt-container {
-  flex-grow: 1;
   padding: 16px var(--padding-h) 16px var(--padding-h);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: flex-start;
+  grid-template-rows: auto;
+  align-items: start;
   gap: 16px;
   overflow-y: auto;
 }
@@ -501,6 +501,7 @@ promptlet-prompt-card {
   display: flex;
   flex-flow: column;
   flex-grow: 1;
+  justify-content: space-between;
 
   overflow: hidden;
   box-sizing: border-box;

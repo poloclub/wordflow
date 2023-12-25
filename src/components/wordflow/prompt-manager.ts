@@ -191,7 +191,20 @@ export class PromptManager {
     del(`${PREFIX}-${prompt.key}`);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    // If the user is in the searching mode, also delete the prompt if possible
+    if (this.localPromptsProjection !== null) {
+      for (const [i, p] of this.localPromptsProjection.entries()) {
+        if (p.key === prompt.key) {
+          this.localPromptsProjection.splice(i, 1);
+          break;
+        }
+      }
+      this.localPromptsUpdateCallback(
+        structuredClone(this.localPromptsProjection)
+      );
+    } else {
+      this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    }
 
     // If this prompt is a fav prompt, also remove it from fav prompts
     const allFavIndexes = this.favPromptKeys.reduce(
@@ -273,20 +286,26 @@ export class PromptManager {
    * @param query Search query
    */
   searchPrompt(query: string) {
-    // Create a projection of the local prompts that only include search results
-    this.localPromptsProjection = [];
-    const queryLower = query.toLowerCase();
+    if (query === '') {
+      // Cancel the search
+      this.localPromptsProjection = null;
+      this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    } else {
+      // Create a projection of the local prompts that only include search results
+      this.localPromptsProjection = [];
+      const queryLower = query.toLowerCase();
 
-    for (const prompt of this.localPrompts) {
-      const promptInfoString = JSON.stringify(prompt).toLocaleLowerCase();
-      if (promptInfoString.includes(queryLower)) {
-        this.localPromptsProjection.push(prompt);
+      for (const prompt of this.localPrompts) {
+        const promptInfoString = JSON.stringify(prompt).toLocaleLowerCase();
+        if (promptInfoString.includes(queryLower)) {
+          this.localPromptsProjection.push(prompt);
+        }
       }
-    }
 
-    this.localPromptsUpdateCallback(
-      structuredClone(this.localPromptsProjection)
-    );
+      this.localPromptsUpdateCallback(
+        structuredClone(this.localPromptsProjection)
+      );
+    }
   }
 
   /**
