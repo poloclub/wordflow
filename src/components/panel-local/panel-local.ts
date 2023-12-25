@@ -539,15 +539,11 @@ export class PromptLetPanelLocal extends LitElement {
     }
 
     // Compose the prompt count label
-    let promptCountLabel = html`${Math.max(
-      this.localPrompts.length,
-      this.totalLocalPrompts
-    )}
-    Prompts`;
+    let promptCountLabel = html`${this.promptManager.localPromptCount} Prompts`;
 
     if (this.showSearchBarCancelButton) {
       promptCountLabel = html`${this.localPrompts.length} /
-      ${this.totalLocalPrompts} Prompts`;
+      ${this.promptManager.localPromptCount} Prompts`;
     }
 
     return html`

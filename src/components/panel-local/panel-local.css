@@ -201,7 +201,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto;
-  align-items: start;
+  /* align-items: start; */
   gap: 16px;
   overflow-y: auto;
 }

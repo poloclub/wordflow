@@ -20,6 +20,7 @@ export class PromptManager {
   localPrompts: PromptDataLocal[] = [];
   localPromptsProjection: PromptDataLocal[] | null = null;
   localPromptsUpdateCallback: (newLocalPrompts: PromptDataLocal[]) => void;
+  localPromptCount = 0;
 
   favPrompts: [
     PromptDataLocal | null,
@@ -116,8 +117,8 @@ export class PromptManager {
     }
 
     // Notify the consumers
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
-    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
+    this._broadcastLocalPrompts();
+    this._broadcastFavPrompts();
 
     console.log(this.promptKeys);
     console.log(this.localPrompts);
@@ -136,7 +137,14 @@ export class PromptManager {
     set(`${PREFIX}-${newPrompt.key}`, newPrompt);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    // If the user is in the search mode, add the new prompt to the search
+    // result regardless its content
+    if (this.localPromptsProjection !== null) {
+      this.localPromptsProjection.unshift(newPrompt);
+      this._broadcastLocalPromptsProjection();
+    } else {
+      this._broadcastLocalPrompts();
+    }
   }
 
   /**
@@ -163,7 +171,29 @@ export class PromptManager {
     const key = this.promptKeys[index];
     set(`${PREFIX}-${key}`, newPrompt);
 
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    this._broadcastLocalPrompts();
+
+    // If this prompt is a fav prompt, also update them from fav prompts
+    const allFavIndexes = this.favPromptKeys.reduce(
+      (
+        indexes: number[],
+        currentValue: string | null,
+        currentIndex: number
+      ) => {
+        if (currentValue === newPrompt.key) {
+          indexes.push(currentIndex);
+        }
+        return indexes;
+      },
+      []
+    );
+
+    if (allFavIndexes.length !== 0) {
+      for (const favIndex of allFavIndexes) {
+        this.favPrompts[favIndex] = newPrompt;
+      }
+      this._broadcastFavPrompts();
+    }
   }
 
   /**
@@ -191,7 +221,7 @@ export class PromptManager {
     del(`${PREFIX}-${prompt.key}`);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    // If the user is in the searching mode, also delete the prompt if possible
+    // If the user is in the searching mode, also delete the prompt there if possible
     if (this.localPromptsProjection !== null) {
       for (const [i, p] of this.localPromptsProjection.entries()) {
         if (p.key === prompt.key) {
@@ -199,11 +229,10 @@ export class PromptManager {
           break;
         }
       }
-      this.localPromptsUpdateCallback(
-        structuredClone(this.localPromptsProjection)
-      );
+
+      this._broadcastLocalPromptsProjection();
     } else {
-      this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+      this._broadcastLocalPrompts();
     }
 
     // If this prompt is a fav prompt, also remove it from fav prompts
@@ -228,7 +257,7 @@ export class PromptManager {
       }
 
       set(`${PREFIX}-fav-keys`, this.favPromptKeys);
-      this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
+      this._broadcastFavPrompts();
     }
   }
 
@@ -244,7 +273,7 @@ export class PromptManager {
     // Update indexed db
     set(`${PREFIX}-fav-keys`, this.favPromptKeys);
 
-    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
+    this._broadcastFavPrompts();
   }
 
   /**
@@ -278,7 +307,7 @@ export class PromptManager {
     this.promptKeys = this.localPrompts.map(d => d.key);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+    this._broadcastLocalPrompts();
   }
 
   /**
@@ -289,7 +318,7 @@ export class PromptManager {
     if (query === '') {
       // Cancel the search
       this.localPromptsProjection = null;
-      this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+      this._broadcastLocalPrompts();
     } else {
       // Create a projection of the local prompts that only include search results
       this.localPromptsProjection = [];
@@ -302,9 +331,7 @@ export class PromptManager {
         }
       }
 
-      this.localPromptsUpdateCallback(
-        structuredClone(this.localPromptsProjection)
-      );
+      this._broadcastLocalPromptsProjection();
     }
   }
 
@@ -332,5 +359,33 @@ export class PromptManager {
 
     set(`${PREFIX}-keys`, this.promptKeys);
     set(`${PREFIX}-fav-keys`, this.favPromptKeys);
+  }
+
+  /**
+   * Pass the localPrompts to consumers as their localPrompts
+   */
+  _broadcastLocalPrompts() {
+    this.localPromptCount = this.localPrompts.length;
+    this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
+  }
+
+  /**
+   * Pass the localPromptsProjection to consumers as their localPrompts
+   */
+  _broadcastLocalPromptsProjection() {
+    if (this.localPromptsProjection === null) {
+      throw Error('localPromptsProjection is null');
+    }
+    this.localPromptCount = this.localPrompts.length;
+    this.localPromptsUpdateCallback(
+      structuredClone(this.localPromptsProjection)
+    );
+  }
+
+  /**
+   * Pass the favPrompts to consumers as their favPrompts
+   */
+  _broadcastFavPrompts() {
+    this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
   }
 }
