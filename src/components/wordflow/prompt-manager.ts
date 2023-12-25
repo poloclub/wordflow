@@ -158,6 +158,7 @@ export class PromptManager {
     for (const [i, p] of this.localPrompts.entries()) {
       if (p.key === newPrompt.key) {
         index = i;
+        break;
       }
     }
 
@@ -171,7 +172,18 @@ export class PromptManager {
     const key = this.promptKeys[index];
     set(`${PREFIX}-${key}`, newPrompt);
 
-    this._broadcastLocalPrompts();
+    // If the user is in the search mode, also update the prompt in the search projection
+    if (this.localPromptsProjection !== null) {
+      for (const [i, p] of this.localPromptsProjection.entries()) {
+        if (p.key === newPrompt.key) {
+          this.localPromptsProjection[i] = newPrompt;
+          break;
+        }
+      }
+      this._broadcastLocalPromptsProjection();
+    } else {
+      this._broadcastLocalPrompts();
+    }
 
     // If this prompt is a fav prompt, also update them from fav prompts
     const allFavIndexes = this.favPromptKeys.reduce(
@@ -284,18 +296,26 @@ export class PromptManager {
     switch (order) {
       case 'name': {
         this.localPrompts.sort((a, b) => a.title.localeCompare(b.title));
-
+        this.localPromptsProjection?.sort((a, b) =>
+          a.title.localeCompare(b.title)
+        );
         break;
       }
 
       case 'created': {
         // Recent prompts at front
         this.localPrompts.sort((a, b) => b.created.localeCompare(a.created));
+        this.localPromptsProjection?.sort((a, b) =>
+          b.created.localeCompare(a.created)
+        );
         break;
       }
 
       case 'runCount': {
         this.localPrompts.sort((a, b) => b.promptRunCount - a.promptRunCount);
+        this.localPromptsProjection?.sort(
+          (a, b) => b.promptRunCount - a.promptRunCount
+        );
         break;
       }
 
@@ -307,7 +327,12 @@ export class PromptManager {
     this.promptKeys = this.localPrompts.map(d => d.key);
     set(`${PREFIX}-keys`, this.promptKeys);
 
-    this._broadcastLocalPrompts();
+    if (this.localPromptsProjection !== null) {
+      // The user is in the search mode
+      this._broadcastLocalPromptsProjection();
+    } else {
+      this._broadcastLocalPrompts();
+    }
   }
 
   /**
