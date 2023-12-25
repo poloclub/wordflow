@@ -21,6 +21,7 @@ export class PromptManager {
   localPromptsProjection: PromptDataLocal[] | null = null;
   localPromptsUpdateCallback: (newLocalPrompts: PromptDataLocal[]) => void;
   localPromptCount = 0;
+  localPromptBroadcastCount = 0;
 
   favPrompts: [
     PromptDataLocal | null,
@@ -350,7 +351,7 @@ export class PromptManager {
       const queryLower = query.toLowerCase();
 
       for (const prompt of this.localPrompts) {
-        const promptInfoString = JSON.stringify(prompt).toLocaleLowerCase();
+        const promptInfoString = this._getPromptString(prompt);
         if (promptInfoString.includes(queryLower)) {
           this.localPromptsProjection.push(prompt);
         }
@@ -391,6 +392,7 @@ export class PromptManager {
    */
   _broadcastLocalPrompts() {
     this.localPromptCount = this.localPrompts.length;
+    this.localPromptBroadcastCount = this.localPrompts.length;
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
   }
 
@@ -402,6 +404,7 @@ export class PromptManager {
       throw Error('localPromptsProjection is null');
     }
     this.localPromptCount = this.localPrompts.length;
+    this.localPromptBroadcastCount = this.localPromptsProjection.length;
     this.localPromptsUpdateCallback(
       structuredClone(this.localPromptsProjection)
     );
@@ -412,5 +415,15 @@ export class PromptManager {
    */
   _broadcastFavPrompts() {
     this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
+  }
+
+  /**
+   * Convert a prompt object to string that can be used for search
+   */
+  _getPromptString(prompt: PromptDataLocal) {
+    const content =
+      `${prompt.title} ${prompt.prompt} ${prompt.icon} ${prompt.description}
+    ${prompt.recommendedModels} ${prompt.tags}`.toLowerCase();
+    return content;
   }
 }

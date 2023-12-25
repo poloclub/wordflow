@@ -59,7 +59,6 @@ button {
     align-items: stretch;
     justify-content: space-between;
     font-size: var(--font-d1);
-    /* background-color: var(--gray-50); */
     padding: var(--padding-v) var(--padding-h);
     border-bottom: 1px solid var(--gray-300);
   }
@@ -76,6 +75,7 @@ button {
       -webkit-user-select: none;
       font-weight: 800;
       font-size: var(--font-u2);
+      font-variant-numeric: tabular-nums;
     }
 
     .create-button {

@@ -79,7 +79,6 @@ export class PromptLetPanelLocal extends LitElement {
   @state()
   shouldCreateNewPrompt = false;
 
-  @state()
   showSearchBarCancelButton = false;
 
   @query('.prompt-content')
@@ -542,7 +541,7 @@ export class PromptLetPanelLocal extends LitElement {
     let promptCountLabel = html`${this.promptManager.localPromptCount} Prompts`;
 
     if (this.showSearchBarCancelButton) {
-      promptCountLabel = html`${this.localPrompts.length} /
+      promptCountLabel = html`${this.promptManager.localPromptBroadcastCount} /
       ${this.promptManager.localPromptCount} Prompts`;
     }
 
