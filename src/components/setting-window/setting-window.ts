@@ -71,6 +71,13 @@ export class PromptLetSettingWindow extends LitElement {
    */
   willUpdate(changedProperties: PropertyValues<this>) {}
 
+  firstUpdated() {
+    console.log('first update');
+
+    // Start to load the popular remote prompts
+    this.remotePromptManager.getPopularPrompts();
+  }
+
   //==========================================================================||
   //                              Custom Methods                              ||
   //==========================================================================||

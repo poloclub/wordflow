@@ -130,15 +130,7 @@ export class PromptLetPanelCommunity extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {
-    if (
-      changedProperties.has('remotePromptManager') &&
-      changedProperties.get('remotePromptManager') === undefined
-    ) {
-      // Initialize with popular prompts
-      this.remotePromptManager.getPopularPrompts();
-    }
-  }
+  willUpdate(changedProperties: PropertyValues<this>) {}
 
   firstUpdated() {
     this.initMaxTagsOneLine();
@@ -259,6 +251,17 @@ export class PromptLetPanelCommunity extends LitElement {
     this.promptContentElement.classList.remove('no-scroll');
   }
 
+  headerModeButtonClicked(newMode: 'popular' | 'new') {
+    if (this.curMode !== newMode) {
+      if (newMode === 'popular') {
+        this.remotePromptManager.getPopularPrompts();
+      } else {
+        this.remotePromptManager.getNewPrompts();
+      }
+      this.curMode = newMode;
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -339,16 +342,12 @@ export class PromptLetPanelCommunity extends LitElement {
             >
             <div class="header-toggle">
               <span
-                @click=${() => {
-                  this.curMode = 'popular';
-                }}
+                @click=${() => this.headerModeButtonClicked('popular')}
                 ?is-active=${this.curMode === 'popular'}
                 >Popular</span
               >
               <span
-                @click=${() => {
-                  this.curMode = 'new';
-                }}
+                @click=${() => this.headerModeButtonClicked('new')}
                 ?is-active=${this.curMode === 'new'}
                 >New</span
               >
@@ -363,6 +362,16 @@ export class PromptLetPanelCommunity extends LitElement {
         </div>
 
         <div class="prompt-content">
+          <div
+            class="prompt-loader"
+            ?is-hidden=${this.remotePrompts.length > 0}
+          >
+            <div class="loader-container">
+              <span class="label">Loading Prompts</span>
+              <div class="circle-loader"></div>
+            </div>
+          </div>
+
           <div class="prompt-container">${promptCards}</div>
 
           <div

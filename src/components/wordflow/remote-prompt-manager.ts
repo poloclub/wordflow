@@ -77,8 +77,20 @@ export class RemotePromptManager {
   /**
    * Get the newest prompts.
    */
-  getNewPrompts() {
-    // TODO
+  async getNewPrompts() {
+    const url = new URL(ENDPOINT);
+
+    url.searchParams.append('tag', '');
+    url.searchParams.append('mostRecent', 'true');
+
+    const response = await fetch(url.toString());
+    this.remotePrompts = (await response.json()) as PromptDataRemote[];
+
+    // Check if the response is not complete
+    const isSubset = response.headers.get('x-has-pagination');
+    this.promptIsSubset = isSubset === 'true';
+
+    this._broadcastRemotePrompts();
   }
 
   /**
