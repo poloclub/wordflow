@@ -8,6 +8,7 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptLetTextEditor } from '../text-editor/text-editor';
+import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
 import { RemotePromptManager } from './remote-prompt-manager';
@@ -108,6 +109,9 @@ export class PromptLetWordflow extends LitElement {
     const model = 'gpt';
     this.apiKey = localStorage.getItem(`${model}APIKey`);
 
+    // Set up user info
+    this.initUserID();
+
     // Set up the local prompt manager
     const updateLocalPrompts = (newLocalPrompts: PromptDataLocal[]) => {
       this.localPrompts = newLocalPrompts;
@@ -156,6 +160,13 @@ export class PromptLetWordflow extends LitElement {
 
   // ===== Custom Methods ======
   initData = async () => {};
+
+  initUserID() {
+    const userID = localStorage.getItem('user-id');
+    if (userID === null) {
+      localStorage.setItem('user-id', uuidv4());
+    }
+  }
 
   /**
    * Update the sidebar menu position and content

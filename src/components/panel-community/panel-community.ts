@@ -10,6 +10,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
+import { v4 as uuidv4 } from 'uuid';
 
 // Components
 import '../prompt-card/prompt-card';
@@ -129,7 +130,15 @@ export class PromptLetPanelCommunity extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    if (
+      changedProperties.has('remotePromptManager') &&
+      changedProperties.get('remotePromptManager') === undefined
+    ) {
+      // Initialize with popular prompts
+      this.remotePromptManager.getPopularPrompts();
+    }
+  }
 
   firstUpdated() {
     this.initMaxTagsOneLine();
@@ -350,7 +359,10 @@ export class PromptLetPanelCommunity extends LitElement {
         <div class="prompt-content">
           <div class="prompt-container">${promptCards}</div>
 
-          <div class="pagination">
+          <div
+            class="pagination"
+            ?no-show=${this.remotePrompts.length <= NUM_CARDS_PER_PAGE}
+          >
             <nightjar-pagination
               curPage=${this.curPage}
               totalPageNum=${Math.ceil(
@@ -389,11 +401,19 @@ declare global {
 }
 
 export const getEmptyPromptDataRemote = () => {
+  // Get user id
+  let userID = localStorage.getItem('user-id');
+  if (userID === null) {
+    console.warn('userID is undefined. Creating a new userID.');
+    userID = uuidv4();
+    localStorage.setItem('user-id', userID);
+  }
+
   const data: PromptDataRemote = {
     prompt: '',
     tags: [],
     temperature: 0.2,
-    userID: '',
+    userID: userID,
     userName: '',
     description: '',
     icon: '',

@@ -39,9 +39,7 @@ export class NightjarPagination extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {
-    console.log(this.totalPageNum);
-  }
+  willUpdate(changedProperties: PropertyValues<this>) {}
 
   //==========================================================================||
   //                              Custom Methods                              ||

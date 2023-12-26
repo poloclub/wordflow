@@ -171,6 +171,13 @@
   margin-bottom: var(--padding-v);
   display: flex;
   justify-content: center;
+
+  &[no-show] {
+    nightjar-pagination {
+      display: none;
+    }
+    margin-bottom: 0;
+  }
 }
 
 .prompt-modal {

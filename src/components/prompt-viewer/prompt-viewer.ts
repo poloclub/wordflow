@@ -112,9 +112,26 @@ export class PromptLetPromptViewer extends LitElement {
    */
   getInfoPairs() {
     const infos: InfoPair[] = [];
-    infos.push({ key: 'Models', value: 'gpt-3.5-turbo' });
-    infos.push({ key: 'Injection mode', value: 'in-place' });
-    infos.push({ key: 'Output parsing', value: '.*<output>(.+)</output>.*' });
+    infos.push({ key: 'Injection mode', value: this.promptData.injectionMode });
+
+    if (this.promptData.recommendedModels.length > 0) {
+      const models = this.promptData.recommendedModels.join(', ');
+      infos.push({ key: 'Models', value: models });
+    }
+
+    if (this.promptData.outputParsingPattern !== '') {
+      infos.push({
+        key: 'Output pattern',
+        value: this.promptData.outputParsingPattern
+      });
+    }
+
+    if (this.promptData.outputParsingReplacement !== '') {
+      infos.push({
+        key: 'Output replacement',
+        value: this.promptData.outputParsingReplacement
+      });
+    }
     return infos;
   }
 
