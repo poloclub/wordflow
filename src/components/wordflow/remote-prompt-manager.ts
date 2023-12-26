@@ -13,7 +13,7 @@ interface PromptPOSTBody extends PromptDataLocal {
 // Constants
 const PREFIX = 'remote-prompt';
 const ENDPOINT =
-  'https://bzgdjntik9.execute-api.localhost.localstack.cloud:4566/prod/records';
+  'https://hlbrqjhb52.execute-api.localhost.localstack.cloud:4566/prod/records';
 const fakePrompts = fakePromptsJSON as PromptDataLocal[];
 
 const userID = localStorage.getItem('user-id')!;
@@ -39,15 +39,19 @@ export class RemotePromptManager {
   remotePrompts: PromptDataRemote[] = [];
   remotePromptsUpdateCallback: (newRemotePrompts: PromptDataRemote[]) => void;
 
+  promptIsSubset = false;
+
   constructor(
     remotePromptsUpdateCallback: (newRemotePrompts: PromptDataRemote[]) => void
   ) {
     this.remotePromptsUpdateCallback = remotePromptsUpdateCallback;
 
     // console.log('Start populating prompts...');
+    // console.time('Populating prompts');
     // this._populateRemotePrompts().then(() => {
     //   // Use fake data for testing
     //   this.getPopularPrompts();
+    //   console.timeEnd('Populating prompts');
     // });
   }
 
@@ -62,6 +66,11 @@ export class RemotePromptManager {
 
     const response = await fetch(url.toString());
     this.remotePrompts = (await response.json()) as PromptDataRemote[];
+
+    // Check if the response is not complete
+    const isSubset = response.headers.get('x-has-pagination');
+    this.promptIsSubset = isSubset === 'true';
+
     this._broadcastRemotePrompts();
   }
 

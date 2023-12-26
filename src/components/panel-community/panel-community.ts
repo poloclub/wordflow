@@ -320,7 +320,13 @@ export class PromptLetPanelCommunity extends LitElement {
       <div class="panel-community">
         <div class="header">
           <div class="header-top">
-            <span class="name">${this.remotePrompts.length} Prompts</span>
+            <span class="name"
+              >${this.remotePrompts.length}${this.remotePromptManager
+                .promptIsSubset
+                ? '+'
+                : ''}
+              Prompts</span
+            >
             <span class="filter" ?is-hidden=${this.curSelectedTag === ''}
               >tagged
               <span
