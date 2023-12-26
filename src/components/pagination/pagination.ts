@@ -14,8 +14,8 @@ import componentCSS from './pagination.css?inline';
  * Pagination element.
  *
  */
-@customElement('promptlet-pagination')
-export class PromptLetPagination extends LitElement {
+@customElement('nightjar-pagination')
+export class NightjarPagination extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -39,7 +39,9 @@ export class PromptLetPagination extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    console.log(this.totalPageNum);
+  }
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -93,45 +95,53 @@ export class PromptLetPagination extends LitElement {
   render() {
     // Compose the pagination
     let pagination = html``;
-    const paginationPad = Math.floor((this.pageWindowSize - 1) / 2);
-    let pageMin = this.curPage - paginationPad;
-    let pageMax = this.curPage + paginationPad;
 
-    if (pageMin < 1) {
-      pageMin = 1;
-      pageMax = this.pageWindowSize;
-    } else if (pageMax > this.totalPageNum) {
-      pageMin = this.totalPageNum - this.pageWindowSize + 1;
-      pageMax = this.totalPageNum;
-    }
-
-    if (this.curPage > 1) {
-      pagination = html`${pagination} ${this.getPageButtonTemplate('Prev')} `;
-    }
-
-    if (pageMin > 1) {
-      pagination = html`${pagination} ${this.getPageButtonTemplate('1')}`;
-
-      if (pageMin > 2) {
-        pagination = html`${pagination} <span>...</span>`;
+    if (this.totalPageNum <= this.pageWindowSize) {
+      for (let i = 0; i < Math.max(this.totalPageNum, 1); i++) {
+        pagination = html`${pagination}
+        ${this.getPageButtonTemplate(`${i + 1}`)}`;
       }
-    }
+    } else {
+      const paginationPad = Math.floor((this.pageWindowSize - 1) / 2);
+      let pageMin = this.curPage - paginationPad;
+      let pageMax = this.curPage + paginationPad;
 
-    for (let i = pageMin; i < pageMax + 1; i++) {
-      pagination = html`${pagination}
-      ${this.getPageButtonTemplate(i.toString())} `;
-    }
-
-    if (pageMax < this.totalPageNum) {
-      if (pageMax < this.totalPageNum - 1) {
-        pagination = html`${pagination}<span>...</span>`;
+      if (pageMin < 1) {
+        pageMin = 1;
+        pageMax = this.pageWindowSize;
+      } else if (pageMax > this.totalPageNum) {
+        pageMin = this.totalPageNum - this.pageWindowSize + 1;
+        pageMax = this.totalPageNum;
       }
-      pagination = html`${pagination}
-      ${this.getPageButtonTemplate(this.totalPageNum.toString())}`;
-    }
 
-    if (this.curPage < this.totalPageNum) {
-      pagination = html`${pagination} ${this.getPageButtonTemplate('Next')} `;
+      if (this.curPage > 1) {
+        pagination = html`${pagination} ${this.getPageButtonTemplate('Prev')} `;
+      }
+
+      if (pageMin > 1) {
+        pagination = html`${pagination} ${this.getPageButtonTemplate('1')}`;
+
+        if (pageMin > 2) {
+          pagination = html`${pagination} <span>...</span>`;
+        }
+      }
+
+      for (let i = pageMin; i < pageMax + 1; i++) {
+        pagination = html`${pagination}
+        ${this.getPageButtonTemplate(i.toString())} `;
+      }
+
+      if (pageMax < this.totalPageNum) {
+        if (pageMax < this.totalPageNum - 1) {
+          pagination = html`${pagination}<span>...</span>`;
+        }
+        pagination = html`${pagination}
+        ${this.getPageButtonTemplate(this.totalPageNum.toString())}`;
+      }
+
+      if (this.curPage < this.totalPageNum) {
+        pagination = html`${pagination} ${this.getPageButtonTemplate('Next')} `;
+      }
     }
 
     return html` <div class="pagination">${pagination}</div> `;
@@ -146,6 +156,6 @@ export class PromptLetPagination extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-pagination': PromptLetPagination;
+    'nightjar-pagination': NightjarPagination;
   }
 }

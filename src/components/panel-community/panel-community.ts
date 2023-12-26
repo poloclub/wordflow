@@ -8,6 +8,8 @@ import {
 } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { PromptManager } from '../wordflow/prompt-manager';
+import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
 
 // Components
 import '../prompt-card/prompt-card';
@@ -40,8 +42,14 @@ export class PromptLetPanelCommunity extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
-  @state()
-  allPrompts: PromptDataRemote[] = fakePrompts;
+  @property({ attribute: false })
+  promptManager!: PromptManager;
+
+  @property({ attribute: false })
+  remotePromptManager!: RemotePromptManager;
+
+  @property({ attribute: false })
+  remotePrompts: PromptDataRemote[] = fakePrompts;
 
   @state()
   selectedPrompt: PromptDataRemote | null = fakePrompts[0];
@@ -228,6 +236,20 @@ export class PromptLetPanelCommunity extends LitElement {
     this.promptContentElement.classList.add('no-scroll');
   }
 
+  modalCloseClickHandler() {
+    if (
+      this.promptModalElement === undefined ||
+      this.promptContentElement === undefined
+    ) {
+      throw Error('promptModalElement is undefined.');
+    }
+
+    this.promptModalElement.classList.add('hidden');
+
+    // Enable scrolling
+    this.promptContentElement.classList.remove('no-scroll');
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -269,10 +291,10 @@ export class PromptLetPanelCommunity extends LitElement {
     let promptCards = html``;
     for (let i = 0; i < NUM_CARDS_PER_PAGE; i++) {
       const curIndex = (this.curPage - 1) * NUM_CARDS_PER_PAGE + i;
-      if (curIndex > this.allPrompts.length - 1) {
+      if (curIndex > this.remotePrompts.length - 1) {
         break;
       }
-      const curPromptData = this.allPrompts[curIndex];
+      const curPromptData = this.remotePrompts[curIndex];
       promptCards = html`${promptCards}
         <promptlet-prompt-card
           .promptData=${curPromptData}
@@ -289,7 +311,7 @@ export class PromptLetPanelCommunity extends LitElement {
       <div class="panel-community">
         <div class="header">
           <div class="header-top">
-            <span class="name">205 Prompts</span>
+            <span class="name">${this.remotePrompts.length} Prompts</span>
             <span class="filter" ?is-hidden=${this.curSelectedTag === ''}
               >tagged
               <span
@@ -329,15 +351,15 @@ export class PromptLetPanelCommunity extends LitElement {
           <div class="prompt-container">${promptCards}</div>
 
           <div class="pagination">
-            <promptlet-pagination
+            <nightjar-pagination
               curPage=${this.curPage}
               totalPageNum=${Math.ceil(
-                this.allPrompts.length / NUM_CARDS_PER_PAGE
+                this.remotePrompts.length / NUM_CARDS_PER_PAGE
               )}
               pageWindowSize=${PAGINATION_WINDOW}
               @page-clicked=${(e: CustomEvent<number>) =>
                 this.pageClickedHandler(e)}
-            ></promptlet-pagination>
+            ></nightjar-pagination>
           </div>
 
           <div class="prompt-modal hidden">
@@ -345,6 +367,7 @@ export class PromptLetPanelCommunity extends LitElement {
               .promptData=${this.selectedPrompt
                 ? this.selectedPrompt
                 : getEmptyPromptDataRemote()}
+              @close-clicked=${() => this.modalCloseClickHandler()}
             ></promptlet-prompt-viewer>
           </div>
         </div>

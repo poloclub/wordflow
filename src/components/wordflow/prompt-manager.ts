@@ -121,9 +121,9 @@ export class PromptManager {
     this._broadcastLocalPrompts();
     this._broadcastFavPrompts();
 
-    console.log(this.promptKeys);
-    console.log(this.localPrompts);
-    console.log(this.favPromptKeys);
+    // console.log(this.promptKeys);
+    // console.log(this.localPrompts);
+    // console.log(this.favPromptKeys);
   }
 
   /**

@@ -76,6 +76,33 @@ export class PromptLetPromptViewer extends LitElement {
     // this.dispatchEvent(event);
   }
 
+  /**
+   * Event handler for clicking the close button
+   */
+  closeButtonClicked() {
+    if (this.shadowRoot === null) {
+      throw Error('shadowRoot is null');
+    }
+
+    // Notify the parent
+    const event = new Event('close-clicked', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  /**
+   * Close the modal if the user clicks the background
+   * @param e Mouse event
+   */
+  promptEditorBackgroundClicked(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('prompt-viewer')) {
+      this.closeButtonClicked();
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -141,13 +168,21 @@ export class PromptLetPromptViewer extends LitElement {
       > `;
 
     return html`
-      <div class="prompt-viewer">
+      <div
+        class="prompt-viewer"
+        @click=${(e: MouseEvent) => this.promptEditorBackgroundClicked(e)}
+      >
         <div class="prompt-window">
           <div class="header">
             <div class="title-bar">
               <span class="icon"><span>${this.promptData.icon}</span></span>
               <span class="name">${this.promptData.title}</span>
-              <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
+              <button
+                class="svg-icon"
+                @click=${() => this.closeButtonClicked()}
+              >
+                ${unsafeHTML(crossIcon)}
+              </button>
             </div>
 
             <div class="info-bar">

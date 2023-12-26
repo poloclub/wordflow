@@ -9,13 +9,14 @@ import {
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
+import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
 
 import '../panel-community/panel-community';
 import '../panel-local/panel-local';
 import '../panel-setting/panel-setting';
 
 // Types
-import type { PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
 
 // Assets
 import componentCSS from './setting-window.css?inline';
@@ -49,12 +50,13 @@ export class PromptLetSettingWindow extends LitElement {
   ] = [null, null, null];
 
   @property({ attribute: false })
-  updateFavPrompts: (newFavPrompts: PromptDataLocal[]) => void = (
-    _: PromptDataLocal[]
-  ) => {};
+  remotePromptManager!: RemotePromptManager;
+
+  @property({ attribute: false })
+  remotePrompts: PromptDataRemote[] = [];
 
   @state()
-  activeMenuItemIndex = 0;
+  activeMenuItemIndex = 1;
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -100,7 +102,11 @@ export class PromptLetSettingWindow extends LitElement {
       },
       {
         name: 'Community',
-        component: html`<promptlet-panel-community></promptlet-panel-community>`
+        component: html`<promptlet-panel-community
+          .promptManager=${this.promptManager}
+          .remotePromptManager=${this.remotePromptManager}
+          .remotePrompts=${this.remotePrompts}
+        ></promptlet-panel-community>`
       },
       {
         name: 'Settings',

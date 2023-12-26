@@ -8,13 +8,17 @@ import {
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptLetTextEditor } from '../text-editor/text-editor';
-import { computePosition, flip, shift, offset, arrow } from '@floating-ui/dom';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
+import { RemotePromptManager } from './remote-prompt-manager';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
-import type { Promptlet, PromptDataLocal } from '../../types/promptlet';
+import type {
+  Promptlet,
+  PromptDataLocal,
+  PromptDataRemote
+} from '../../types/promptlet';
 import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
@@ -90,6 +94,12 @@ export class PromptLetWordflow extends LitElement {
   @state()
   localPrompts: PromptDataLocal[] = [];
 
+  @state()
+  remotePromptManager: RemotePromptManager;
+
+  @state()
+  remotePrompts: PromptDataRemote[] = [];
+
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
   // ===== Lifecycle Methods ======
@@ -98,6 +108,7 @@ export class PromptLetWordflow extends LitElement {
     const model = 'gpt';
     this.apiKey = localStorage.getItem(`${model}APIKey`);
 
+    // Set up the local prompt manager
     const updateLocalPrompts = (newLocalPrompts: PromptDataLocal[]) => {
       this.localPrompts = newLocalPrompts;
     };
@@ -116,6 +127,13 @@ export class PromptLetWordflow extends LitElement {
       updateLocalPrompts,
       updateFavPrompts
     );
+
+    // Set up the remote prompt manager
+    const updateRemotePrompts = (newRemotePrompts: PromptDataRemote[]) => {
+      this.remotePrompts = newRemotePrompts;
+    };
+
+    this.remotePromptManager = new RemotePromptManager(updateRemotePrompts);
   }
 
   firstUpdated() {
@@ -361,6 +379,8 @@ export class PromptLetWordflow extends LitElement {
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
+          .remotePromptManager=${this.remotePromptManager}
+          .remotePrompts=${this.remotePrompts}
         ></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">

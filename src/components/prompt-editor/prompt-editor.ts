@@ -602,6 +602,10 @@ export class PromptLetPromptEditor extends LitElement {
     }
   }
 
+  /**
+   * Close the modal if the user clicks the background
+   * @param e Mouse event
+   */
   promptEditorBackgroundClicked(e: MouseEvent) {
     const target = e.target as HTMLElement;
     if (target.classList.contains('prompt-editor')) {
