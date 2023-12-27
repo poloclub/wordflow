@@ -1,7 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { get, set, del, clear } from 'idb-keyval';
 
-import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
+import type {
+  PromptDataLocal,
+  PromptDataRemote,
+  TagData
+} from '../../types/promptlet';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 interface PromptPOSTBody extends PromptDataLocal {
@@ -13,7 +17,7 @@ interface PromptPOSTBody extends PromptDataLocal {
 // Constants
 const PREFIX = 'remote-prompt';
 const ENDPOINT =
-  'https://hlbrqjhb52.execute-api.localhost.localstack.cloud:4566/prod/records';
+  'https://ca99tnaor0.execute-api.localhost.localstack.cloud:4566/prod/records';
 const fakePrompts = fakePromptsJSON as PromptDataLocal[];
 
 const userID = localStorage.getItem('user-id')!;
@@ -38,19 +42,24 @@ for (const p of fakePrompts) {
 export class RemotePromptManager {
   remotePrompts: PromptDataRemote[] = [];
   remotePromptsUpdateCallback: (newRemotePrompts: PromptDataRemote[]) => void;
-
   promptIsSubset = false;
 
+  popularTags: TagData[] = [];
+  popularTagsUpdateCallback: (popularTags: TagData[]) => void;
+
   constructor(
-    remotePromptsUpdateCallback: (newRemotePrompts: PromptDataRemote[]) => void
+    remotePromptsUpdateCallback: (newRemotePrompts: PromptDataRemote[]) => void,
+    popularTagsUpdateCallback: (popularTags: TagData[]) => void
   ) {
     this.remotePromptsUpdateCallback = remotePromptsUpdateCallback;
+    this.popularTagsUpdateCallback = popularTagsUpdateCallback;
 
     // console.log('Start populating prompts...');
     // console.time('Populating prompts');
-    // this._populateRemotePrompts().then(() => {
+    // this._populateRemotePrompts(55).then(() => {
     //   // Use fake data for testing
     //   this.getPopularPrompts();
+    //   this.getPopularTags();
     //   console.timeEnd('Populating prompts');
     // });
   }
@@ -96,8 +105,16 @@ export class RemotePromptManager {
   /**
    * Get a list of the most popular tags.
    */
-  getPopularTags() {
-    // TODO
+  async getPopularTags() {
+    const url = new URL(ENDPOINT);
+    url.searchParams.append('popularTags', 'true');
+
+    const response = await fetch(url.toString());
+    this.popularTags = (await response.json()) as TagData[];
+
+    // Filter ou the empty tag
+    this.popularTags = this.popularTags.filter(d => d.tag !== '');
+    this._broadcastPopularTags();
   }
 
   /**
@@ -125,8 +142,9 @@ export class RemotePromptManager {
     url.searchParams.append('type', 'prompt');
 
     const promptBody = { ...prompt } as PromptPOSTBody;
-    delete promptBody.created;
-    delete promptBody.promptRunCount;
+    // TODO: Clean the properties
+    // delete promptBody.created;
+    // delete promptBody.promptRunCount;
     delete promptBody.key;
 
     const requestOptions: RequestInit = {
@@ -176,14 +194,18 @@ export class RemotePromptManager {
   }
 
   /**
+   * Pass the popularTags to consumers as their popularTags
+   */
+  _broadcastPopularTags() {
+    this.popularTagsUpdateCallback(structuredClone(this.popularTags));
+  }
+
+  /**
    * Initialize remote servers with fake prompts
    */
-  async _populateRemotePrompts() {
-    const promises: Promise<void>[] = [];
-    for (const p of fakePrompts.slice(0, 10)) {
-      const promise = this.sharePrompt(p);
-      promises.push(promise);
+  async _populateRemotePrompts(size: number) {
+    for (const p of fakePrompts.slice(0, size)) {
+      await this.sharePrompt(p);
     }
-    await Promise.all(promises);
   }
 }

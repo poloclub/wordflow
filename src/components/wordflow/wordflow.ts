@@ -18,7 +18,8 @@ import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
 import type {
   Promptlet,
   PromptDataLocal,
-  PromptDataRemote
+  PromptDataRemote,
+  TagData
 } from '../../types/promptlet';
 import type { VirtualElement } from '@floating-ui/dom';
 import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
@@ -101,6 +102,9 @@ export class PromptLetWordflow extends LitElement {
   @state()
   remotePrompts: PromptDataRemote[] = [];
 
+  @state()
+  popularTags: TagData[] = [];
+
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
   // ===== Lifecycle Methods ======
@@ -137,7 +141,14 @@ export class PromptLetWordflow extends LitElement {
       this.remotePrompts = newRemotePrompts;
     };
 
-    this.remotePromptManager = new RemotePromptManager(updateRemotePrompts);
+    const updatePopularTags = (popularTags: TagData[]) => {
+      this.popularTags = popularTags;
+    };
+
+    this.remotePromptManager = new RemotePromptManager(
+      updateRemotePrompts,
+      updatePopularTags
+    );
   }
 
   firstUpdated() {
@@ -392,6 +403,7 @@ export class PromptLetWordflow extends LitElement {
           .favPrompts=${this.favPrompts}
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
+          .popularTags=${this.popularTags}
         ></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">

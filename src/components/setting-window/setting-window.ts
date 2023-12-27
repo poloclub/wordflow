@@ -16,7 +16,11 @@ import '../panel-local/panel-local';
 import '../panel-setting/panel-setting';
 
 // Types
-import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
+import type {
+  PromptDataLocal,
+  PromptDataRemote,
+  TagData
+} from '../../types/promptlet';
 
 // Assets
 import componentCSS from './setting-window.css?inline';
@@ -55,6 +59,9 @@ export class PromptLetSettingWindow extends LitElement {
   @property({ attribute: false })
   remotePrompts: PromptDataRemote[] = [];
 
+  @property({ attribute: false })
+  popularTags: TagData[] = [];
+
   @state()
   activeMenuItemIndex = 1;
 
@@ -72,10 +79,11 @@ export class PromptLetSettingWindow extends LitElement {
   willUpdate(changedProperties: PropertyValues<this>) {}
 
   firstUpdated() {
-    console.log('first update');
-
     // Start to load the popular remote prompts
     this.remotePromptManager.getPopularPrompts();
+
+    // Start to load the popular tags
+    this.remotePromptManager.getPopularTags();
   }
 
   //==========================================================================||
@@ -113,6 +121,7 @@ export class PromptLetSettingWindow extends LitElement {
           .promptManager=${this.promptManager}
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
+          .popularTags=${this.popularTags}
         ></promptlet-panel-community>`
       },
       {

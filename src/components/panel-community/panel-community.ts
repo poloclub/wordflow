@@ -11,6 +11,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
 import { v4 as uuidv4 } from 'uuid';
+import { setsAreEqual } from '@xiaohk/utils';
 
 // Components
 import '../prompt-card/prompt-card';
@@ -18,7 +19,7 @@ import '../pagination/pagination';
 import '../prompt-viewer/prompt-viewer';
 
 // Types
-import type { PromptDataRemote } from '../../types/promptlet';
+import type { PromptDataRemote, TagData } from '../../types/promptlet';
 
 // Assets
 import componentCSS from './panel-community.css?inline';
@@ -30,7 +31,8 @@ import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
 const NUM_CARDS_PER_PAGE = 18;
-const PAGINATION_WINDOW = 5;
+const PAGINATION_WINDOW = 4;
+const MAX_POPULAR_TAGS = 30;
 
 const fakePrompts = fakePromptsJSON as PromptDataRemote[];
 
@@ -52,6 +54,9 @@ export class PromptLetPanelCommunity extends LitElement {
   @property({ attribute: false })
   remotePrompts: PromptDataRemote[] = fakePrompts;
 
+  @property({ attribute: false })
+  popularTags: TagData[] = [];
+
   @state()
   selectedPrompt: PromptDataRemote | null = fakePrompts[0];
 
@@ -59,10 +64,7 @@ export class PromptLetPanelCommunity extends LitElement {
   curMode: 'popular' | 'new' = 'popular';
 
   @state()
-  popularTags: string[] = [];
-
-  @state()
-  maxTagsOneLine = 3;
+  maxTagsOneLine = 5;
 
   @state()
   isPopularTagListExpanded = false;
@@ -73,8 +75,8 @@ export class PromptLetPanelCommunity extends LitElement {
   @state()
   curPage = 1;
 
-  @query('.popular-tags')
-  popularTagsElement: HTMLElement | undefined;
+  @queryAsync('.popular-tags')
+  popularTagsElementPromise: Promise<HTMLElement>;
 
   @query('.panel-community')
   panelElement: HTMLElement | undefined;
@@ -90,51 +92,21 @@ export class PromptLetPanelCommunity extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.popularTags = [
-      'writing',
-      'research',
-      'professional',
-      'simplification',
-      'science',
-      'technology',
-      'art',
-      'music',
-      'history',
-      'literature',
-      'mathematics',
-      'programming',
-      'design',
-      'photography',
-      'biology',
-      'chemistry',
-      'physics',
-      'psychology',
-      'philosophy',
-      'business',
-      'economics',
-      'politics',
-      'environment',
-      'health',
-      'fitness',
-      'food',
-      'travel',
-      'sports',
-      'fashion',
-      'culture',
-      'education',
-      'language'
-    ];
   }
 
   /**
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
-
-  firstUpdated() {
-    this.initMaxTagsOneLine();
+  willUpdate(changedProperties: PropertyValues<this>) {
+    if (changedProperties.has('popularTags')) {
+      if (this.popularTags.length > 0) {
+        this.updateMaxTagsOneLine();
+      }
+    }
   }
+
+  firstUpdated() {}
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -144,12 +116,14 @@ export class PromptLetPanelCommunity extends LitElement {
   /**
    * Determine how many popular tags to show so that the tags element has only one line
    */
-  initMaxTagsOneLine() {
-    if (!this.popularTagsElement || !this.panelElement) {
+  async updateMaxTagsOneLine() {
+    const popularTagsElement = await this.popularTagsElementPromise;
+
+    if (!this.panelElement) {
       throw Error('A queried element is not initialized.');
     }
 
-    const tagsBBox = this.popularTagsElement.getBoundingClientRect();
+    const tagsBBox = popularTagsElement.getBoundingClientRect();
     const tempTags = document.createElement('div');
     this.panelElement.appendChild(tempTags);
 
@@ -169,10 +143,14 @@ export class PromptLetPanelCommunity extends LitElement {
 
     const initHeight = tempTags.getBoundingClientRect().height;
 
-    for (let i = 0; i < this.popularTags.length; i++) {
+    for (
+      let i = 0;
+      i < Math.min(MAX_POPULAR_TAGS, this.popularTags.length);
+      i++
+    ) {
       const curTag = document.createElement('tag');
       curTag.classList.add('tag');
-      curTag.innerText = this.popularTags[i];
+      curTag.innerText = this.popularTags[i].tag;
       tempTags.appendChild(curTag);
       const curHeight = tempTags.getBoundingClientRect().height;
       if (curHeight > initHeight) {
@@ -273,16 +251,16 @@ export class PromptLetPanelCommunity extends LitElement {
     // Create the tag list
     let popularTagList = html``;
     const curMaxTag = this.isPopularTagListExpanded
-      ? this.popularTags.length
+      ? Math.min(MAX_POPULAR_TAGS, this.popularTags.length)
       : this.maxTagsOneLine;
 
     for (const tag of this.popularTags.slice(0, curMaxTag)) {
       popularTagList = html`${popularTagList}
         <span
           class="tag"
-          ?is-selected="${this.curSelectedTag === tag}"
-          @click=${() => this.tagClicked(tag)}
-          >${tag}</span
+          ?is-selected="${this.curSelectedTag === tag.tag}"
+          @click=${() => this.tagClicked(tag.tag)}
+          >${tag.tag}</span
         >`;
     }
 

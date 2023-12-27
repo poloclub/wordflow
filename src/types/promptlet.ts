@@ -1,3 +1,8 @@
+export interface TagData {
+  tag: string;
+  promptCount: number;
+}
+
 /**
  * Prompt data to communicate with the server
  */
