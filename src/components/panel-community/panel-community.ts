@@ -75,8 +75,11 @@ export class PromptLetPanelCommunity extends LitElement {
   @state()
   curPage = 1;
 
+  @state()
+  isWaitingForQueryResponse = false;
+
   @queryAsync('.popular-tags')
-  popularTagsElementPromise: Promise<HTMLElement>;
+  popularTagsElementPromise!: Promise<HTMLElement>;
 
   @query('.panel-community')
   panelElement: HTMLElement | undefined;
@@ -172,11 +175,28 @@ export class PromptLetPanelCommunity extends LitElement {
   }
 
   tagClicked(tag: string) {
+    if (this.promptContentElement === undefined) {
+      throw Error('promptContentElement is undefined');
+    }
+
     if (this.curSelectedTag === tag) {
       this.curSelectedTag = '';
     } else {
       this.curSelectedTag = tag;
     }
+
+    // Update the prompt list
+    // Show the loader and disable scrolling
+    this.isWaitingForQueryResponse = true;
+    const promptContentElement = this.promptContentElement;
+    promptContentElement.classList.add('no-scroll');
+
+    this.remotePromptManager
+      .getPromptsByTag(this.curSelectedTag, this.curMode)
+      .then(() => {
+        this.isWaitingForQueryResponse = false;
+        promptContentElement.classList.remove('no-scroll');
+      });
   }
 
   promptCardTagClickedHandler(e: CustomEvent<string>) {
@@ -231,11 +251,21 @@ export class PromptLetPanelCommunity extends LitElement {
 
   headerModeButtonClicked(newMode: 'popular' | 'new') {
     if (this.curMode !== newMode) {
-      if (newMode === 'popular') {
-        this.remotePromptManager.getPopularPrompts();
-      } else {
-        this.remotePromptManager.getNewPrompts();
+      if (this.promptContentElement === undefined) {
+        throw Error('promptContentElement is undefined');
       }
+
+      // Show the loader and disable scrolling
+      this.isWaitingForQueryResponse = true;
+      const promptContentElement = this.promptContentElement;
+      promptContentElement.classList.add('no-scroll');
+
+      this.remotePromptManager
+        .getPromptsByTag(this.curSelectedTag, newMode)
+        .then(() => {
+          this.isWaitingForQueryResponse = false;
+          promptContentElement.classList.remove('no-scroll');
+        });
       this.curMode = newMode;
     }
   }
@@ -342,7 +372,8 @@ export class PromptLetPanelCommunity extends LitElement {
         <div class="prompt-content">
           <div
             class="prompt-loader"
-            ?is-hidden=${this.remotePrompts.length > 0}
+            ?is-hidden=${this.remotePrompts.length > 0 &&
+            !this.isWaitingForQueryResponse}
           >
             <div class="loader-container">
               <span class="label">Loading Prompts</span>

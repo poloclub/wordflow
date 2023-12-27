@@ -65,44 +65,6 @@ export class RemotePromptManager {
   }
 
   /**
-   * Load the most popular remote prompts
-   */
-  async getPopularPrompts() {
-    const url = new URL(ENDPOINT);
-
-    url.searchParams.append('tag', '');
-    url.searchParams.append('mostPopular', 'true');
-
-    const response = await fetch(url.toString());
-    this.remotePrompts = (await response.json()) as PromptDataRemote[];
-
-    // Check if the response is not complete
-    const isSubset = response.headers.get('x-has-pagination');
-    this.promptIsSubset = isSubset === 'true';
-
-    this._broadcastRemotePrompts();
-  }
-
-  /**
-   * Get the newest prompts.
-   */
-  async getNewPrompts() {
-    const url = new URL(ENDPOINT);
-
-    url.searchParams.append('tag', '');
-    url.searchParams.append('mostRecent', 'true');
-
-    const response = await fetch(url.toString());
-    this.remotePrompts = (await response.json()) as PromptDataRemote[];
-
-    // Check if the response is not complete
-    const isSubset = response.headers.get('x-has-pagination');
-    this.promptIsSubset = isSubset === 'true';
-
-    this._broadcastRemotePrompts();
-  }
-
-  /**
    * Get a list of the most popular tags.
    */
   async getPopularTags() {
@@ -118,11 +80,35 @@ export class RemotePromptManager {
   }
 
   /**
-   * Query prompts based on tags
-   * @param tags Array of tag strings
+   * Query prompts based on tags.
+   * @param tag A tag string. If tag is '', query all prompts.
+   * @param orderMode Prompt query order
    */
-  getPromptByTag(tags: string[]) {
-    // TODO
+  async getPromptsByTag(tag: string, orderMode: 'new' | 'popular') {
+    const url = new URL(ENDPOINT);
+
+    url.searchParams.append('tag', tag);
+
+    if (orderMode === 'new') {
+      url.searchParams.append('mostRecent', 'true');
+    } else {
+      url.searchParams.append('mostPopular', 'true');
+    }
+
+    const response = await fetch(url.toString());
+    this.remotePrompts = (await response.json()) as PromptDataRemote[];
+
+    // Check if the response is not complete
+    const isSubset = response.headers.get('x-has-pagination');
+    this.promptIsSubset = isSubset === 'true';
+
+    await new Promise(r => {
+      setTimeout(() => {
+        r(null);
+      }, 2000);
+    });
+
+    this._broadcastRemotePrompts();
   }
 
   /**

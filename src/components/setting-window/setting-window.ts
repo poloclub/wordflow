@@ -80,7 +80,7 @@ export class PromptLetSettingWindow extends LitElement {
 
   firstUpdated() {
     // Start to load the popular remote prompts
-    this.remotePromptManager.getPopularPrompts();
+    this.remotePromptManager.getPromptsByTag('', 'popular');
 
     // Start to load the popular tags
     this.remotePromptManager.getPopularTags();
