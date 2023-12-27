@@ -203,3 +203,32 @@
     display: flex;
   }
 }
+
+.toast-container {
+  position: absolute;
+  top: 7px;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  nightjar-toast {
+    max-width: 300px;
+  }
+}
+
+.slider-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+
+  input[type='text'].content-text {
+    width: 48px;
+  }
+
+  nightjar-slider {
+    width: 250px;
+  }
+}

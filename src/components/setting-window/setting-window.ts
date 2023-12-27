@@ -10,7 +10,9 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
+import { v4 as uuidv4 } from 'uuid';
 
+import '../toast/toast';
 import '../panel-community/panel-community';
 import '../panel-local/panel-local';
 import '../panel-setting/panel-setting';
@@ -21,6 +23,7 @@ import type {
   PromptDataRemote,
   TagData
 } from '../../types/promptlet';
+import type { NightjarToast } from '../toast/toast';
 
 // Assets
 import componentCSS from './setting-window.css?inline';
@@ -65,6 +68,15 @@ export class PromptLetSettingWindow extends LitElement {
   @state()
   activeMenuItemIndex = 1;
 
+  @state()
+  toastMessage = '';
+
+  @state()
+  toastType: 'success' | 'warning' | 'error' = 'success';
+
+  @query('nightjar-toast#setting-toast')
+  toastComponent: NightjarToast | undefined;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -98,6 +110,39 @@ export class PromptLetSettingWindow extends LitElement {
     this.activeMenuItemIndex = index;
   }
 
+  /**
+   * Fork a remote prompt into the local library
+   */
+  promptViewerAddClickHandler(e: CustomEvent<PromptDataRemote>) {
+    if (!this.toastComponent) {
+      throw Error('Toast is undefined.');
+    }
+
+    const remotePrompt = e.detail;
+    const newLocalPrompt: PromptDataLocal = { ...remotePrompt, key: uuidv4() };
+
+    let curUserID = localStorage.getItem('user-id');
+    if (curUserID === null) {
+      console.warn('userID is not set.');
+      curUserID = uuidv4();
+      localStorage.setItem('user-id', curUserID);
+    }
+
+    // Clean up some fields
+    newLocalPrompt.created = new Date().toISOString();
+    newLocalPrompt.userName = '';
+    newLocalPrompt.userID = curUserID;
+    newLocalPrompt.promptRunCount = 0;
+    this.promptManager.addPrompt(newLocalPrompt);
+
+    // Show a toaster and switch the tab
+    this.toastMessage = 'Added the prompt to My Prompts.';
+    this.toastType = 'success';
+    this.toastComponent.show();
+
+    this.activeMenuItemIndex = 0;
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -126,6 +171,8 @@ export class PromptLetSettingWindow extends LitElement {
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
           .popularTags=${this.popularTags}
+          @add-clicked=${(e: CustomEvent<PromptDataRemote>) =>
+            this.promptViewerAddClickHandler(e)}
         ></promptlet-panel-community>`
       },
       {
@@ -160,6 +207,14 @@ export class PromptLetSettingWindow extends LitElement {
     return html`
       <div class="setting-window">
         <div class="window">
+          <div class="toast-container">
+            <nightjar-toast
+              id="setting-toast"
+              message=${this.toastMessage}
+              type=${this.toastType}
+            ></nightjar-toast>
+          </div>
+
           <div class="header">
             <div class="name">Wordflow Settings</div>
             <div class="svg-icon close-button">${unsafeHTML(crossIcon)}</div>

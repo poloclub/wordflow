@@ -218,6 +218,8 @@ promptlet-prompt-card {
   pointer-events: all;
   background-color: hsla(0, 100%, 100%, 0.9);
   z-index: 2;
+  opacity: 1;
+  transition: opacity 150ms;
 
   &.no-display {
     display: none;
@@ -225,7 +227,8 @@ promptlet-prompt-card {
 
   &.hidden,
   &[is-hidden] {
-    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 
   .circle-loader {

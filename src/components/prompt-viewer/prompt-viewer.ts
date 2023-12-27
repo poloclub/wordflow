@@ -66,14 +66,6 @@ export class PromptLetPromptViewer extends LitElement {
   tagClicked(e: MouseEvent, tag: string) {
     e.preventDefault();
     e.stopPropagation();
-
-    // Notify the parent
-    // const event = new CustomEvent('tag-clicked', {
-    //   detail: tag,
-    //   bubbles: true,
-    //   composed: true
-    // });
-    // this.dispatchEvent(event);
   }
 
   /**
@@ -101,6 +93,16 @@ export class PromptLetPromptViewer extends LitElement {
     if (target.classList.contains('prompt-viewer')) {
       this.closeButtonClicked();
     }
+  }
+
+  addButtonClicked() {
+    const event = new CustomEvent<PromptDataRemote>('add-clicked', {
+      bubbles: true,
+      composed: true,
+      detail: this.promptData
+    });
+    this.dispatchEvent(event);
+    this.closeButtonClicked();
   }
 
   //==========================================================================||
@@ -217,7 +219,14 @@ export class PromptLetPromptViewer extends LitElement {
                 >${numFormatter(this.promptData.promptRunCount)} runs</span
               >
 
-              <button class="add-button">Add</button>
+              <button
+                class="add-button"
+                @click=${() => {
+                  this.addButtonClicked();
+                }}
+              >
+                Add
+              </button>
             </div>
           </div>
 

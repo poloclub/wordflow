@@ -403,6 +403,7 @@ export class PromptLetPanelCommunity extends LitElement {
               .promptData=${this.selectedPrompt
                 ? this.selectedPrompt
                 : getEmptyPromptDataRemote()}
+              .curSelectedTag=${this.curSelectedTag}
               @close-clicked=${() => this.modalCloseClickHandler()}
             ></promptlet-prompt-viewer>
           </div>

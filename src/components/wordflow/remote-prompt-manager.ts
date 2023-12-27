@@ -102,12 +102,6 @@ export class RemotePromptManager {
     const isSubset = response.headers.get('x-has-pagination');
     this.promptIsSubset = isSubset === 'true';
 
-    await new Promise(r => {
-      setTimeout(() => {
-        r(null);
-      }, 2000);
-    });
-
     this._broadcastRemotePrompts();
   }
 
