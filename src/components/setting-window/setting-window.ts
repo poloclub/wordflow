@@ -110,6 +110,8 @@ export class PromptLetSettingWindow extends LitElement {
       {
         name: 'My Prompts',
         component: html`<promptlet-panel-local
+          class="setting-panel"
+          ?is-shown=${this.activeMenuItemIndex === 0}
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
@@ -118,6 +120,8 @@ export class PromptLetSettingWindow extends LitElement {
       {
         name: 'Community',
         component: html`<promptlet-panel-community
+          class="setting-panel"
+          ?is-shown=${this.activeMenuItemIndex === 1}
           .promptManager=${this.promptManager}
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
@@ -126,7 +130,10 @@ export class PromptLetSettingWindow extends LitElement {
       },
       {
         name: 'Settings',
-        component: html`<promptlet-panel-setting></promptlet-panel-setting>`
+        component: html`<promptlet-panel-setting
+          class="setting-panel"
+          ?is-shown=${this.activeMenuItemIndex === 2}
+        ></promptlet-panel-setting>`
       }
     ];
 
@@ -144,6 +151,12 @@ export class PromptLetSettingWindow extends LitElement {
         </div> `;
     }
 
+    // Compose the panels
+    let panelTemplate = html``;
+    for (const item of menuItems) {
+      panelTemplate = html`${panelTemplate} ${item.component} `;
+    }
+
     return html`
       <div class="setting-window">
         <div class="window">
@@ -153,9 +166,7 @@ export class PromptLetSettingWindow extends LitElement {
           </div>
           <div class="content">
             <div class="menu">${menuItemsTemplate}</div>
-            <div class="panel">
-              ${menuItems[this.activeMenuItemIndex].component}
-            </div>
+            <div class="panel">${panelTemplate}</div>
           </div>
         </div>
       </div>

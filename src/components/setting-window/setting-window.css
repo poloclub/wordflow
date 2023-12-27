@@ -184,10 +184,22 @@
     width: 700px;
     height: 560px;
     box-sizing: border-box;
+    position: relative;
 
     & * {
       width: 100%;
       height: 100%;
     }
+  }
+}
+
+.setting-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+
+  &[is-shown] {
+    display: flex;
   }
 }
