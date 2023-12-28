@@ -52,7 +52,7 @@
   position: relative;
 }
 
-button {
+button.tool-button {
   --padding: 4px;
   all: unset;
   width: 100%;
@@ -60,6 +60,7 @@ button {
   line-height: 1;
   background-color: white;
   box-sizing: border-box;
+  color: var(--gray-700);
 
   display: flex;
   align-items: center;
@@ -75,7 +76,6 @@ button {
     border: 1px solid var(--gray-300);
     position: relative;
 
-    color: var(--gray-700);
     font-size: 1em;
     font-weight: 700;
     text-align: center;
@@ -122,6 +122,15 @@ button {
     padding-top: calc(var(--padding) + 1px);
     padding-bottom: calc(var(--padding) + 4px);
     border-top: 1px solid var(--gray-300);
+  }
+
+  &[is-empty] {
+    color: var(--gray-300);
+    font-size: 150%;
+
+    .svg-icon {
+      padding-bottom: 4px;
+    }
   }
 }
 

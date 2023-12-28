@@ -531,7 +531,7 @@ export class PromptLetPanelLocal extends LitElement {
           <div class="prompt-mini-card" ?is-empty=${favPrompt === null}>
             <span class="icon">${favPrompt ? favPrompt.icon : ''}</span>
             <span class="title"
-              >${favPrompt ? favPrompt.title : 'Drag prompt here'}</span
+              >${favPrompt ? favPrompt.title : 'Drag a prompt here'}</span
             >
           </div>
         </div>`;

@@ -389,6 +389,7 @@ export class PromptLetWordflow extends LitElement {
           <promptlet-floating-menu
             .popperTooltip=${this.popperTooltip}
             .loadingActionIndex=${this.loadingActionIndex}
+            .favPrompts=${this.favPrompts}
             @mouse-enter-tools=${() => this.floatingMenuToolMouseEnterHandler()}
             @mouse-leave-tools=${() =>
               this.floatingMenuToolsMouseLeaveHandler()}

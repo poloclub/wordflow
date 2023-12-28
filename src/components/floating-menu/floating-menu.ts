@@ -5,7 +5,7 @@ import { updatePopperTooltip } from '@xiaohk/utils';
 
 // Types
 import type { PromptModel } from '../../types/common-types';
-import type { Promptlet } from '../../types/promptlet';
+import type { Promptlet, PromptDataLocal } from '../../types/promptlet';
 
 // Assets
 import componentCSS from './floating-menu.css?inline';
@@ -56,8 +56,12 @@ export class PromptLetFloatingMenu extends LitElement {
   @property({ type: Number })
   loadingActionIndex: number | null = null;
 
-  @state()
-  activePromptlets: Promptlet[] = [];
+  @property({ attribute: false })
+  favPrompts: [
+    PromptDataLocal | null,
+    PromptDataLocal | null,
+    PromptDataLocal | null
+  ] = [null, null, null];
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -70,12 +74,6 @@ export class PromptLetFloatingMenu extends LitElement {
       outputParser: /.*<output>(.*?)<\/output>.*/,
       icon: '🎓'
     });
-    // const promptlet2 = createPromptlet({
-    //   name: 'Improve NSF grant proposal writing',
-    //   prompt:
-    //     'You are an experienced Academic researcher who has been awarded over 100 NSF grants. Make the text in <input></input> more grand, engaging, academic, and compelling for an NSF grant proposal. Your output should imply that the work has both significant intellectual merit and broader impact. Do not add new information. Keep the output same length as the input text. Keep the output same length as the input text. Do not add new content. Your output should be put in <output></output>.\n <input>{{text}}</input>',
-    //   icon: '💰'
-    // });
     const promptlet2 = createPromptlet({
       title: 'Improve academic paper in LaTeX',
       prompt:
@@ -89,7 +87,7 @@ export class PromptLetFloatingMenu extends LitElement {
       outputParser: /.*<output>(.*?)<\/output>.*/,
       icon: '🇯🇵'
     });
-    this.activePromptlets = [promptlet1, promptlet2, promptlet3];
+    // this.activePromptlets = [promptlet1, promptlet2, promptlet3];
   }
 
   /**
@@ -109,6 +107,7 @@ export class PromptLetFloatingMenu extends LitElement {
    */
   toolButtonGroupMouseEnterHandler(e: MouseEvent) {
     e.preventDefault();
+
     // Tell the editor component to highlight the effective region
     const event = new Event('mouse-enter-tools', {
       bubbles: true,
@@ -138,6 +137,14 @@ export class PromptLetFloatingMenu extends LitElement {
   toolButtonClickHandler(e: MouseEvent, index: number) {
     e.preventDefault();
 
+    const curPrompt = this.favPrompts[index];
+
+    // Special case for empty button: clicking opens the setting window
+    if (curPrompt === null) {
+      this.settingButtonClicked();
+      return;
+    }
+
     // Do not respond to interactions when an action is laoding
     if (this.loadingActionIndex !== null) return;
 
@@ -148,11 +155,14 @@ export class PromptLetFloatingMenu extends LitElement {
       target.classList.remove('active');
     }, 100);
 
-    const event = new CustomEvent<[Promptlet, number]>('tool-button-clicked', {
-      detail: [this.activePromptlets[index], index],
-      bubbles: true,
-      composed: true
-    });
+    const event = new CustomEvent<[PromptDataLocal, number]>(
+      'tool-button-clicked',
+      {
+        detail: [curPrompt, index],
+        bubbles: true,
+        composed: true
+      }
+    );
     this.dispatchEvent(event);
   }
 
@@ -169,11 +179,13 @@ export class PromptLetFloatingMenu extends LitElement {
       throw Error('Popper is not initialized.');
     }
 
+    const curPrompt = this.favPrompts[index];
+
     this.popperTooltip.then(tooltip => {
       updatePopperTooltip(
         tooltip,
         e.target as HTMLElement,
-        this.activePromptlets[index].title,
+        curPrompt?.title || 'Add a prompt',
         'right',
         true,
         10
@@ -214,14 +226,14 @@ export class PromptLetFloatingMenu extends LitElement {
   render() {
     // Create the active tool buttons
     let toolButtons = html``;
-    for (const [i, promptlet] of this.activePromptlets.entries()) {
+    for (const [i, prompt] of this.favPrompts.entries()) {
       // Take the first unicode character as the icon
-      // const icon = Array.from(promptlet.iconUnicode)[0];
-      const icon = promptlet.icon;
+      const icon = prompt?.icon || '+';
       toolButtons = html`${toolButtons}
         <button
           class="tool-button"
           ?is-loading=${this.loadingActionIndex === i}
+          ?is-empty=${prompt === null}
           @mousedown=${(e: MouseEvent) => this.toolButtonClickHandler(e, i)}
           @mouseenter=${(e: MouseEvent) =>
             this.toolButtonMouseEnterHandler(e, i)}
@@ -231,6 +243,7 @@ export class PromptLetFloatingMenu extends LitElement {
             <div class="svg-icon">
               ${this.loadingActionIndex === i ? '' : icon}
             </div>
+
             <div
               class="loader-container"
               ?hidden=${this.loadingActionIndex !== i}
