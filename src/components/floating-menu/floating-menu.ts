@@ -156,6 +156,14 @@ export class PromptLetFloatingMenu extends LitElement {
     this.dispatchEvent(event);
   }
 
+  settingButtonClicked() {
+    const event = new Event('setting-button-clicked', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   toolButtonMouseEnterHandler(e: MouseEvent, index: number) {
     if (this.popperTooltip === undefined) {
       throw Error('Popper is not initialized.');
@@ -247,6 +255,7 @@ export class PromptLetFloatingMenu extends LitElement {
         </div>
         <button
           class="tool-button setting-button"
+          @mousedown=${() => this.settingButtonClicked()}
           @mouseenter=${(e: MouseEvent) =>
             this.settingButtonMouseEnterHandler(e)}
           @mouseleave=${(e: MouseEvent) => this.toolButtonMouseLeaveHandler(e)}

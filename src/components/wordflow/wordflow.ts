@@ -26,6 +26,7 @@ import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
 import type { ModelAuthMessage } from '../modal-auth/modal-auth';
+import type { PromptLetSettingWindow } from '../setting-window/setting-window';
 
 // Components
 import '../text-editor/text-editor';
@@ -35,13 +36,9 @@ import '../setting-window/setting-window';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
-import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 // Constants
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
-const fakePrompts = fakePromptsJSON as PromptDataLocal[];
-
-// Constants
 
 export interface UpdateSidebarMenuProps {
   anchor: Element | VirtualElement;
@@ -76,6 +73,9 @@ export class PromptLetWordflow extends LitElement {
 
   @query('.wordflow')
   workflowElement: HTMLElement | undefined;
+
+  @state()
+  showSettingWindow = false;
 
   @state()
   loadingActionIndex: number | null = null;
@@ -394,16 +394,23 @@ export class PromptLetWordflow extends LitElement {
               this.floatingMenuToolsMouseLeaveHandler()}
             @tool-button-clicked=${(e: CustomEvent<[Promptlet, number]>) =>
               this.floatingMenuToolButtonClickHandler(e)}
+            @setting-button-clicked=${() => {
+              this.showSettingWindow = true;
+            }}
           ></promptlet-floating-menu>
         </div>
 
         <promptlet-setting-window
+          ?is-hidden=${!this.showSettingWindow}
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
           .popularTags=${this.popularTags}
+          @close-button-clicked=${() => {
+            this.showSettingWindow = false;
+          }}
         ></promptlet-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">

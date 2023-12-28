@@ -157,6 +157,25 @@ export class PromptLetSettingWindow extends LitElement {
     });
   }
 
+  closeButtonClicked() {
+    const event = new Event('close-button-clicked', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  /**
+   * Close the modal if the user clicks the background
+   * @param e Mouse event
+   */
+  backgroundClicked(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('setting-window')) {
+      this.closeButtonClicked();
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -220,7 +239,10 @@ export class PromptLetSettingWindow extends LitElement {
     }
 
     return html`
-      <div class="setting-window">
+      <div
+        class="setting-window"
+        @click=${(e: MouseEvent) => this.backgroundClicked(e)}
+      >
         <div class="window">
           <div class="toast-container">
             <nightjar-toast
@@ -232,7 +254,12 @@ export class PromptLetSettingWindow extends LitElement {
 
           <div class="header">
             <div class="name">Wordflow Settings</div>
-            <div class="svg-icon close-button">${unsafeHTML(crossIcon)}</div>
+            <div
+              class="svg-icon close-button"
+              @click=${() => this.closeButtonClicked()}
+            >
+              ${unsafeHTML(crossIcon)}
+            </div>
           </div>
           <div class="content">
             <div class="menu">${menuItemsTemplate}</div>
