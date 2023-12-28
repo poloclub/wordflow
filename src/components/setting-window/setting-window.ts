@@ -24,6 +24,7 @@ import type {
   TagData
 } from '../../types/promptlet';
 import type { NightjarToast } from '../toast/toast';
+import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
 
 // Assets
 import componentCSS from './setting-window.css?inline';
@@ -66,7 +67,7 @@ export class PromptLetSettingWindow extends LitElement {
   popularTags: TagData[] = [];
 
   @state()
-  activeMenuItemIndex = 1;
+  activeMenuItemIndex = 0;
 
   @state()
   toastMessage = '';
@@ -143,6 +144,19 @@ export class PromptLetSettingWindow extends LitElement {
     this.activeMenuItemIndex = 0;
   }
 
+  promptEditorShareClicked(e: CustomEvent<SharePromptMessage>) {
+    if (!this.toastComponent) {
+      throw Error('Toast is undefined.');
+    }
+
+    const prompt = e.detail.data;
+    const stopLoader = e.detail.stopLoader;
+
+    this.remotePromptManager.sharePrompt(prompt).then(status => {
+      stopLoader(status);
+    });
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -160,6 +174,8 @@ export class PromptLetSettingWindow extends LitElement {
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
+          @share-clicked=${(e: CustomEvent<SharePromptMessage>) =>
+            this.promptEditorShareClicked(e)}
         ></promptlet-panel-local>`
       },
       {
@@ -167,7 +183,6 @@ export class PromptLetSettingWindow extends LitElement {
         component: html`<promptlet-panel-community
           class="setting-panel"
           ?is-shown=${this.activeMenuItemIndex === 1}
-          .promptManager=${this.promptManager}
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
           .popularTags=${this.popularTags}

@@ -46,9 +46,6 @@ export class PromptLetPanelCommunity extends LitElement {
   //                              Class Properties                            ||
   //==========================================================================||
   @property({ attribute: false })
-  promptManager!: PromptManager;
-
-  @property({ attribute: false })
   remotePromptManager!: RemotePromptManager;
 
   @property({ attribute: false })

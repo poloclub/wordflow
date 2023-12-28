@@ -125,7 +125,9 @@ export class NightjarToast extends LitElement {
    * Show the toast message
    */
   show() {
-    this.isHidden = false;
+    if (this.isHidden) {
+      this.isHidden = false;
+    }
 
     // Hide the element after delay
     if (this.duration > 0) {

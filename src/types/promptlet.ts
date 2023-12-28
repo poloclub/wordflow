@@ -24,23 +24,8 @@ export interface PromptDataRemote {
   injectionMode: 'replace' | 'append';
 }
 
-export interface PromptDataLocal {
-  prompt: string;
-  temperature: number;
-  tags?: string[];
+export interface PromptDataLocal extends PromptDataRemote {
   key: string;
-  userID: string;
-  userName?: string;
-  description?: string;
-  icon: string;
-  forkFrom?: string;
-  promptRunCount: number;
-  created: string;
-  title: string;
-  outputParsingPattern?: string;
-  outputParsingReplacement?: string;
-  recommendedModels: string[];
-  injectionMode: 'replace' | 'append';
 }
 
 /**

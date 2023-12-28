@@ -16,7 +16,7 @@ import '../slider/slider';
 import '../confirm-dialog/confirm-dialog';
 
 // Types
-import type { PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
 import type { TooltipConfig } from '@xiaohk/utils';
 import type { NightjarToast } from '../toast/toast';
 import type {
@@ -48,6 +48,11 @@ interface FieldInfo {
   placeholder: string;
   description: string;
   tooltip: string;
+}
+
+export interface SharePromptMessage {
+  data: PromptDataLocal;
+  stopLoader: (status: number) => void;
 }
 
 const ALL_MODELS: LLMModel[] = [
@@ -272,10 +277,12 @@ export class PromptLetPromptEditor extends LitElement {
 
     const newPromptData = getEmptyPromptDataLocal();
 
-    // Use the same key if the user is editing an old prompt
-    if (!this.isNewPrompt) {
-      newPromptData.key = this.promptData.key;
-    }
+    // Add the information that is not included in the input fields
+    // `forkFrom`, `key`, `promptRunCount`
+    // We will use a new `created` for the new data
+    newPromptData.forkFrom = this.promptData.forkFrom;
+    newPromptData.key = this.promptData.key;
+    newPromptData.promptRunCount = this.promptData.promptRunCount;
 
     // Parse the title
     const title = (
@@ -414,6 +421,7 @@ export class PromptLetPromptEditor extends LitElement {
       this.promptManager.addPrompt(newPromptData);
     } else {
       // Update the old prompt
+      newPromptData.forkFrom = this.promptData.forkFrom;
       this.promptManager.setPrompt(newPromptData);
     }
 
@@ -427,6 +435,10 @@ export class PromptLetPromptEditor extends LitElement {
   sharePrompt() {
     if (this.toastComponent === undefined) {
       throw Error('toastComponent is undefined.');
+    }
+
+    if (this.shadowRoot === null) {
+      throw Error('Shadow root is null');
     }
 
     // Parse the input fields
@@ -454,10 +466,7 @@ export class PromptLetPromptEditor extends LitElement {
       return;
     }
 
-    if (
-      newPromptData.description === undefined ||
-      newPromptData.description.length === 0
-    ) {
+    if (newPromptData.description.length === 0) {
       this.toastMessage =
         "Description (under Sharing Settings) can't be empty.";
       this.toastType = 'error';
@@ -465,15 +474,68 @@ export class PromptLetPromptEditor extends LitElement {
       return;
     }
 
-    if (newPromptData.tags === undefined || newPromptData.tags.length === 0) {
+    if (newPromptData.tags.length === 0) {
       this.toastMessage = "Tags (under Sharing Settings) can't be empty.";
       this.toastType = 'error';
       this.toastComponent.show();
       return;
     }
 
-    // TODO: Share the prompt
-    this.toastComponent.hide();
+    for (const tag of newPromptData.tags) {
+      if (tag.length < 2) {
+        this.toastMessage = 'Each tag should have least 2 characters.';
+        this.toastType = 'error';
+        this.toastComponent.show();
+        return;
+      }
+    }
+
+    // Try to share the prompt first
+    if (this.isNewPrompt) {
+      // Add the new prompt
+      this.promptManager.addPrompt(newPromptData);
+    } else {
+      // Update the old prompt
+      newPromptData.forkFrom = this.promptData.forkFrom;
+      this.promptManager.setPrompt(newPromptData);
+    }
+
+    // Show the loader
+    const contentElement = this.shadowRoot.querySelector(
+      '.content'
+    ) as HTMLElement;
+    const loaderElement = this.shadowRoot.querySelector(
+      '.prompt-loader'
+    ) as HTMLElement;
+    const toastComponent = this.toastComponent;
+
+    loaderElement.style.setProperty('top', `${contentElement.scrollTop}px`);
+    contentElement.classList.add('no-scroll');
+    loaderElement.classList.remove('hidden');
+
+    const stopLoader = (status: number) => {
+      contentElement.classList.remove('no-scroll');
+      loaderElement.classList.add('hidden');
+
+      // If the status code is 515, the prompt already exists. We should the toast
+      if (status === 515) {
+        this.toastMessage =
+          'The same prompt has been shared by a user. Try a different prompt.';
+        this.toastType = 'error';
+        toastComponent.show();
+      } else {
+        this.toastMessage = 'This prompt is shared.';
+        this.toastType = 'success';
+        toastComponent.show();
+      }
+    };
+
+    const event = new CustomEvent<SharePromptMessage>('share-clicked', {
+      bubbles: true,
+      composed: true,
+      detail: { data: newPromptData, stopLoader }
+    });
+    this.dispatchEvent(event);
   }
 
   /**
@@ -493,15 +555,6 @@ export class PromptLetPromptEditor extends LitElement {
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
-  /**
-   * Tag clicked event handler
-   * @param tag Clicked tag name
-   */
-  tagClicked(e: MouseEvent, tag: string) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
   /**
    * Event handler for clicking the accordion header
    * @param e Event
@@ -675,6 +728,13 @@ export class PromptLetPromptEditor extends LitElement {
           </div>
 
           <form class="content">
+            <div class="prompt-loader hidden">
+              <div class="loader-container">
+                <span class="label">Sharing Prompt</span>
+                <div class="circle-loader"></div>
+              </div>
+            </div>
+
             <div class="two-section-container">
               <section class="content-block content-block-title">
                 <div class="name-row">

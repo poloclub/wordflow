@@ -135,14 +135,8 @@ export class RemotePromptManager {
       body: JSON.stringify(promptBody)
     };
 
-    await fetch(url.toString(), requestOptions)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-      })
-      .catch(error => {
-        console.error('Request error:', error);
-      });
+    const response = await fetch(url.toString(), requestOptions);
+    return response.status;
   }
 
   /**
