@@ -294,12 +294,14 @@ button {
   }
 
   textarea {
-    all: unset;
     border: 1px solid var(--gray-300);
     border-radius: 5px;
     padding: 5px 5px;
     width: 100%;
     box-sizing: border-box;
+    font-family: inherit;
+    font-size: unset;
+    resize: vertical;
 
     &:focus {
       outline: 2px solid var(--focus-border-color);

@@ -26,7 +26,7 @@ import type { EditHighlightAttributes } from './edit-highlight';
 import type { CollapseAttributes } from './collapse-node';
 import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
-import type { Promptlet } from '../../types/promptlet';
+import type { PromptDataLocal } from '../../types/promptlet';
 import type { ResolvedPos } from '@tiptap/pm/model';
 import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
 
@@ -34,21 +34,14 @@ import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
 import componentCSS from './text-editor.css?inline';
 import { style } from '../../../node_modules/@tiptap/core/src/style';
 
-// Assets
-import promptMLJSON from '../../prompts/prompt-ml-academic.json';
-const promptML = promptMLJSON as PromptModel;
-
 const OLD_TEXT =
   "Given thousands of equally accurate machine learning (ML) models, how can users choose among them? A recent ML technique enables domain experts and data scientists to generate a complete Rashomon set for sparse decision trees--a huge set of almost-optimal interpretable ML models. To help ML practitioners identify models with desirable properties from this Rashomon set, we develop TimberTrek, the first interactive visualization system that summarizes thousands of sparse decision trees at scale. Two usage scenarios highlight how TimberTrek can empower users to easily explore, compare, and curate models that align with their domain knowledge and values. Our open-source tool runs directly in users' computational notebooks and web browsers, lowering the barrier to creating more responsible ML models. TimberTrek is available at the following public demo link.";
-
-// const NEW_TEXT =
-// "Given thousands of equally accurate machine learning (ML) models, how can users choose among them? A recent ML technique help domain experts and data scientists generate a complete Rashomon set for sparse decision trees--a huge set of almost-optimal intelligible ML models. To help ML practitioners identify models with desirable properties, we develop TimberTrek, the first interactive visualization system that summarizes thousands of sparse decision trees at scale. Two usage scenarios highlight how TimberTrek can empower users to easily explore, compare, and curate models that align with their domain knowledge and values. Our open-source tool runs directly in users' computational notebooks and web browsers, lowering the barrier to creating more responsible ML models. TimberTrek is available at the following public demo link. This is very cool!";
-
 const NEW_TEXT =
   "Given thousands of equally accurate machine learning (ML) models, how can users choose among them? A recent ML technique enables domain experts and data scientists to generate a complete Rashomon set for sparse decision trees—a vast collection of nearly optimal interpretable ML models. To assist ML practitioners in identifying models with desirable properties from this Rashomon set, we have developed TimberTrek, the first interactive visualization system that provides a summary of thousands of sparse decision trees on a large scale. Two usage scenarios demonstrate how TimberTrek empowers users to easily explore, compare, and curate models that align with their domain knowledge and values. Our open-source tool runs directly in users' computational notebooks and web browsers, thereby reducing the barrier to creating more responsible ML models. TimberTrek can be accessed through the following public demo link.";
 
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
+const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
 
@@ -492,48 +485,6 @@ export class PromptLetTextEditor extends LitElement {
       .run();
   }
 
-  improveButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-    if (this.editor === null) {
-      console.error('Editor is not initialized');
-      return;
-    }
-
-    if (this.apiKey === null) {
-      console.error('API key is null.');
-      return;
-    }
-
-    // Get the word-level differences
-    const oldText = this.editor.getText();
-
-    const curPrompt = promptML.prompt.replace('{{text}}', oldText);
-    textGenGpt(this.apiKey, 'text-gen', curPrompt, 0.2).then(message => {
-      switch (message.command) {
-        case 'finishTextGen': {
-          if (this.editor === null) {
-            console.error('Editor is not initialized');
-            return;
-          }
-
-          if (DEV_MODE) {
-            console.info(message.payload.result);
-          }
-          const newText = parseTags(message.payload.result, 'output')[0];
-          let diffText = this.diffParagraph(oldText, newText);
-          diffText = `<p>${diffText}</p>`;
-
-          this.editor.commands.setContent(diffText);
-          break;
-        }
-
-        case 'error': {
-          console.error('Failed to generate text', message.payload);
-        }
-      }
-    });
-  }
-
   changeButtonClicked(e: MouseEvent) {
     e.preventDefault();
 
@@ -622,9 +573,9 @@ export class PromptLetTextEditor extends LitElement {
   }
 
   /**
-   * Execute the promptlet on the selected text
+   * Execute the prompt on the selected text
    */
-  floatingMenuToolButtonClickHandler(promptlet: Promptlet) {
+  floatingMenuToolButtonClickHandler(promptData: PromptDataLocal) {
     if (this.editor === null) {
       console.error('Editor is not initialized yet.');
       return;
@@ -650,12 +601,18 @@ export class PromptLetTextEditor extends LitElement {
       const paragraphPos = $from.before(1);
       const oldText = paragraphNode.textContent;
 
-      const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
+      let curPrompt = '';
+      if (promptData.prompt.includes(INPUT_TEXT_PLACEHOLDER)) {
+        curPrompt = promptData.prompt.replace(INPUT_TEXT_PLACEHOLDER, oldText);
+      } else {
+        curPrompt = promptData.prompt + '\n' + oldText;
+      }
+
       textGenGpt(
         this.apiKey,
         'text-gen',
         curPrompt,
-        promptlet.temperature
+        promptData.temperature
       ).then(message => {
         // Cancel the loading style
         this._setParagraphAttribute($from, 'is-loading', null);
@@ -672,10 +629,11 @@ export class PromptLetTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            const newText = message.payload.result.replace(
-              promptlet.outputParser,
-              '$1'
+            const newText = this._parseOutput(
+              promptData,
+              message.payload.result
             );
+
             let diffText = this.diffParagraph(oldText, newText);
             diffText = `<p>${diffText}</p>`;
 
@@ -711,13 +669,19 @@ export class PromptLetTextEditor extends LitElement {
 
       // Generate new text
       const oldText = state.doc.textBetween($from.pos, $to.pos);
-      const curPrompt = promptlet.prompt.replace('{{text}}', oldText);
+
+      let curPrompt = '';
+      if (promptData.prompt.includes(INPUT_TEXT_PLACEHOLDER)) {
+        curPrompt = promptData.prompt.replace(INPUT_TEXT_PLACEHOLDER, oldText);
+      } else {
+        curPrompt = promptData.prompt + ' ' + oldText;
+      }
 
       textGenGpt(
         this.apiKey,
         'text-gen',
         curPrompt,
-        promptlet.temperature
+        promptData.temperature
       ).then(message => {
         if (this.editor === null) {
           console.error('Editor is not initialized yet.');
@@ -744,9 +708,9 @@ export class PromptLetTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            const newText = message.payload.result.replace(
-              promptlet.outputParser,
-              '$1'
+            const newText = this._parseOutput(
+              promptData,
+              message.payload.result
             );
             let diffText = this.diffParagraph(oldText, newText);
             diffText = `${diffText}`;
@@ -778,6 +742,24 @@ export class PromptLetTextEditor extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+
+  /**
+   * Parse an LLM output using rules defined in a prompt
+   * @param prompt Prompt data
+   * @param output LLM output
+   */
+  _parseOutput(prompt: PromptDataLocal, output: string) {
+    if (prompt.outputParsingPattern === '') {
+      return output;
+    }
+
+    const pattern = new RegExp(prompt.outputParsingPattern);
+    let replacement = prompt.outputParsingReplacement;
+    if (replacement === '') {
+      replacement = '$1';
+    }
+    return output.replace(pattern, replacement);
+  }
 
   /**
    * Helper method to check if the user has selected an edit
@@ -859,38 +841,6 @@ export class PromptLetTextEditor extends LitElement {
         class="text-editor"
         ?is-hovering-floating-menu=${this.isHoveringFloatingMenu}
       ></div>
-      <div class="control-panel">
-        <button
-          class="control-button"
-          @click=${(e: MouseEvent) => this.highlightButtonClicked(e)}
-        >
-          Highlight
-        </button>
-        <button
-          class="control-button"
-          @click=${(e: MouseEvent) => this.dehighlightButtonClicked(e)}
-        >
-          Dehighlight
-        </button>
-        <button
-          class="control-button"
-          @click=${(e: MouseEvent) => this.changeButtonClicked(e)}
-        >
-          Change
-        </button>
-        <button
-          class="control-button"
-          @click=${(e: MouseEvent) => this.improveButtonClicked(e)}
-        >
-          Improve
-        </button>
-        <button
-          class="control-button"
-          @click=${(e: MouseEvent) => this.selectButtonClicked(e)}
-        >
-          Select
-        </button>
-      </div>
     </div>`;
   }
 

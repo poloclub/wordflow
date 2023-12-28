@@ -16,7 +16,6 @@ import { RemotePromptManager } from './remote-prompt-manager';
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
 import type {
-  Promptlet,
   PromptDataLocal,
   PromptDataRemote,
   TagData
@@ -36,6 +35,9 @@ import '../setting-window/setting-window';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
+import defaultPromptsJSON from '../../prompts/default-prompts.json';
+
+const defaultPrompts = defaultPromptsJSON as PromptDataLocal[];
 
 // Constants
 const MENU_X_OFFSET = config.layout.sidebarMenuXOffset;
@@ -149,6 +151,8 @@ export class PromptLetWordflow extends LitElement {
       updateRemotePrompts,
       updatePopularTags
     );
+
+    this.initDefaultPrompts();
   }
 
   firstUpdated() {
@@ -175,7 +179,37 @@ export class PromptLetWordflow extends LitElement {
   initUserID() {
     const userID = localStorage.getItem('user-id');
     if (userID === null) {
-      localStorage.setItem('user-id', uuidv4());
+      const newUserID = uuidv4();
+      localStorage.setItem('user-id', newUserID);
+      return newUserID;
+    } else {
+      return userID;
+    }
+  }
+
+  /**
+   * Add a few default prompts to the new user's local library.
+   */
+  initDefaultPrompts() {
+    let userID = localStorage.getItem('user-id');
+    if (userID === null) {
+      console.warn('userID is null');
+      userID = this.initUserID();
+    }
+
+    // Add some default prompts for the first-time users
+    const hasAddedDefaultPrompts = localStorage.getItem(
+      'has-added-default-prompts'
+    );
+
+    if (hasAddedDefaultPrompts === null) {
+      for (const prompt of defaultPrompts) {
+        // Update some fields
+        prompt.userID = userID;
+        prompt.created = new Date().toISOString();
+        this.promptManager.addPrompt(prompt);
+      }
+      localStorage.setItem('has-added-default-prompts', 'true');
     }
   }
 
@@ -330,15 +364,17 @@ export class PromptLetWordflow extends LitElement {
     this.textEditorElement.floatingMenuToolsMouseLeaveHandler();
   }
 
-  floatingMenuToolButtonClickHandler(e: CustomEvent<[Promptlet, number]>) {
+  floatingMenuToolButtonClickHandler(
+    e: CustomEvent<[PromptDataLocal, number]>
+  ) {
     if (this.workflowElement === undefined) {
       throw Error('workflowElement is undefined');
     }
 
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
-    const [promptlet, index] = e.detail;
-    this.textEditorElement.floatingMenuToolButtonClickHandler(promptlet);
+    const [prompt, index] = e.detail;
+    this.textEditorElement.floatingMenuToolButtonClickHandler(prompt);
 
     // Start the loading animation
     this.loadingActionIndex = index;
@@ -393,8 +429,9 @@ export class PromptLetWordflow extends LitElement {
             @mouse-enter-tools=${() => this.floatingMenuToolMouseEnterHandler()}
             @mouse-leave-tools=${() =>
               this.floatingMenuToolsMouseLeaveHandler()}
-            @tool-button-clicked=${(e: CustomEvent<[Promptlet, number]>) =>
-              this.floatingMenuToolButtonClickHandler(e)}
+            @tool-button-clicked=${(
+              e: CustomEvent<[PromptDataLocal, number]>
+            ) => this.floatingMenuToolButtonClickHandler(e)}
             @setting-button-clicked=${() => {
               this.showSettingWindow = true;
             }}

@@ -6,6 +6,7 @@ import {
   query,
   queryAsync
 } from 'lit/decorators.js';
+import emojiRegex from 'emoji-regex';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptDataLocal } from '../panel-local/panel-local';
 import { PromptManager } from '../wordflow/prompt-manager';
@@ -79,6 +80,7 @@ const MAX_DESCRIPTION_LENGTH = 2000;
 const MAX_TAGS_LENGTH = 100;
 const MAX_TAGS_COUNT = 3;
 const MAX_USER_NAME_LENGTH = 40;
+const EMOJI_REGEX = emojiRegex();
 
 enum Field {
   title = 'Title',
@@ -295,8 +297,7 @@ export class PromptLetPromptEditor extends LitElement {
       this.shadowRoot.querySelector('#text-input-icon') as HTMLInputElement
     ).value;
 
-    const regex = /\p{Emoji}(\u200d\p{Emoji})*/gu;
-    const match = icon.match(regex);
+    const match = icon.match(EMOJI_REGEX);
 
     let iconChar = icon.slice(0, 1);
     if (match) {
@@ -315,6 +316,9 @@ export class PromptLetPromptEditor extends LitElement {
     ).value;
 
     newPromptData.prompt = prompt.slice(0, MAX_PROMPT_LENGTH);
+
+    // Parse the temperature
+    newPromptData.temperature = this.temperature;
 
     // Parse output parsing - pattern
     const outputParsingPattern = (
@@ -642,8 +646,7 @@ export class PromptLetPromptEditor extends LitElement {
       iconElement.value = ''; // Empty the input field
     } else {
       // Check if there is an emoji in the icon element
-      const regex = /\p{Emoji}(\u200d\p{Emoji})*/gu;
-      const match = iconElement.value.match(regex);
+      const match = iconElement.value.match(EMOJI_REGEX);
 
       if (match === null) {
         // Use the first character
@@ -879,7 +882,7 @@ ${this.promptData.prompt}</textarea
                     <input
                       type="text"
                       class="content-text"
-                      id="text-input-output-parsing-pattern"
+                      id="text-input-temperature"
                       value="${round(this.temperature, 2)}"
                       maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                       placeholder=${this.temperature}

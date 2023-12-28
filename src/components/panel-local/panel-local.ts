@@ -474,6 +474,7 @@ export class PromptLetPanelLocal extends LitElement {
               @mouseleave=${() => this.menuIconMouseLeft()}
               @click=${() => {
                 this.promptCardClicked(promptData);
+                console.log(JSON.stringify(promptData));
               }}
             >
               <span class="svg-icon">${unsafeHTML(editIcon)}</span>

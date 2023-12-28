@@ -4,44 +4,11 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { updatePopperTooltip } from '@xiaohk/utils';
 
 // Types
-import type { PromptModel } from '../../types/common-types';
-import type { Promptlet, PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataLocal } from '../../types/promptlet';
 
 // Assets
 import componentCSS from './floating-menu.css?inline';
-import mlPromptJSON from '../../prompts/prompt-ml-academic.json';
 import gearIcon from '../../images/icon-gear.svg?raw';
-
-const mlPrompt = mlPromptJSON as PromptModel;
-
-const createPromptlet = ({
-  title = '',
-  description = '',
-  prompt = '',
-  temperature = 0.2,
-  tags = [],
-  outputParser = /(.*)/,
-  icon = ''
-}: {
-  title?: string;
-  description?: string;
-  prompt?: string;
-  temperature?: number;
-  tags?: string[];
-  outputParser?: RegExp;
-  icon?: string;
-}) => {
-  const promptlet: Promptlet = {
-    title,
-    description,
-    prompt,
-    temperature,
-    tags,
-    outputParser,
-    icon
-  };
-  return promptlet;
-};
 
 /**
  * Floating menu element.
@@ -66,28 +33,6 @@ export class PromptLetFloatingMenu extends LitElement {
   // ===== Lifecycle Methods ======
   constructor() {
     super();
-
-    // Initialize the current active promptlets
-    const promptlet1 = createPromptlet({
-      title: 'Improve academic ML paper writing',
-      prompt: mlPrompt.prompt,
-      outputParser: /.*<output>(.*?)<\/output>.*/,
-      icon: '🎓'
-    });
-    const promptlet2 = createPromptlet({
-      title: 'Improve academic paper in LaTeX',
-      prompt:
-        'You are a great writer. Improve the flow in the text in <input></input>. Your output should be put in <output></output>.\n <input>{{text}}</input>',
-      icon: '✍️'
-    });
-    const promptlet3 = createPromptlet({
-      title: 'Translate the text to Japanese',
-      prompt:
-        'Translate the text in <input></input> from English to Japanese. Your output should be put in <output></output>.\n<input>{{text}}</input>',
-      outputParser: /.*<output>(.*?)<\/output>.*/,
-      icon: '🇯🇵'
-    });
-    // this.activePromptlets = [promptlet1, promptlet2, promptlet3];
   }
 
   /**

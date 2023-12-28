@@ -27,18 +27,6 @@
   }
 }
 
-.control-panel {
-  position: absolute;
-  left: 50%;
-  top: 10px;
-  transform: translate(-50%, 0px);
-
-  display: flex;
-  flex-flow: row;
-  gap: 10px;
-  display: none;
-}
-
 button {
   all: unset;
   font-size: 14px;
