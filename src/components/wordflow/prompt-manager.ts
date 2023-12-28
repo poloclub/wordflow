@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { get, set, del, clear } from 'idb-keyval';
-import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
+import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 

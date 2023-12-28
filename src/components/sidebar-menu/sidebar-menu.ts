@@ -19,8 +19,8 @@ interface Colors {
  * Sidebar menu element.
  *
  */
-@customElement('promptlet-sidebar-menu')
-export class PromptLetSidebarMenu extends LitElement {
+@customElement('wordflow-sidebar-menu')
+export class WordflowSidebarMenu extends LitElement {
   // ===== Class properties ======
   @property({ type: Boolean })
   isOnLeft = true;
@@ -164,6 +164,6 @@ export class PromptLetSidebarMenu extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-sidebar-menu': PromptLetSidebarMenu;
+    'wordflow-sidebar-menu': WordflowSidebarMenu;
   }
 }

@@ -11,7 +11,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 
 // Types
-import type { PromptDataRemote, PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataRemote, PromptDataLocal } from '../../types/wordflow';
 
 import componentCSS from './prompt-card.css?inline';
 
@@ -19,8 +19,8 @@ import componentCSS from './prompt-card.css?inline';
  * Prompt card element.
  *
  */
-@customElement('promptlet-prompt-card')
-export class PromptLetPromptCard extends LitElement {
+@customElement('wordflow-prompt-card')
+export class WordflowPromptCard extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -157,6 +157,6 @@ export class PromptLetPromptCard extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-prompt-card': PromptLetPromptCard;
+    'wordflow-prompt-card': WordflowPromptCard;
   }
 }

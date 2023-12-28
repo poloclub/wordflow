@@ -17,7 +17,7 @@ import '../slider/slider';
 import '../confirm-dialog/confirm-dialog';
 
 // Types
-import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
+import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 import type { TooltipConfig } from '@xiaohk/utils';
 import type { NightjarToast } from '../toast/toast';
 import type {
@@ -164,8 +164,8 @@ const FIELD_INFO: Record<Field, FieldInfo> = {
  * Prompt editor element.
  *
  */
-@customElement('promptlet-prompt-editor')
-export class PromptLetPromptEditor extends LitElement {
+@customElement('wordflow-prompt-editor')
+export class WordflowPromptEditor extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -1175,6 +1175,6 @@ ${this.promptData.description || ''}</textarea
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-prompt-editor': PromptLetPromptEditor;
+    'wordflow-prompt-editor': WordflowPromptEditor;
   }
 }

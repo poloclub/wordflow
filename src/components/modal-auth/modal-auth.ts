@@ -20,8 +20,8 @@ export interface ModelAuthMessage {
  * Modal auth element.
  *
  */
-@customElement('promptlet-modal-auth')
-export class PromptletModalAuth extends LitElement {
+@customElement('wordflow-modal-auth')
+export class WordflowModalAuth extends LitElement {
   // ===== Properties ======
   @property({ type: String })
   apiKey = '';
@@ -326,6 +326,6 @@ export class PromptletModalAuth extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-modal-auth': PromptletModalAuth;
+    'wordflow-modal-auth': WordflowModalAuth;
   }
 }

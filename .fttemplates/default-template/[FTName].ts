@@ -8,8 +8,8 @@ import componentCSS from './<FTName>.css?inline';
  * [FTName | sentencecase] element.
  *
  */
-@customElement('promptlet-[FTName]')
-export class PromptLet<FTName | pascalcase> extends LitElement {
+@customElement('wordflow-[FTName]')
+export class Wordflow<FTName | pascalcase> extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -56,6 +56,6 @@ export class PromptLet<FTName | pascalcase> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-<FTName>': PromptLet<FTName | pascalcase>;
+    'wordflow-<FTName>': Wordflow<FTName | pascalcase>;
   }
 }

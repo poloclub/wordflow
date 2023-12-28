@@ -5,7 +5,7 @@ import type {
   PromptDataLocal,
   PromptDataRemote,
   TagData
-} from '../../types/promptlet';
+} from '../../types/wordflow';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
 
 interface PromptPOSTBody extends PromptDataLocal {

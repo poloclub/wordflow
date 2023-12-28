@@ -7,7 +7,7 @@ import {
   queryAsync
 } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { PromptLetTextEditor } from '../text-editor/text-editor';
+import { WordflowTextEditor } from '../text-editor/text-editor';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
@@ -19,13 +19,13 @@ import type {
   PromptDataLocal,
   PromptDataRemote,
   TagData
-} from '../../types/promptlet';
+} from '../../types/wordflow';
 import type { VirtualElement } from '@floating-ui/dom';
-import type { PromptLetSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
-import type { PromptLetFloatingMenu } from '../floating-menu/floating-menu';
+import type { WordflowSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
+import type { WordflowFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
 import type { ModelAuthMessage } from '../modal-auth/modal-auth';
-import type { PromptLetSettingWindow } from '../setting-window/setting-window';
+import type { WordflowSettingWindow } from '../setting-window/setting-window';
 
 // Components
 import '../text-editor/text-editor';
@@ -55,8 +55,8 @@ export interface UpdateSidebarMenuProps {
  * Wordflow element.
  *
  */
-@customElement('promptlet-wordflow')
-export class PromptLetWordflow extends LitElement {
+@customElement('wordflow-wordflow')
+export class WordflowWordflow extends LitElement {
   // ===== Class properties ======
   @queryAsync('#popper-sidebar-box')
   popperSidebarBox: Promise<HTMLElement> | undefined;
@@ -67,8 +67,8 @@ export class PromptLetWordflow extends LitElement {
   @queryAsync('#popper-tooltip')
   popperTooltip: Promise<HTMLElement> | undefined;
 
-  @query('promptlet-text-editor')
-  textEditorElement: PromptLetTextEditor | undefined;
+  @query('wordflow-text-editor')
+  textEditorElement: WordflowTextEditor | undefined;
 
   @query('.center-panel')
   centerPanelElement: HTMLElement | undefined;
@@ -234,8 +234,8 @@ export class PromptLetWordflow extends LitElement {
 
     const popperElement = await this.popperSidebarBox;
     const menuElement = popperElement.querySelector(
-      'promptlet-sidebar-menu'
-    ) as PromptLetSidebarMenu;
+      'wordflow-sidebar-menu'
+    ) as WordflowSidebarMenu;
 
     // Pass data to the menu component
     if (mode) menuElement.mode = mode;
@@ -298,8 +298,8 @@ export class PromptLetWordflow extends LitElement {
     const popperElement = await this.popperSidebarBox;
     const containerBBox = this.centerPanelElement.getBoundingClientRect();
     const menuElement = popperElement.querySelector(
-      'promptlet-sidebar-menu'
-    ) as PromptLetSidebarMenu;
+      'wordflow-sidebar-menu'
+    ) as WordflowSidebarMenu;
 
     if (boxPosition === 'left') {
       // Set the 'is-on-left' property of the component
@@ -391,14 +391,14 @@ export class PromptLetWordflow extends LitElement {
         <div class="left-panel"></div>
         <div class="center-panel">
           <div class="editor-content">
-            <promptlet-text-editor
+            <wordflow-text-editor
               .popperSidebarBox=${this.popperSidebarBox}
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
               .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
               .apiKey=${this.apiKey}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
-            ></promptlet-text-editor>
+            ></wordflow-text-editor>
           </div>
         </div>
         <div class="right-panel"></div>
@@ -407,22 +407,22 @@ export class PromptLetWordflow extends LitElement {
           class="popper-box popper-sidebar-menu hidden"
           id="popper-sidebar-box"
         >
-          <promptlet-sidebar-menu
+          <wordflow-sidebar-menu
             id="right-sidebar-menu"
             @footer-button-clicked=${(e: CustomEvent<string>) =>
               this.sidebarMenuFooterButtonClickedHandler(e)}
-          ></promptlet-sidebar-menu>
+          ></wordflow-sidebar-menu>
         </div>
 
-        <promptlet-modal-auth
+        <wordflow-modal-auth
           class="modal"
           @api-key-added=${(e: CustomEvent<ModelAuthMessage>) => {
             this.apiKey = e.detail.apiKey;
           }}
-        ></promptlet-modal-auth>
+        ></wordflow-modal-auth>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
-          <promptlet-floating-menu
+          <wordflow-floating-menu
             .popperTooltip=${this.popperTooltip}
             .loadingActionIndex=${this.loadingActionIndex}
             .favPrompts=${this.favPrompts}
@@ -435,10 +435,10 @@ export class PromptLetWordflow extends LitElement {
             @setting-button-clicked=${() => {
               this.showSettingWindow = true;
             }}
-          ></promptlet-floating-menu>
+          ></wordflow-floating-menu>
         </div>
 
-        <promptlet-setting-window
+        <wordflow-setting-window
           ?is-hidden=${!this.showSettingWindow}
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
@@ -449,7 +449,7 @@ export class PromptLetWordflow extends LitElement {
           @close-button-clicked=${() => {
             this.showSettingWindow = false;
           }}
-        ></promptlet-setting-window>
+        ></wordflow-setting-window>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>
@@ -468,6 +468,6 @@ export class PromptLetWordflow extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-wordflow': PromptLetWordflow;
+    'wordflow-wordflow': WordflowWordflow;
   }
 }

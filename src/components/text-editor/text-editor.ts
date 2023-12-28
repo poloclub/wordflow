@@ -26,7 +26,7 @@ import type { EditHighlightAttributes } from './edit-highlight';
 import type { CollapseAttributes } from './collapse-node';
 import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
-import type { PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataLocal } from '../../types/wordflow';
 import type { ResolvedPos } from '@tiptap/pm/model';
 import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
 
@@ -51,8 +51,8 @@ const DMP = new DiffMatchPatch();
  * Text editor element.
  *
  */
-@customElement('promptlet-text-editor')
-export class PromptLetTextEditor extends LitElement {
+@customElement('wordflow-text-editor')
+export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -854,7 +854,7 @@ export class PromptLetTextEditor extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-text-editor': PromptLetTextEditor;
+    'wordflow-text-editor': WordflowTextEditor;
   }
 }
 

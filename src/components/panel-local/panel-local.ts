@@ -16,9 +16,9 @@ import '../prompt-editor/prompt-editor';
 import '../confirm-dialog/confirm-dialog';
 
 // Types
-import type { PromptDataLocal, PromptDataRemote } from '../../types/promptlet';
-import type { PromptLetPromptCard } from '../prompt-card/prompt-card';
-import type { PromptLetPromptEditor } from '../prompt-editor/prompt-editor';
+import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
+import type { WordflowPromptCard } from '../prompt-card/prompt-card';
+import type { WordflowPromptEditor } from '../prompt-editor/prompt-editor';
 import type {
   NightjarConfirmDialog,
   DialogInfo
@@ -43,8 +43,8 @@ const promptCountIncrement = 20;
  * Panel local element.
  *
  */
-@customElement('promptlet-panel-local')
-export class PromptLetPanelLocal extends LitElement {
+@customElement('wordflow-panel-local')
+export class WordflowPanelLocal extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -212,7 +212,7 @@ export class PromptLetPanelLocal extends LitElement {
    */
   promptCardDragStarted(e: DragEvent) {
     this.isDraggingPromptCard = true;
-    const target = e.target as PromptLetPromptCard;
+    const target = e.target as WordflowPromptCard;
     target.classList.add('dragging');
     document.body.style.setProperty('cursor', 'grabbing');
 
@@ -269,7 +269,7 @@ export class PromptLetPanelLocal extends LitElement {
    */
   promptCardDragEnded(e: DragEvent) {
     this.isDraggingPromptCard = false;
-    const target = e.target as PromptLetPromptCard;
+    const target = e.target as WordflowPromptCard;
     target.classList.remove('dragging');
     document.body.style.removeProperty('cursor');
 
@@ -493,7 +493,7 @@ export class PromptLetPanelLocal extends LitElement {
             </button>
           </div>
 
-          <promptlet-prompt-card
+          <wordflow-prompt-card
             draggable="true"
             .promptData=${promptData}
             .isLocalPrompt=${true}
@@ -506,7 +506,7 @@ export class PromptLetPanelLocal extends LitElement {
             @dragend=${(e: DragEvent) => {
               this.promptCardDragEnded(e);
             }}
-          ></promptlet-prompt-card>
+          ></wordflow-prompt-card>
         </div>`;
     }
 
@@ -626,14 +626,14 @@ export class PromptLetPanelLocal extends LitElement {
             </div>
 
             <div class="prompt-modal hidden">
-              <promptlet-prompt-editor
+              <wordflow-prompt-editor
                 .promptData=${this.selectedPrompt
                   ? this.selectedPrompt
                   : getEmptyPromptDataLocal()}
                 .isNewPrompt=${this.shouldCreateNewPrompt}
                 .promptManager=${this.promptManager}
                 @close-clicked=${() => this.modalCloseClickHandler()}
-              ></promptlet-prompt-editor>
+              ></wordflow-prompt-editor>
             </div>
           </div>
         </div>
@@ -661,7 +661,7 @@ export class PromptLetPanelLocal extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-panel-local': PromptLetPanelLocal;
+    'wordflow-panel-local': WordflowPanelLocal;
   }
 }
 

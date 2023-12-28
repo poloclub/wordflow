@@ -11,7 +11,7 @@ import { getEmptyPromptDataRemote } from '../panel-community/panel-community';
 import d3 from '../../utils/d3-import';
 
 // Types
-import type { PromptDataRemote } from '../../types/promptlet';
+import type { PromptDataRemote } from '../../types/wordflow';
 
 import crossIcon from '../../images/icon-cross.svg?raw';
 
@@ -26,8 +26,8 @@ interface InfoPair {
  * Prompt viewer element.
  *
  */
-@customElement('promptlet-prompt-viewer')
-export class PromptLetPromptViewer extends LitElement {
+@customElement('wordflow-prompt-viewer')
+export class WordflowPromptViewer extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -265,6 +265,6 @@ export class PromptLetPromptViewer extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-prompt-viewer': PromptLetPromptViewer;
+    'wordflow-prompt-viewer': WordflowPromptViewer;
   }
 }

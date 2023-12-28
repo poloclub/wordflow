@@ -19,7 +19,7 @@ import '../pagination/pagination';
 import '../prompt-viewer/prompt-viewer';
 
 // Types
-import type { PromptDataRemote, TagData } from '../../types/promptlet';
+import type { PromptDataRemote, TagData } from '../../types/wordflow';
 
 // Assets
 import componentCSS from './panel-community.css?inline';
@@ -40,8 +40,8 @@ const fakePrompts = fakePromptsJSON as PromptDataRemote[];
  * Panel community element.
  *
  */
-@customElement('promptlet-panel-community')
-export class PromptLetPanelCommunity extends LitElement {
+@customElement('wordflow-panel-community')
+export class WordflowPanelCommunity extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -313,7 +313,7 @@ export class PromptLetPanelCommunity extends LitElement {
       }
       const curPromptData = this.remotePrompts[curIndex];
       promptCards = html`${promptCards}
-        <promptlet-prompt-card
+        <wordflow-prompt-card
           .promptData=${curPromptData}
           .curSelectedTag=${this.curSelectedTag}
           @click=${() => {
@@ -321,7 +321,7 @@ export class PromptLetPanelCommunity extends LitElement {
           }}
           @tag-clicked=${(e: CustomEvent<string>) =>
             this.promptCardTagClickedHandler(e)}
-        ></promptlet-prompt-card> `;
+        ></wordflow-prompt-card> `;
     }
 
     return html`
@@ -396,13 +396,13 @@ export class PromptLetPanelCommunity extends LitElement {
           </div>
 
           <div class="prompt-modal hidden">
-            <promptlet-prompt-viewer
+            <wordflow-prompt-viewer
               .promptData=${this.selectedPrompt
                 ? this.selectedPrompt
                 : getEmptyPromptDataRemote()}
               .curSelectedTag=${this.curSelectedTag}
               @close-clicked=${() => this.modalCloseClickHandler()}
-            ></promptlet-prompt-viewer>
+            ></wordflow-prompt-viewer>
           </div>
         </div>
       </div>
@@ -418,7 +418,7 @@ export class PromptLetPanelCommunity extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-panel-community': PromptLetPanelCommunity;
+    'wordflow-panel-community': WordflowPanelCommunity;
   }
 }
 

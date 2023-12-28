@@ -8,8 +8,8 @@ import componentCSS from './panel-setting.css?inline';
  * Panel setting element.
  *
  */
-@customElement('promptlet-panel-setting')
-export class PromptLetPanelSetting extends LitElement {
+@customElement('wordflow-panel-setting')
+export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -56,6 +56,6 @@ export class PromptLetPanelSetting extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-panel-setting': PromptLetPanelSetting;
+    'wordflow-panel-setting': WordflowPanelSetting;
   }
 }

@@ -4,7 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { updatePopperTooltip } from '@xiaohk/utils';
 
 // Types
-import type { PromptDataLocal } from '../../types/promptlet';
+import type { PromptDataLocal } from '../../types/wordflow';
 
 // Assets
 import componentCSS from './floating-menu.css?inline';
@@ -14,8 +14,8 @@ import gearIcon from '../../images/icon-gear.svg?raw';
  * Floating menu element.
  *
  */
-@customElement('promptlet-floating-menu')
-export class PromptLetFloatingMenu extends LitElement {
+@customElement('wordflow-floating-menu')
+export class WordflowFloatingMenu extends LitElement {
   // ===== Class properties ======
   @property({ attribute: false })
   popperTooltip: Promise<HTMLElement> | undefined;
@@ -75,7 +75,7 @@ export class PromptLetFloatingMenu extends LitElement {
   }
 
   /**
-   * Notify the parent to take promptlet action
+   * Notify the parent to take wordflow action
    * @param e Mouse event
    * @param index Index of the active tool button
    */
@@ -233,6 +233,6 @@ export class PromptLetFloatingMenu extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-floating-menu': PromptLetFloatingMenu;
+    'wordflow-floating-menu': WordflowFloatingMenu;
   }
 }

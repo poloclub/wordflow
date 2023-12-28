@@ -22,7 +22,7 @@ import type {
   PromptDataLocal,
   PromptDataRemote,
   TagData
-} from '../../types/promptlet';
+} from '../../types/wordflow';
 import type { NightjarToast } from '../toast/toast';
 import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
 
@@ -39,8 +39,8 @@ interface MenuItem {
  * Setting window element.
  *
  */
-@customElement('promptlet-setting-window')
-export class PromptLetSettingWindow extends LitElement {
+@customElement('wordflow-setting-window')
+export class WordflowSettingWindow extends LitElement {
   //==========================================================================||
   //                              Class Properties                            ||
   //==========================================================================||
@@ -187,7 +187,7 @@ export class PromptLetSettingWindow extends LitElement {
     const menuItems: MenuItem[] = [
       {
         name: 'My Prompts',
-        component: html`<promptlet-panel-local
+        component: html`<wordflow-panel-local
           class="setting-panel"
           ?is-shown=${this.activeMenuItemIndex === 0}
           .promptManager=${this.promptManager}
@@ -195,11 +195,11 @@ export class PromptLetSettingWindow extends LitElement {
           .favPrompts=${this.favPrompts}
           @share-clicked=${(e: CustomEvent<SharePromptMessage>) =>
             this.promptEditorShareClicked(e)}
-        ></promptlet-panel-local>`
+        ></wordflow-panel-local>`
       },
       {
         name: 'Community',
-        component: html`<promptlet-panel-community
+        component: html`<wordflow-panel-community
           class="setting-panel"
           ?is-shown=${this.activeMenuItemIndex === 1}
           .remotePromptManager=${this.remotePromptManager}
@@ -207,14 +207,14 @@ export class PromptLetSettingWindow extends LitElement {
           .popularTags=${this.popularTags}
           @add-clicked=${(e: CustomEvent<PromptDataRemote>) =>
             this.promptViewerAddClickHandler(e)}
-        ></promptlet-panel-community>`
+        ></wordflow-panel-community>`
       },
       {
         name: 'Settings',
-        component: html`<promptlet-panel-setting
+        component: html`<wordflow-panel-setting
           class="setting-panel"
           ?is-shown=${this.activeMenuItemIndex === 2}
-        ></promptlet-panel-setting>`
+        ></wordflow-panel-setting>`
       }
     ];
 
@@ -279,6 +279,6 @@ export class PromptLetSettingWindow extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'promptlet-setting-window': PromptLetSettingWindow;
+    'wordflow-setting-window': WordflowSettingWindow;
   }
 }

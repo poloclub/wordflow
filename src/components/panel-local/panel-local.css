@@ -434,7 +434,7 @@ button {
   }
 
   &:has(.prompt-card-menu:hover) {
-    promptlet-prompt-card {
+    wordflow-prompt-card {
       box-shadow:
         0 0 10px hsla(0, 0%, 0%, 0.05),
         0 0 4px hsla(0, 0%, 0%, 0.05);
@@ -442,7 +442,7 @@ button {
   }
 }
 
-promptlet-prompt-card {
+wordflow-prompt-card {
   width: 100%;
   cursor: grab;
   border-radius: 10px;
