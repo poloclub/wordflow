@@ -54,6 +54,9 @@ export class WordflowPanelCommunity extends LitElement {
   @property({ attribute: false })
   popularTags: TagData[] = [];
 
+  @property({ type: Boolean })
+  'is-shown' = false;
+
   @state()
   selectedPrompt: PromptDataRemote | null = fakePrompts[0];
 
@@ -61,7 +64,7 @@ export class WordflowPanelCommunity extends LitElement {
   curMode: 'popular' | 'new' = 'popular';
 
   @state()
-  maxTagsOneLine = 5;
+  maxTagsOneLine = 3;
 
   @state()
   isPopularTagListExpanded = false;
@@ -99,7 +102,7 @@ export class WordflowPanelCommunity extends LitElement {
    * @param changedProperties Property that has been changed
    */
   willUpdate(changedProperties: PropertyValues<this>) {
-    if (changedProperties.has('popularTags')) {
+    if (changedProperties.has('is-shown') && this['is-shown']) {
       if (this.popularTags.length > 0) {
         this.updateMaxTagsOneLine();
       }

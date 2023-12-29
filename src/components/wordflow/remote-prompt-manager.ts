@@ -7,6 +7,7 @@ import type {
   TagData
 } from '../../types/wordflow';
 import fakePromptsJSON from '../../data/fake-prompts-100.json';
+import { config } from '../../config/config';
 
 interface PromptPOSTBody extends PromptDataLocal {
   created: never;
@@ -16,8 +17,7 @@ interface PromptPOSTBody extends PromptDataLocal {
 
 // Constants
 const PREFIX = 'remote-prompt';
-const ENDPOINT =
-  'https://ca99tnaor0.execute-api.localhost.localstack.cloud:4566/prod/records';
+const ENDPOINT = config.urls.wordflowEndpoint;
 const fakePrompts = fakePromptsJSON as PromptDataLocal[];
 
 const userID = localStorage.getItem('user-id')!;
@@ -58,7 +58,7 @@ export class RemotePromptManager {
     // console.time('Populating prompts');
     // this._populateRemotePrompts(55).then(() => {
     //   // Use fake data for testing
-    //   this.getPopularPrompts();
+    //   this.getPromptsByTag('', 'popular');
     //   this.getPopularTags();
     //   console.timeEnd('Populating prompts');
     // });
@@ -103,14 +103,6 @@ export class RemotePromptManager {
     this.promptIsSubset = isSubset === 'true';
 
     this._broadcastRemotePrompts();
-  }
-
-  /**
-   * Fork a remote prompt into local library
-   * @param prompt Remote prompt
-   */
-  forkPrompt(prompt: PromptDataRemote) {
-    // TODO
   }
 
   /**

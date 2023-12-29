@@ -153,22 +153,14 @@
   }
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
 wordflow-setting-window {
   display: flex;
-  animation: fade-in 100ms;
   z-index: 3;
+  transition: opacity 100ms;
+  opacity: 1;
 
   &[is-hidden] {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
   }
 }

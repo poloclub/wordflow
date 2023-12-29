@@ -37,7 +37,6 @@ interface MenuItem {
 
 /**
  * Setting window element.
- *
  */
 @customElement('wordflow-setting-window')
 export class WordflowSettingWindow extends LitElement {

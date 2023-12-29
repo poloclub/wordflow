@@ -12,6 +12,11 @@ const customColors = {
   deletedColor: 'hsl(353, 100%, 93%)'
 };
 
+const urls = {
+  wordflowEndpoint:
+    'https://1e195hl07v.execute-api.localhost.localstack.cloud:4566/prod/records'
+};
+
 const colors = {
   'red-50': 'hsl(350, 100.0%, 96.08%)',
   'red-100': 'hsl(354, 100.0%, 90.2%)',
@@ -289,9 +294,10 @@ const colors = {
 };
 
 export const config = {
+  debug: true,
   colors,
   layout,
   time,
   customColors,
-  debug: true
+  urls
 };

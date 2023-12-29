@@ -4,6 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
 import { textGenGpt } from '../../llms/gpt';
+import { textGenWordflow } from '../../llms/wordflow';
 import '../modal-auth/modal-auth';
 import DiffMatchPatch from 'diff-match-patch';
 
@@ -44,6 +45,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
+const USE_CACHE = false;
 
 const DMP = new DiffMatchPatch();
 
@@ -600,20 +602,30 @@ export class WordflowTextEditor extends LitElement {
       const paragraphNode = $from.node(1);
       const paragraphPos = $from.before(1);
       const oldText = paragraphNode.textContent;
+      const curPrompt = this._formatPrompt(
+        promptData.prompt,
+        oldText,
+        INPUT_TEXT_PLACEHOLDER
+      );
 
-      let curPrompt = '';
-      if (promptData.prompt.includes(INPUT_TEXT_PLACEHOLDER)) {
-        curPrompt = promptData.prompt.replace(INPUT_TEXT_PLACEHOLDER, oldText);
-      } else {
-        curPrompt = promptData.prompt + '\n' + oldText;
-      }
+      // const runRequest = textGenGpt(
+      //   this.apiKey,
+      //   'text-gen',
+      //   curPrompt,
+      //   promptData.temperature,
+      //   USE_CACHE
+      // );
 
-      textGenGpt(
-        this.apiKey,
+      const runRequest = textGenWordflow(
         'text-gen',
-        curPrompt,
-        promptData.temperature
-      ).then(message => {
+        promptData.prompt,
+        oldText,
+        promptData.temperature,
+        promptData.userID,
+        USE_CACHE
+      );
+
+      runRequest.then(message => {
         // Cancel the loading style
         this._setParagraphAttribute($from, 'is-loading', null);
         this._dispatchLoadingFinishedEvent();
@@ -669,20 +681,21 @@ export class WordflowTextEditor extends LitElement {
 
       // Generate new text
       const oldText = state.doc.textBetween($from.pos, $to.pos);
+      const curPrompt = this._formatPrompt(
+        promptData.prompt,
+        oldText,
+        INPUT_TEXT_PLACEHOLDER
+      );
 
-      let curPrompt = '';
-      if (promptData.prompt.includes(INPUT_TEXT_PLACEHOLDER)) {
-        curPrompt = promptData.prompt.replace(INPUT_TEXT_PLACEHOLDER, oldText);
-      } else {
-        curPrompt = promptData.prompt + ' ' + oldText;
-      }
-
-      textGenGpt(
+      const runRequest = textGenGpt(
         this.apiKey,
         'text-gen',
         curPrompt,
-        promptData.temperature
-      ).then(message => {
+        promptData.temperature,
+        USE_CACHE
+      );
+
+      runRequest.then(message => {
         if (this.editor === null) {
           console.error('Editor is not initialized yet.');
           return;
@@ -742,6 +755,23 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+
+  /**
+   * Combine prompt prefix and the input text
+   * @param prompt Prompt prefix
+   * @param inputText Input text
+   * @param placeholder Placeholder string
+   * @returns Formatted prompt
+   */
+  _formatPrompt(prompt: string, inputText: string, placeholder: string) {
+    let curPrompt = '';
+    if (prompt.includes(placeholder)) {
+      curPrompt = prompt.replace(placeholder, inputText);
+    } else {
+      curPrompt = prompt + '\n' + inputText;
+    }
+    return curPrompt;
+  }
 
   /**
    * Parse an LLM output using rules defined in a prompt
