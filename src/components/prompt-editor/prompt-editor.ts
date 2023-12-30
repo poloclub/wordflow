@@ -688,17 +688,6 @@ export class WordflowPromptEditor extends LitElement {
   //                             Private Helpers                              ||
   //==========================================================================||
 
-  /**
-   * Create info as key-value pairs
-   */
-  getInfoPairs() {
-    const infos: InfoPair[] = [];
-    infos.push({ key: 'Models', value: 'gpt-3.5-turbo' });
-    infos.push({ key: 'Injection mode', value: 'in-place' });
-    infos.push({ key: 'Output parsing', value: '.*<output>(.+)</output>.*' });
-    return infos;
-  }
-
   //==========================================================================||
   //                           Templates and Styles                           ||
   //==========================================================================||

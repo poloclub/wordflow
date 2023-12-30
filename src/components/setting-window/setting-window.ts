@@ -10,6 +10,7 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
+import { UserConfig } from '../wordflow/user-config';
 import { v4 as uuidv4 } from 'uuid';
 
 import '../toast/toast';
@@ -65,8 +66,11 @@ export class WordflowSettingWindow extends LitElement {
   @property({ attribute: false })
   popularTags: TagData[] = [];
 
+  @property({ attribute: false })
+  userConfig!: UserConfig;
+
   @state()
-  activeMenuItemIndex = 0;
+  activeMenuItemIndex = 2;
 
   @state()
   toastMessage = '';

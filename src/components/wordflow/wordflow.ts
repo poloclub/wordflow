@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
 import { RemotePromptManager } from './remote-prompt-manager';
+import { UserConfig } from './user-config';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -83,7 +84,7 @@ export class WordflowWordflow extends LitElement {
   workflowElement: HTMLElement | undefined;
 
   @state()
-  showSettingWindow = false;
+  showSettingWindow = true;
 
   @state()
   loadingActionIndex: number | null = null;
@@ -112,6 +113,9 @@ export class WordflowWordflow extends LitElement {
 
   @state()
   popularTags: TagData[] = [];
+
+  @state()
+  userConfig: UserConfig;
 
   @state()
   toastMessage = '';
@@ -168,6 +172,9 @@ export class WordflowWordflow extends LitElement {
     );
 
     this.initDefaultPrompts();
+
+    // Set up the user config store
+    this.userConfig = new UserConfig();
   }
 
   firstUpdated() {
