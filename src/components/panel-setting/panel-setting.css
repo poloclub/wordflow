@@ -209,7 +209,6 @@
       position: relative;
 
       & input {
-        padding-right: 35px;
       }
 
       .right-loader {
@@ -218,6 +217,7 @@
         top: 50%;
         right: 10px;
         transform: translate(0px, -50%);
+        background-color: hsla(0, 100%, 100%, 0.9));
       }
     }
   }
@@ -282,7 +282,7 @@ button {
   all: unset;
 }
 
-.form-button {
+.add-button {
   line-height: 1;
   display: flex;
   gap: 5px;
@@ -301,6 +301,19 @@ button {
 
   &:active {
     background-color: color-mix(in lab, var(--green-600), white 0%);
+  }
+
+  &[has-set] {
+    background-color: var(--gray-600);
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: var(--gray-600);
+    }
+
+    &:active {
+      background-color: var(--gray-600);
+    }
   }
 }
 

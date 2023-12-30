@@ -8,7 +8,13 @@ import {
 } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { UserConfig, SupportedModel } from '../wordflow/user-config';
+import {
+  UserConfigManager,
+  UserConfig,
+  SupportedModel,
+  ModelFamily,
+  modelFamilyMap
+} from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
 import { textGenPalm } from '../../llms/palm';
 
@@ -28,24 +34,15 @@ const apiKeyMap: Record<SupportedModel, string> = {
   [SupportedModel['gemini-pro']]: 'Gemini'
 };
 
-enum ModelFamily {
-  google = 'Google',
-  openAI = 'Open AI'
-}
-
-const modelFamilyMap: Record<SupportedModel, ModelFamily> = {
-  [SupportedModel['gpt-3.5']]: ModelFamily.openAI,
-  [SupportedModel['gpt-3.5-free']]: ModelFamily.openAI,
-  [SupportedModel['gpt-4']]: ModelFamily.openAI,
-  [SupportedModel['gemini-pro']]: ModelFamily.google
-};
-
 const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
   [ModelFamily.openAI]: html`Get the key at
     <a href="https://platform.openai.com/api-keys" target="_blank"
       >Open AI API</a
     >`,
-  [ModelFamily.google]: html`Get the key at <a href="" target="_blank">here</a>`
+  [ModelFamily.google]: html`Get the key at
+    <a href="https://makersuite.google.com/" target="_blank"
+      >Google AI Studio</a
+    >`
 };
 
 /**
@@ -58,10 +55,22 @@ export class WordflowPanelSetting extends LitElement {
   //                              Class Properties                            ||
   //==========================================================================||
   @property({ attribute: false })
+  userConfigManager!: UserConfigManager;
+
+  @property({ attribute: false })
   userConfig!: UserConfig;
 
   @state()
-  selectedModel: SupportedModel = SupportedModel['gpt-3.5-free'];
+  selectedModel: SupportedModel;
+
+  get selectedFamily() {
+    return modelFamilyMap[this.selectedModel];
+  }
+
+  selectedModelFamily: ModelFamily = ModelFamily.openAI;
+
+  @state()
+  apiInputValue = '';
 
   @state()
   showModelLoader = false;
@@ -80,6 +89,7 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   constructor() {
     super();
+    this.selectedModel = SupportedModel['gpt-3.5-free'];
   }
 
   /**
@@ -94,61 +104,22 @@ export class WordflowPanelSetting extends LitElement {
   async initData() {}
 
   // ===== Event Methods ======
-  addButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-
-    if (this.shadowRoot === null) {
-      throw Error('shadowRoot is null');
-    }
-    const requestID = 'auth-call';
-    const prompt = 'The color of sky is';
-    const temperature = 0.8;
-    const modelFamily = modelFamilyMap[this.selectedModel];
-
-    // Parse the api key
-    const apiInputElement = this.shadowRoot.querySelector(
-      'input#text-input-api'
-    ) as HTMLInputElement;
-    const apiKey = apiInputElement.value;
-    this.showModelLoader = true;
-
-    switch (modelFamily) {
-      case ModelFamily.google: {
-        textGenPalm(apiKey, requestID, prompt, temperature, false).then(
-          value => {
-            this.showModelLoader = false;
-            this.textGenMessageHandler(apiKey, value);
-          }
-        );
-        break;
-      }
-
-      case ModelFamily.openAI: {
-        textGenGpt(apiKey, requestID, prompt, temperature, false).then(
-          value => {
-            this.showModelLoader = false;
-            this.textGenMessageHandler(apiKey, value);
-          }
-        );
-        break;
-      }
-
-      default: {
-        console.error(`Unknown model ${modelFamily}`);
-      }
-    }
-  }
-
-  textGenMessageHandler = (apiKey: string, message: TextGenMessage) => {
+  textGenMessageHandler = (
+    modelFamily: ModelFamily,
+    apiKey: string,
+    message: TextGenMessage
+  ) => {
     switch (message.command) {
       case 'finishTextGen': {
         // If the textGen is initialized in the auth function, add the api key
         // to the local storage
         if (message.payload.requestID.includes('auth')) {
-          // Add the api key to the local storage
-          // localStorage.setItem(`${model}APIKey`, apiKey);
-          // Store the key in the data structure
-          console.log(apiKey);
+          // Add the api key to the storage
+          this.userConfigManager.setAPIKey(modelFamily, apiKey);
+
+          this.toastMessage = 'Successfully added an API key';
+          this.toastType = 'success';
+          this.toastComponent?.show();
         }
         break;
       }
@@ -156,10 +127,9 @@ export class WordflowPanelSetting extends LitElement {
       case 'error': {
         if (message.payload.originalCommand === 'startTextGen') {
           console.error(message);
-          console.log('no!');
           this.toastMessage = 'Invalid API key. Try a different key.';
           this.toastType = 'error';
-          this.toastComponent.show();
+          this.toastComponent?.show();
         }
         break;
       }
@@ -174,6 +144,67 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
+  addButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+
+    if (
+      this.userConfig.llmAPIKeys[this.selectedFamily] === this.apiInputValue ||
+      this.apiInputValue === ''
+    ) {
+      return;
+    }
+
+    if (this.shadowRoot === null) {
+      throw Error('shadowRoot is null');
+    }
+    const requestID = 'auth-call';
+    const prompt = 'The color of sky is';
+    const temperature = 0.8;
+
+    // Parse the api key
+    const apiKey = this.apiInputValue;
+    this.showModelLoader = true;
+
+    switch (this.selectedModelFamily) {
+      case ModelFamily.google: {
+        textGenPalm(apiKey, requestID, prompt, temperature, false).then(
+          value => {
+            this.showModelLoader = false;
+            this.textGenMessageHandler(this.selectedModelFamily, apiKey, value);
+          }
+        );
+        break;
+      }
+
+      case ModelFamily.openAI: {
+        textGenGpt(apiKey, requestID, prompt, temperature, false).then(
+          value => {
+            this.showModelLoader = false;
+            this.textGenMessageHandler(this.selectedModelFamily, apiKey, value);
+          }
+        );
+        break;
+      }
+
+      default: {
+        console.error(`Unknown model ${this.selectedModelFamily}`);
+      }
+    }
+  }
+
+  modelSelectChanged(e: InputEvent) {
+    const select = e.currentTarget as HTMLSelectElement;
+
+    // Update the UI
+    this.selectedModel =
+      SupportedModel[select.value as keyof typeof SupportedModel];
+    this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedFamily];
+
+    // Save the preferred LLM if its API is set
+    if (this.userConfig.llmAPIKeys[this.selectedFamily] !== '') {
+      this.userConfigManager.setPreferredLLM(this.selectedModel);
+    }
+  }
 
   //==========================================================================||
   //                             Private Helpers                              ||
@@ -224,13 +255,7 @@ export class WordflowPanelSetting extends LitElement {
                 <select
                   class="model-mode-select"
                   value="${this.selectedModel}"
-                  @change=${(e: InputEvent) => {
-                    const select = e.currentTarget as HTMLSelectElement;
-                    this.selectedModel =
-                      SupportedModel[
-                        select.value as keyof typeof SupportedModel
-                      ];
-                  }}
+                  @change=${(e: InputEvent) => this.modelSelectChanged(e)}
                 >
                   ${modelSelectOptions}
                 </select>
@@ -252,9 +277,7 @@ export class WordflowPanelSetting extends LitElement {
                   >
                 </div>
                 <span class="name-info"
-                  >${apiKeyDescriptionMap[
-                    modelFamilyMap[this.selectedModel]
-                  ]}</span
+                  >${apiKeyDescriptionMap[this.selectedFamily]}</span
                 >
               </div>
 
@@ -264,8 +287,13 @@ export class WordflowPanelSetting extends LitElement {
                     type="text"
                     class="content-text api-input"
                     id="text-input-api"
-                    value=""
+                    value="${this.userConfig.llmAPIKeys[this.selectedFamily]}"
                     placeholder=""
+                    @input=${(e: InputEvent) => {
+                      const element = e.currentTarget as HTMLInputElement;
+                      this.apiInputValue = element.value;
+                      console.log(this.apiInputValue);
+                    }}
                   />
                   <div class="right-loader">
                     <div
@@ -279,10 +307,14 @@ export class WordflowPanelSetting extends LitElement {
                   </div>
                 </div>
                 <button
-                  class="form-button"
+                  class="add-button"
+                  ?has-set=${this.userConfig.llmAPIKeys[this.selectedFamily] ===
+                    this.apiInputValue || this.apiInputValue === ''}
                   @click=${(e: MouseEvent) => this.addButtonClicked(e)}
                 >
-                  Add
+                  ${this.userConfig.llmAPIKeys[this.selectedFamily] === ''
+                    ? 'Add'
+                    : 'Update'}
                 </button>
               </div>
             </section>

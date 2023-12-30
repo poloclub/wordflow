@@ -1,6 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
 import { get, set, del, clear } from 'idb-keyval';
-import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 
 const PREFIX = 'user-config';
 
@@ -11,36 +9,100 @@ export enum SupportedModel {
   'gemini-pro' = 'Gemini Pro'
 }
 
-// const SUPPORTED_MODEL_LABELS: { label: string; name: SupportedModel }[] = [
-//   { label: 'GPT 3.5 (free)', name: 'gpt-3.5-free' },
-//   { label: 'GPT 3.5', name: 'gpt-3.5' },
-//   { label: 'GPT 4', name: 'gpt-4' },
-//   { label: 'Gemini Pro', name: 'gemini-pro' }
-// ];
+export enum ModelFamily {
+  google = 'Google',
+  openAI = 'Open AI'
+}
 
-export class UserConfig {
+export const modelFamilyMap: Record<SupportedModel, ModelFamily> = {
+  [SupportedModel['gpt-3.5']]: ModelFamily.openAI,
+  [SupportedModel['gpt-3.5-free']]: ModelFamily.openAI,
+  [SupportedModel['gpt-4']]: ModelFamily.openAI,
+  [SupportedModel['gemini-pro']]: ModelFamily.google
+};
+
+export interface UserConfig {
+  llmAPIKeys: Record<ModelFamily, string>;
+  preferredLLM: SupportedModel;
+}
+
+export class UserConfigManager {
   restoreFinished: Promise<void>;
-  llmAPIKeys: Record<SupportedModel, string>;
+  updateUserConfig: (userConfig: UserConfig) => void;
 
-  constructor() {
-    this.llmAPIKeys = {
-      [SupportedModel['gpt-3.5-free']]: '',
-      [SupportedModel['gpt-3.5']]: '',
-      [SupportedModel['gpt-4']]: '',
-      [SupportedModel['gemini-pro']]: ''
+  #llmAPIKeys: Record<ModelFamily, string>;
+  #preferredLLM: SupportedModel;
+
+  constructor(updateUserConfig: (userConfig: UserConfig) => void) {
+    this.updateUserConfig = updateUserConfig;
+
+    this.#llmAPIKeys = {
+      [ModelFamily.openAI]: '',
+      [ModelFamily.google]: ''
     };
-    this.restoreFinished = this.restoreFromStorage();
+    this.#preferredLLM = SupportedModel['gpt-3.5-free'];
+    this._broadcastUserConfig();
+
+    this.restoreFinished = this._restoreFromStorage();
+  }
+
+  setAPIKey(modelFamily: ModelFamily, key: string) {
+    this.#llmAPIKeys[modelFamily] = key;
+    this._syncStorage();
+    this._broadcastUserConfig();
+  }
+
+  setPreferredLLM(model: SupportedModel) {
+    this.#preferredLLM = model;
+    this._syncStorage();
+    this._broadcastUserConfig();
   }
 
   /**
    * Reconstruct the prompts from the local storage.
    */
-  async restoreFromStorage() {
+  async _restoreFromStorage() {
     // Restore the local prompts
+    const config = (await get(PREFIX)) as UserConfig | undefined;
+    if (config) {
+      this.#llmAPIKeys = config.llmAPIKeys;
+      this.#preferredLLM = config.preferredLLM;
+    }
+    this._broadcastUserConfig();
   }
 
   /**
-   * Pass the localPrompts to consumers as their localPrompts
+   * Store the current config to local storage
    */
-  _broadcastLocalPrompts() {}
+  async _syncStorage() {
+    const config = this._constructConfig();
+    await set(PREFIX, config);
+  }
+
+  /**
+   * Create a copy of the user config
+   * @returns User config
+   */
+  _constructConfig(): UserConfig {
+    const config: UserConfig = {
+      llmAPIKeys: this.#llmAPIKeys,
+      preferredLLM: this.#preferredLLM
+    };
+    return config;
+  }
+
+  /**
+   * Clean the local storage
+   */
+  async _cleanStorage() {
+    await del(PREFIX);
+  }
+
+  /**
+   * Update the public user config
+   */
+  _broadcastUserConfig() {
+    const newConfig = this._constructConfig();
+    this.updateUserConfig(newConfig);
+  }
 }

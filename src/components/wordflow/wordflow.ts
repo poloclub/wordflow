@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
 import { RemotePromptManager } from './remote-prompt-manager';
-import { UserConfig } from './user-config';
+import { UserConfigManager, UserConfig } from './user-config';
 
 // Types
 import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
@@ -115,7 +115,10 @@ export class WordflowWordflow extends LitElement {
   popularTags: TagData[] = [];
 
   @state()
-  userConfig: UserConfig;
+  userConfigManager: UserConfigManager;
+
+  @state()
+  userConfig!: UserConfig;
 
   @state()
   toastMessage = '';
@@ -174,7 +177,10 @@ export class WordflowWordflow extends LitElement {
     this.initDefaultPrompts();
 
     // Set up the user config store
-    this.userConfig = new UserConfig();
+    const updateUserConfig = (userConfig: UserConfig) => {
+      this.userConfig = userConfig;
+    };
+    this.userConfigManager = new UserConfigManager(updateUserConfig);
   }
 
   firstUpdated() {
@@ -481,6 +487,8 @@ export class WordflowWordflow extends LitElement {
           .remotePromptManager=${this.remotePromptManager}
           .remotePrompts=${this.remotePrompts}
           .popularTags=${this.popularTags}
+          .userConfigManager=${this.userConfigManager}
+          .userConfig=${this.userConfig}
           @close-button-clicked=${() => {
             this.showSettingWindow = false;
           }}
