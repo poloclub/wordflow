@@ -164,3 +164,16 @@ wordflow-setting-window {
     pointer-events: none;
   }
 }
+
+.toast-container {
+  position: absolute;
+  top: 7px;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  nightjar-toast {
+    max-width: 300px;
+  }
+}

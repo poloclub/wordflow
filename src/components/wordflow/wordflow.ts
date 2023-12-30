@@ -25,8 +25,10 @@ import type { WordflowSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { WordflowFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
 import type { WordflowSettingWindow } from '../setting-window/setting-window';
+import type { NightjarToast } from '../toast/toast';
 
 // Components
+import '../toast/toast';
 import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
 import '../floating-menu/floating-menu';
@@ -48,6 +50,11 @@ export interface UpdateSidebarMenuProps {
   mode?: Mode;
   oldText?: string;
   newText?: string;
+}
+
+export interface ToastMessage {
+  message: string;
+  type: 'success' | 'warning' | 'error';
 }
 
 /**
@@ -105,6 +112,15 @@ export class WordflowWordflow extends LitElement {
 
   @state()
   popularTags: TagData[] = [];
+
+  @state()
+  toastMessage = '';
+
+  @state()
+  toastType: 'success' | 'warning' | 'error' = 'success';
+
+  @query('nightjar-toast#toast-wordflow')
+  toastComponent: NightjarToast | undefined;
 
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
@@ -393,6 +409,14 @@ export class WordflowWordflow extends LitElement {
   render() {
     return html`
       <div class="wordflow">
+        <div class="toast-container">
+          <nightjar-toast
+            id="toast-wordflow"
+            message=${this.toastMessage}
+            type=${this.toastType}
+          ></nightjar-toast>
+        </div>
+
         <div class="left-panel"></div>
         <div class="center-panel">
           <div class="editor-content">
@@ -404,6 +428,11 @@ export class WordflowWordflow extends LitElement {
               .apiKey=${this.apiKey}
               .promptManager=${this.promptManager}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
+              @show-toast=${(e: CustomEvent<ToastMessage>) => {
+                this.toastMessage = e.detail.message;
+                this.toastType = e.detail.type;
+                this.toastComponent?.show();
+              }}
             ></wordflow-text-editor>
           </div>
         </div>

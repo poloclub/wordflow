@@ -1,4 +1,9 @@
-import type { PromptRunPostBody, PromptRunResponse } from '../types/wordflow';
+import type { ChatCompletion } from '../types/gpt-types';
+import type {
+  PromptRunPostBody,
+  PromptRunSuccessResponse,
+  PromptRunErrorResponse
+} from '../types/wordflow';
 import { config } from '../config/config';
 
 // Constants
@@ -7,18 +12,16 @@ const ENDPOINT = config.urls.wordflowEndpoint;
 export type TextGenMessage =
   | {
       command: 'finishTextGen';
+      completion?: ChatCompletion;
       payload: {
-        requestID: string;
-        apiKey: string;
         result: string;
-        prompt: string;
+        fullPrompt: string;
         detail: string;
       };
     }
   | {
       command: 'error';
       payload: {
-        requestID: string;
         originalCommand: string;
         message: string;
       };
@@ -43,18 +46,16 @@ export const textGenWordflow = async (
   detail: string = ''
 ) => {
   // Check if the model output is cached
-  const cachedValue = localStorage.getItem('[wordflow]' + prompt);
+  const cachedValue = localStorage.getItem('[wordflow]' + prompt + inputText);
   if (useCache && cachedValue !== null) {
     console.log('Use cached output (text gen)');
     await new Promise(resolve => setTimeout(resolve, 1000));
     const message: TextGenMessage = {
       command: 'finishTextGen',
       payload: {
-        requestID,
-        apiKey: '',
         result: cachedValue,
-        prompt,
-        detail
+        fullPrompt: prompt + inputText,
+        detail: ''
       }
     };
     return message;
@@ -83,27 +84,34 @@ export const textGenWordflow = async (
 
   try {
     const response = await fetch(url.toString(), requestOptions);
-    const data = (await response.json()) as PromptRunResponse;
+    const data = (await response.json()) as
+      | PromptRunSuccessResponse
+      | PromptRunErrorResponse;
     if (response.status !== 200) {
-      throw Error('Wordflow API error' + JSON.stringify(data));
+      // Throw the error to the main thread
+      const errorData = data as PromptRunErrorResponse;
+      const message: TextGenMessage = {
+        command: 'error',
+        payload: {
+          originalCommand: 'startTextGen',
+          message: errorData.payload.message
+        }
+      };
+      return message;
     }
 
+    const successData = data as PromptRunSuccessResponse;
     // Send back the data to the main thread
     const message: TextGenMessage = {
       command: 'finishTextGen',
-      payload: {
-        requestID,
-        apiKey: '',
-        result: data.payload.result,
-        prompt: data.payload.fullPrompt,
-        detail: detail
-      }
+      completion: successData.completion,
+      payload: successData.payload
     };
 
     // Also cache the model output
     if (useCache) {
       if (localStorage.getItem('[wordflow]' + prompt) === null) {
-        localStorage.setItem('[wordflow]' + prompt, data.payload.result);
+        localStorage.setItem('[wordflow]' + prompt, successData.payload.result);
       }
     }
 
@@ -113,9 +121,8 @@ export const textGenWordflow = async (
     const message: TextGenMessage = {
       command: 'error',
       payload: {
-        requestID,
         originalCommand: 'startTextGen',
-        message: JSON.stringify(error)
+        message: 'API failed'
       }
     };
     return message;

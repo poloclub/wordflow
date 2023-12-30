@@ -1,15 +1,24 @@
 // Types for Wordflow
 
-export interface PromptRunResponse {
-  message: string;
-  isFullPromptTruncated: boolean;
-  fullPromptCharLimit: number;
+import type { ChatCompletion } from '../types/gpt-types';
+
+export type PromptRunSuccessResponse = {
+  command: 'finishTextGen';
+  completion: ChatCompletion;
   payload: {
     result: string;
     fullPrompt: string;
     detail: string;
   };
-}
+};
+
+export type PromptRunErrorResponse = {
+  command: 'error';
+  payload: {
+    originalCommand: string;
+    message: string;
+  };
+};
 
 export interface PromptRunPostBody {
   prompt: string;

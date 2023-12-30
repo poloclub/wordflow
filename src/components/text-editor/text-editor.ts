@@ -29,7 +29,10 @@ import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
 import type { PromptDataLocal } from '../../types/wordflow';
 import type { ResolvedPos } from '@tiptap/pm/model';
-import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
+import type {
+  UpdateSidebarMenuProps,
+  ToastMessage
+} from '../wordflow/wordflow';
 import type { PromptManager } from '../wordflow/prompt-manager';
 
 // CSS
@@ -671,7 +674,7 @@ export class WordflowTextEditor extends LitElement {
           }
 
           case 'error': {
-            console.error('Failed to generate text', message.payload);
+            this._handleError(message.payload.message);
           }
         }
       });
@@ -694,7 +697,7 @@ export class WordflowTextEditor extends LitElement {
       );
 
       const runRequest = textGenGpt(
-        this.apiKey,
+        this.apiKey || '',
         'text-gen',
         curPrompt,
         promptData.temperature,
@@ -753,7 +756,7 @@ export class WordflowTextEditor extends LitElement {
           }
 
           case 'error': {
-            console.error('Failed to generate text', message.payload);
+            this._handleError(message.payload.message);
           }
         }
       });
@@ -763,6 +766,29 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+
+  /**
+   * Show a toast when the API call is timed out
+   * @param errorMessage Error message
+   */
+  _handleError(errorMessage: string) {
+    console.error('Failed to generate text', errorMessage);
+
+    let message = 'Failed to run this prompt. Try again later.';
+    if (errorMessage === 'time out') {
+      message = 'Fail to run this prompt (OpenAI API timed out!)';
+    }
+    // Show a toast
+    const event = new CustomEvent<ToastMessage>('show-toast', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        message,
+        type: 'error'
+      }
+    });
+    this.dispatchEvent(event);
+  }
 
   /**
    * Increase the prompt run count by 1
