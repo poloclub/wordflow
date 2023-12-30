@@ -71,7 +71,11 @@ export class RemotePromptManager {
     const url = new URL(ENDPOINT);
     url.searchParams.append('popularTags', 'true');
 
-    const response = await fetch(url.toString());
+    const requestOptions: RequestInit = {
+      method: 'GET',
+      credentials: 'include'
+    };
+    const response = await fetch(url.toString(), requestOptions);
     this.popularTags = (await response.json()) as TagData[];
 
     // Filter ou the empty tag
@@ -95,7 +99,11 @@ export class RemotePromptManager {
       url.searchParams.append('mostPopular', 'true');
     }
 
-    const response = await fetch(url.toString());
+    const requestOptions: RequestInit = {
+      method: 'GET',
+      credentials: 'include'
+    };
+    const response = await fetch(url.toString(), requestOptions);
     this.remotePrompts = (await response.json()) as PromptDataRemote[];
 
     // Check if the response is not complete
@@ -124,20 +132,12 @@ export class RemotePromptManager {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(promptBody)
+      body: JSON.stringify(promptBody),
+      credentials: 'include'
     };
 
     const response = await fetch(url.toString(), requestOptions);
     return response.status;
-  }
-
-  /**
-   * Inference the local prompt
-   * @param prompt Local prompt
-   * @param inputText input text string
-   */
-  runPrompt(prompt: PromptDataLocal, inputText: string) {
-    // TODO
   }
 
   /**
@@ -147,7 +147,11 @@ export class RemotePromptManager {
     const url = new URL(ENDPOINT);
     url.searchParams.append('getAll', 'true');
 
-    const response = await fetch(url.toString());
+    const requestOptions: RequestInit = {
+      method: 'GET',
+      credentials: 'include'
+    };
+    const response = await fetch(url.toString(), requestOptions);
     const data = (await response.json()) as PromptDataRemote[];
     return data;
   }

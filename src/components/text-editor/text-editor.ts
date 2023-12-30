@@ -30,6 +30,7 @@ import type { TextGenMessage } from '../../llms/gpt';
 import type { PromptDataLocal } from '../../types/wordflow';
 import type { ResolvedPos } from '@tiptap/pm/model';
 import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
+import type { PromptManager } from '../wordflow/prompt-manager';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -71,6 +72,9 @@ export class WordflowTextEditor extends LitElement {
 
   @property({ attribute: false })
   updateFloatingMenuXPos: (() => Promise<void>) | undefined;
+
+  @property({ attribute: false })
+  promptManager!: PromptManager;
 
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
@@ -641,6 +645,8 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
+            this._increasePromptRunCount(promptData);
+
             const newText = this._parseOutput(
               promptData,
               message.payload.result
@@ -721,6 +727,8 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
+            this._increasePromptRunCount(promptData);
+
             const newText = this._parseOutput(
               promptData,
               message.payload.result
@@ -755,6 +763,16 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+
+  /**
+   * Increase the prompt run count by 1
+   * @param promptData Prompt data
+   */
+  _increasePromptRunCount(promptData: PromptDataLocal) {
+    const newPrompt = structuredClone(promptData);
+    newPrompt.promptRunCount += 1;
+    this.promptManager.setPrompt(newPrompt);
+  }
 
   /**
    * Combine prompt prefix and the input text

@@ -24,7 +24,6 @@ import type { VirtualElement } from '@floating-ui/dom';
 import type { WordflowSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { WordflowFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
-import type { ModelAuthMessage } from '../modal-auth/modal-auth';
 import type { WordflowSettingWindow } from '../setting-window/setting-window';
 
 // Components
@@ -203,11 +202,17 @@ export class WordflowWordflow extends LitElement {
     );
 
     if (hasAddedDefaultPrompts === null) {
-      for (const prompt of defaultPrompts) {
+      for (const [i, prompt] of defaultPrompts.entries()) {
         // Update some fields
+        prompt.key = uuidv4();
         prompt.userID = userID;
         prompt.created = new Date().toISOString();
         this.promptManager.addPrompt(prompt);
+
+        // Add the first three as fav prompts
+        if (i < 3) {
+          this.promptManager.setFavPrompt(i, prompt);
+        }
       }
       localStorage.setItem('has-added-default-prompts', 'true');
     }
@@ -397,6 +402,7 @@ export class WordflowWordflow extends LitElement {
               .updateSidebarMenu=${this.updateSidebarMenu}
               .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
               .apiKey=${this.apiKey}
+              .promptManager=${this.promptManager}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
             ></wordflow-text-editor>
           </div>
@@ -413,13 +419,6 @@ export class WordflowWordflow extends LitElement {
               this.sidebarMenuFooterButtonClickedHandler(e)}
           ></wordflow-sidebar-menu>
         </div>
-
-        <wordflow-modal-auth
-          class="modal"
-          @api-key-added=${(e: CustomEvent<ModelAuthMessage>) => {
-            this.apiKey = e.detail.apiKey;
-          }}
-        ></wordflow-modal-auth>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <wordflow-floating-menu

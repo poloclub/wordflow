@@ -14,7 +14,7 @@ const customColors = {
 
 const urls = {
   wordflowEndpoint:
-    'https://1e195hl07v.execute-api.localhost.localstack.cloud:4566/prod/records'
+    'https://t4egfjko7g.execute-api.localhost.localstack.cloud:4566/prod/records'
 };
 
 const colors = {

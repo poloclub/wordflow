@@ -165,6 +165,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pagination {

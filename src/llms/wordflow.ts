@@ -77,6 +77,7 @@ export const textGenWordflow = async (
     headers: {
       'Content-Type': 'application/json'
     },
+    credentials: 'include',
     body: JSON.stringify(body)
   };
 
@@ -114,7 +115,7 @@ export const textGenWordflow = async (
       payload: {
         requestID,
         originalCommand: 'startTextGen',
-        message: error as string
+        message: JSON.stringify(error)
       }
     };
     return message;

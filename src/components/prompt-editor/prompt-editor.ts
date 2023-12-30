@@ -519,6 +519,7 @@ export class WordflowPromptEditor extends LitElement {
 
     const stopLoader = (status: number) => {
       contentElement.classList.remove('no-scroll');
+      loaderElement.style.setProperty('top', '0px');
       loaderElement.classList.add('hidden');
 
       // If the status code is 515, the prompt already exists. We should the toast

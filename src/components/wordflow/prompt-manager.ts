@@ -2,19 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { get, set, del, clear } from 'idb-keyval';
 import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 
-import fakePromptsJSON from '../../data/fake-prompts-100.json';
-
 const PREFIX = 'local-prompt';
-
-// Constants
-const fakePrompts = fakePromptsJSON as PromptDataLocal[];
-
-for (const p of fakePrompts) {
-  p.key = uuidv4();
-  p.injectionMode = 'replace';
-  p.temperature = 0.2;
-  p.recommendedModels = [];
-}
 
 export class PromptManager {
   localPrompts: PromptDataLocal[] = [];
@@ -55,14 +43,8 @@ export class PromptManager {
       ]
     ) => void
   ) {
-    this.localPrompts = fakePrompts.slice(0, 4);
     this.localPromptsUpdateCallback = localPromptsUpdateCallback;
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
-
-    this.favPrompts = [null, null, null];
-    this.favPrompts[0] = fakePrompts[0];
-    this.favPrompts[1] = fakePrompts[1];
-    this.favPrompts[2] = fakePrompts[2];
 
     this.favPromptsUpdateCallback = favPromptsUpdateCallback;
     this.favPromptsUpdateCallback(structuredClone(this.favPrompts));
