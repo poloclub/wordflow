@@ -46,7 +46,7 @@
   .header-top {
     width: 100%;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     flex-flow: row;
     font-size: var(--font-u2);
     line-height: 1;

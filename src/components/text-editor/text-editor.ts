@@ -650,10 +650,12 @@ export class WordflowTextEditor extends LitElement {
 
             this._increasePromptRunCount(promptData);
 
-            const newText = this._parseOutput(
-              promptData,
-              message.payload.result
-            );
+            let newText = this._parseOutput(promptData, message.payload.result);
+            // Append the output to the end of the input text if the prompt
+            // uses append mode
+            if (promptData.injectionMode === 'append') {
+              newText = oldText + '\n' + newText;
+            }
 
             let diffText = this.diffParagraph(oldText, newText);
             diffText = `<p>${diffText}</p>`;
@@ -696,11 +698,20 @@ export class WordflowTextEditor extends LitElement {
         INPUT_TEXT_PLACEHOLDER
       );
 
-      const runRequest = textGenGpt(
-        this.apiKey || '',
+      // const runRequest = textGenGpt(
+      //   this.apiKey || '',
+      //   'text-gen',
+      //   curPrompt,
+      //   promptData.temperature,
+      //   USE_CACHE
+      // );
+
+      const runRequest = textGenWordflow(
         'text-gen',
-        curPrompt,
+        promptData.prompt,
+        oldText,
         promptData.temperature,
+        promptData.userID,
         USE_CACHE
       );
 
@@ -732,10 +743,13 @@ export class WordflowTextEditor extends LitElement {
 
             this._increasePromptRunCount(promptData);
 
-            const newText = this._parseOutput(
-              promptData,
-              message.payload.result
-            );
+            let newText = this._parseOutput(promptData, message.payload.result);
+            // Append the output to the end of the input text if the prompt
+            // uses append mode
+            if (promptData.injectionMode === 'append') {
+              newText = oldText + ' ' + newText;
+            }
+
             let diffText = this.diffParagraph(oldText, newText);
             diffText = `${diffText}`;
 
@@ -832,7 +846,9 @@ export class WordflowTextEditor extends LitElement {
     if (replacement === '') {
       replacement = '$1';
     }
-    return output.replace(pattern, replacement);
+
+    const outputText = output.replace(pattern, replacement);
+    return outputText;
   }
 
   /**
