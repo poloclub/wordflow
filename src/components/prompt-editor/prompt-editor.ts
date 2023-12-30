@@ -485,9 +485,23 @@ export class WordflowPromptEditor extends LitElement {
       return;
     }
 
+    if (newPromptData.tags.length > MAX_TAGS_COUNT) {
+      this.toastMessage = `You can only enter at most ${MAX_TAGS_COUNT} tags.`;
+      this.toastType = 'error';
+      this.toastComponent.show();
+      return;
+    }
+
     for (const tag of newPromptData.tags) {
       if (tag.length < 2) {
         this.toastMessage = 'Each tag should have least 2 characters.';
+        this.toastType = 'error';
+        this.toastComponent.show();
+        return;
+      }
+
+      if (tag.length > 20) {
+        this.toastMessage = 'Each tag should have at most 20 characters.';
         this.toastType = 'error';
         this.toastComponent.show();
         return;
