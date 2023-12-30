@@ -587,10 +587,10 @@ export class WordflowTextEditor extends LitElement {
       return;
     }
 
-    if (this.apiKey === null) {
-      console.error('API key is null.');
-      return;
-    }
+    // if (this.apiKey === null) {
+    //   console.error('API key is null.');
+    //   return;
+    // }
 
     const { state } = this.editor.view;
     const { $from, $to } = state.selection;

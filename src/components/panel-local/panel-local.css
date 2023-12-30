@@ -295,7 +295,6 @@ button {
     display: flex;
     flex-flow: row;
     gap: 10px;
-    overflow: hidden;
   }
 }
 
@@ -310,17 +309,27 @@ button {
   font-size: var(--font-d2);
   background-color: white;
   transition: background-color 100ms;
+  position: relative;
 
-  & * {
-    pointer-events: none;
+  &:hover {
+    box-shadow:
+      0 0 10px hsla(0, 0%, 0%, 0.05),
+      0 0 4px hsla(0, 0%, 0%, 0.05);
   }
 
   .prompt-mini-card {
+    border-radius: 10px;
     width: 100%;
+    height: 100%;
+    margin: auto 0px;
     display: flex;
     flex-flow: row;
     padding: 12px;
     gap: 8px;
+    box-sizing: border-box;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
 
     &[is-empty] {
       .title {
@@ -378,66 +387,73 @@ button {
   display: flex;
   width: 100%;
 
-  .prompt-card-menu {
-    border-radius: 10px;
-    overflow: hidden;
-    min-width: 0px;
-
-    background-color: var(--gray-800);
-    color: var(--gray-100);
-
-    display: flex;
-    flex-flow: row;
-    align-items: center;
-    position: absolute;
-    top: 0px;
-    right: 10px;
-    transform: translate(0, -50%);
-    box-shadow: 0 2px 5px hsla(0, 0%, 0%, 0.2);
-
-    opacity: 1;
-    pointer-events: unset;
-    transition: opacity 150ms;
-
-    &[is-hidden] {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    button {
-      width: 100%;
-      height: 100%;
-      padding: 5px 7px;
-      cursor: pointer;
-
-      &:first-child {
-        padding-left: 10px;
-      }
-
-      &:last-child {
-        padding-right: 10px;
-      }
-
-      &:hover {
-        background-color: var(--gray-600);
-      }
-
-      &:active {
-        background-color: var(--gray-700);
-      }
-
-      .svg-icon {
-        width: 13px;
-        height: 13px;
-      }
-    }
-  }
-
   &:has(.prompt-card-menu:hover) {
     wordflow-prompt-card {
       box-shadow:
         0 0 10px hsla(0, 0%, 0%, 0.05),
         0 0 4px hsla(0, 0%, 0%, 0.05);
+    }
+  }
+}
+
+.prompt-card-menu {
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 0px;
+
+  background-color: var(--gray-800);
+  color: var(--gray-100);
+
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  transform: translate(0, -50%);
+  box-shadow: 0 2px 5px hsla(0, 0%, 0%, 0.2);
+
+  opacity: 1;
+  pointer-events: unset;
+  transition: opacity 150ms;
+
+  &[is-hidden] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  button {
+    width: 100%;
+    height: 100%;
+    padding: 5px 7px;
+    cursor: pointer;
+
+    &:first-child {
+      padding-left: 10px;
+    }
+
+    &:last-child {
+      padding-right: 10px;
+    }
+
+    &:hover {
+      background-color: var(--gray-600);
+    }
+
+    &:active {
+      background-color: var(--gray-700);
+    }
+
+    .svg-icon {
+      width: 13px;
+      height: 13px;
+    }
+
+    &.remove-button {
+      .svg-icon {
+        padding: 2px;
+        box-sizing: border-box;
+      }
     }
   }
 }

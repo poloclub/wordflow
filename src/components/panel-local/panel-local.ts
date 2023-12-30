@@ -28,6 +28,7 @@ import type {
 import componentCSS from './panel-local.css?inline';
 import searchIcon from '../../images/icon-search.svg?raw';
 import crossIcon from '../../images/icon-cross-thick.svg?raw';
+import crossSmallIcon from '../../images/icon-cross.svg?raw';
 import sortIcon from '../../images/icon-decrease.svg?raw';
 import deleteIcon from '../../images/icon-delete.svg?raw';
 import editIcon from '../../images/icon-edit-pen.svg?raw';
@@ -72,6 +73,9 @@ export class WordflowPanelLocal extends LitElement {
 
   @state()
   hoveringPromptCardIndex: number | null = null;
+
+  @state()
+  hoveringFavPromptCardIndex: number | null = null;
 
   @state()
   selectedPrompt: PromptDataLocal | null = fakePrompts[0];
@@ -352,18 +356,29 @@ export class WordflowPanelLocal extends LitElement {
    * @param e Mouse event
    * @param button Button name
    */
-  menuIconMouseEntered(e: MouseEvent, button: 'edit' | 'delete') {
+  menuIconMouseEntered(e: MouseEvent, button: 'edit' | 'delete' | 'remove') {
     const target = e.currentTarget as HTMLElement;
 
-    tooltipMouseEnter(
-      e,
-      button === 'edit' ? 'Edit' : 'Delete',
-      'top',
-      this.tooltipConfig,
-      200,
-      target,
-      10
-    );
+    let content = '';
+    switch (button) {
+      case 'edit': {
+        content = 'Edit';
+        break;
+      }
+      case 'delete': {
+        content = 'Delete';
+        break;
+      }
+      case 'remove': {
+        content = 'Remove favorite prompt';
+        break;
+      }
+      default: {
+        console.error(`Unknown button ${button}`);
+      }
+    }
+
+    tooltipMouseEnter(e, content, 'top', this.tooltipConfig, 200, target, 10);
   }
 
   /**
@@ -474,7 +489,6 @@ export class WordflowPanelLocal extends LitElement {
               @mouseleave=${() => this.menuIconMouseLeft()}
               @click=${() => {
                 this.promptCardClicked(promptData);
-                console.log(JSON.stringify(promptData));
               }}
             >
               <span class="svg-icon">${unsafeHTML(editIcon)}</span>
@@ -528,7 +542,43 @@ export class WordflowPanelLocal extends LitElement {
           @drop=${(e: DragEvent) => {
             this.favPromptSlotDropped(e, i);
           }}
+          @mouseenter=${() => {
+            this.hoveringFavPromptCardIndex = i;
+          }}
+          @mouseleave=${() => {
+            this.hoveringFavPromptCardIndex = null;
+          }}
         >
+          <div
+            class="prompt-card-menu"
+            ?is-hidden="${this.hoveringFavPromptCardIndex !== i ||
+            favPrompt === null}"
+          >
+            <button
+              class="edit-button"
+              @mouseenter=${(e: MouseEvent) =>
+                this.menuIconMouseEntered(e, 'edit')}
+              @mouseleave=${() => this.menuIconMouseLeft()}
+              @click=${() => {
+                this.promptCardClicked(favPrompt!);
+              }}
+            >
+              <span class="svg-icon">${unsafeHTML(editIcon)}</span>
+            </button>
+
+            <button
+              class="remove-button"
+              @mouseenter=${(e: MouseEvent) =>
+                this.menuIconMouseEntered(e, 'remove')}
+              @mouseleave=${() => this.menuIconMouseLeft()}
+              @click=${() => {
+                this.promptManager.setFavPrompt(i, null);
+              }}
+            >
+              <span class="svg-icon">${unsafeHTML(crossSmallIcon)}</span>
+            </button>
+          </div>
+
           <div class="prompt-mini-card" ?is-empty=${favPrompt === null}>
             <span class="icon">${favPrompt ? favPrompt.icon : ''}</span>
             <span class="title"

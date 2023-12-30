@@ -261,9 +261,9 @@ export class PromptManager {
    * @param index Index of the prompt in favPrompts to update (fav slot index)
    * @param newPrompt New prompt
    */
-  setFavPrompt(index: number, newPrompt: PromptDataLocal) {
+  setFavPrompt(index: number, newPrompt: PromptDataLocal | null) {
     this.favPrompts[index] = newPrompt;
-    this.favPromptKeys[index] = newPrompt.key;
+    this.favPromptKeys[index] = newPrompt?.key || null;
 
     // Update indexed db
     set(`${PREFIX}-fav-keys`, this.favPromptKeys);
