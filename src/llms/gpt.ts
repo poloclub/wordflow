@@ -40,7 +40,7 @@ export const textGenGpt = async (
   prompt: string,
   temperature: number,
   model: 'gpt-3.5-turbo' | 'gpt-4-1106-preview',
-  useCache: boolean = true,
+  useCache: boolean = false,
   stopSequences: string[] = [],
   detail: string = ''
 ) => {
@@ -112,7 +112,7 @@ export const textGenGpt = async (
     };
 
     // Also cache the model output
-    if (localStorage.getItem('[gpt]' + prompt) === null) {
+    if (useCache && localStorage.getItem('[gpt]' + prompt) === null) {
       localStorage.setItem('[gpt]' + prompt, data.choices[0].message.content);
     }
     return message;

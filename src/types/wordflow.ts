@@ -1,6 +1,7 @@
 // Types for Wordflow
 
 import type { ChatCompletion } from '../types/gpt-types';
+import { SupportedModel } from '../components/wordflow/user-config';
 
 export type PromptRunSuccessResponse = {
   command: 'finishTextGen';
@@ -25,6 +26,7 @@ export interface PromptRunPostBody {
   text: string;
   temperature: number;
   userID: string;
+  model: keyof typeof SupportedModel;
 }
 
 export interface TagData {

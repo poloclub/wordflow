@@ -12,11 +12,12 @@ import {
   UserConfigManager,
   UserConfig,
   SupportedModel,
+  supportedModelReverse,
   ModelFamily,
   modelFamilyMap
 } from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
-import { textGenPalm } from '../../llms/palm';
+import { textGenGemini } from '../../llms/gemini';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 import '../toast/toast';
@@ -65,11 +66,9 @@ export class WordflowPanelSetting extends LitElement {
   @state()
   selectedModel: SupportedModel;
 
-  get selectedFamily() {
+  get selectedModelFamily() {
     return modelFamilyMap[this.selectedModel];
   }
-
-  selectedModelFamily: ModelFamily = ModelFamily.openAI;
 
   @state()
   apiInputValue = '';
@@ -106,6 +105,12 @@ export class WordflowPanelSetting extends LitElement {
     if (changedProperties.has('userConfig')) {
       if (this.selectedModel !== this.userConfig.preferredLLM) {
         this.selectedModel = this.userConfig.preferredLLM;
+
+        // Need to manually update the select element
+        const selectElement = this.shadowRoot!.querySelector(
+          '.model-mode-select'
+        ) as HTMLSelectElement;
+        selectElement.value = supportedModelReverse[this.selectedModel];
       }
     }
   }
@@ -178,7 +183,8 @@ export class WordflowPanelSetting extends LitElement {
     e.preventDefault();
 
     if (
-      this.userConfig.llmAPIKeys[this.selectedFamily] === this.apiInputValue ||
+      this.userConfig.llmAPIKeys[this.selectedModelFamily] ===
+        this.apiInputValue ||
       this.apiInputValue === ''
     ) {
       return;
@@ -197,7 +203,7 @@ export class WordflowPanelSetting extends LitElement {
 
     switch (this.selectedModelFamily) {
       case ModelFamily.google: {
-        textGenPalm(apiKey, requestID, prompt, temperature, false).then(
+        textGenGemini(apiKey, requestID, prompt, temperature, false).then(
           value => {
             this.showModelLoader = false;
             this.textGenMessageHandler(this.selectedModel, apiKey, value);
@@ -233,10 +239,10 @@ export class WordflowPanelSetting extends LitElement {
     // Update the UI
     this.selectedModel =
       SupportedModel[select.value as keyof typeof SupportedModel];
-    this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedFamily];
+    this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
 
     // Save the preferred LLM if its API is set
-    if (this.userConfig.llmAPIKeys[this.selectedFamily] !== '') {
+    if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
       this.userConfigManager.setPreferredLLM(this.selectedModel);
     }
   }
@@ -319,7 +325,7 @@ export class WordflowPanelSetting extends LitElement {
                     this.infoIconMouseLeft();
                   }}
                 >
-                  <div class="name">LLM Model</div>
+                  <div class="name">Preferred Model</div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
                   >
@@ -330,7 +336,7 @@ export class WordflowPanelSetting extends LitElement {
                 <span class="model-mode-text">${this.selectedModel}</span>
                 <select
                   class="model-mode-select"
-                  value="${this.selectedModel}"
+                  value="${supportedModelReverse[this.selectedModel]}"
                   @change=${(e: InputEvent) => this.modelSelectChanged(e)}
                 >
                   ${modelSelectOptions}
@@ -360,7 +366,7 @@ export class WordflowPanelSetting extends LitElement {
                   >
                 </div>
                 <span class="name-info"
-                  >${apiKeyDescriptionMap[this.selectedFamily]}</span
+                  >${apiKeyDescriptionMap[this.selectedModelFamily]}</span
                 >
               </div>
 
@@ -370,7 +376,9 @@ export class WordflowPanelSetting extends LitElement {
                     type="text"
                     class="content-text api-input"
                     id="text-input-api"
-                    value="${this.userConfig.llmAPIKeys[this.selectedFamily]}"
+                    value="${this.userConfig.llmAPIKeys[
+                      this.selectedModelFamily
+                    ]}"
                     placeholder=""
                     @input=${(e: InputEvent) => {
                       const element = e.currentTarget as HTMLInputElement;
@@ -390,11 +398,12 @@ export class WordflowPanelSetting extends LitElement {
                 </div>
                 <button
                   class="add-button"
-                  ?has-set=${this.userConfig.llmAPIKeys[this.selectedFamily] ===
-                    this.apiInputValue || this.apiInputValue === ''}
+                  ?has-set=${this.userConfig.llmAPIKeys[
+                    this.selectedModelFamily
+                  ] === this.apiInputValue || this.apiInputValue === ''}
                   @click=${(e: MouseEvent) => this.addButtonClicked(e)}
                 >
-                  ${this.userConfig.llmAPIKeys[this.selectedFamily] === ''
+                  ${this.userConfig.llmAPIKeys[this.selectedModelFamily] === ''
                     ? 'Add'
                     : 'Update'}
                 </button>

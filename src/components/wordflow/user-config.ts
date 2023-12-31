@@ -9,6 +9,16 @@ export enum SupportedModel {
   'gemini-pro' = 'Gemini Pro'
 }
 
+export const supportedModelReverse: Record<
+  SupportedModel,
+  keyof typeof SupportedModel
+> = {
+  [SupportedModel['gpt-3.5-free']]: 'gpt-3.5-free',
+  [SupportedModel['gpt-3.5']]: 'gpt-3.5',
+  [SupportedModel['gpt-4']]: 'gpt-4',
+  [SupportedModel['gemini-pro']]: 'gemini-pro'
+};
+
 export enum ModelFamily {
   google = 'Google',
   openAI = 'Open AI'

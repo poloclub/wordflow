@@ -6,10 +6,12 @@ import { config } from '../../config/config';
 import {
   UserConfig,
   SupportedModel,
+  supportedModelReverse,
   ModelFamily
 } from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
 import { textGenWordflow } from '../../llms/wordflow';
+import { textGenGemini } from '../../llms/gemini';
 import '../modal-auth/modal-auth';
 import DiffMatchPatch from 'diff-match-patch';
 
@@ -55,7 +57,6 @@ const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
 const USE_CACHE = false;
-
 const DMP = new DiffMatchPatch();
 
 /**
@@ -613,57 +614,9 @@ export class WordflowTextEditor extends LitElement {
       // Find the paragraph node of the cursor's region
       const paragraphNode = $from.node(1);
       const paragraphPos = $from.before(1);
+
       const oldText = paragraphNode.textContent;
-      const curPrompt = this._formatPrompt(
-        promptData.prompt,
-        oldText,
-        INPUT_TEXT_PLACEHOLDER
-      );
-
-      let runRequest: Promise<TextGenMessage>;
-
-      switch (this.userConfig.preferredLLM) {
-        case SupportedModel['gpt-3.5']:
-          runRequest = textGenGpt(
-            this.userConfig.llmAPIKeys[ModelFamily.openAI],
-            'text-gen',
-            curPrompt,
-            promptData.temperature,
-            'gpt-3.5-turbo',
-            USE_CACHE
-          );
-          break;
-        case SupportedModel['gpt-4']:
-          runRequest = textGenGpt(
-            this.userConfig.llmAPIKeys[ModelFamily.openAI],
-            'text-gen',
-            curPrompt,
-            promptData.temperature,
-            'gpt-4-1106-preview',
-            USE_CACHE
-          );
-          break;
-        case SupportedModel['gemini-pro']:
-          // TODO: Update this
-          runRequest = textGenGpt(
-            this.userConfig.llmAPIKeys[ModelFamily.openAI],
-            'text-gen',
-            curPrompt,
-            promptData.temperature,
-            'gpt-3.5-turbo',
-            USE_CACHE
-          );
-          break;
-        default:
-          runRequest = textGenWordflow(
-            'text-gen',
-            promptData.prompt,
-            oldText,
-            promptData.temperature,
-            promptData.userID,
-            USE_CACHE
-          );
-      }
+      const runRequest = this._runPrompt(promptData, oldText);
 
       runRequest.then(message => {
         // Cancel the loading style
@@ -672,6 +625,7 @@ export class WordflowTextEditor extends LitElement {
 
         switch (message.command) {
           case 'finishTextGen': {
+            // Success
             if (this.editor === null) {
               console.error('Editor is not initialized');
               return;
@@ -682,6 +636,22 @@ export class WordflowTextEditor extends LitElement {
             }
 
             this._increasePromptRunCount(promptData);
+
+            // If the users uses their own API key, record the run with only the
+            // prompt prefix
+            if (
+              this.userConfig.preferredLLM !== SupportedModel['gpt-3.5-free']
+            ) {
+              textGenWordflow(
+                'text-gen',
+                promptData.prompt,
+                oldText,
+                promptData.temperature,
+                promptData.userID,
+                supportedModelReverse[this.userConfig.preferredLLM],
+                USE_CACHE
+              );
+            }
 
             let newText = this._parseOutput(promptData, message.payload.result);
             // Append the output to the end of the input text if the prompt
@@ -725,28 +695,7 @@ export class WordflowTextEditor extends LitElement {
 
       // Generate new text
       const oldText = state.doc.textBetween($from.pos, $to.pos);
-      const curPrompt = this._formatPrompt(
-        promptData.prompt,
-        oldText,
-        INPUT_TEXT_PLACEHOLDER
-      );
-
-      // const runRequest = textGenGpt(
-      //   this.apiKey || '',
-      //   'text-gen',
-      //   curPrompt,
-      //   promptData.temperature,
-      //   USE_CACHE
-      // );
-
-      const runRequest = textGenWordflow(
-        'text-gen',
-        promptData.prompt,
-        oldText,
-        promptData.temperature,
-        promptData.userID,
-        USE_CACHE
-      );
+      const runRequest = this._runPrompt(promptData, oldText);
 
       runRequest.then(message => {
         if (this.editor === null) {
@@ -813,6 +762,63 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+
+  /**
+   * Run the given prompt using the preferred model
+   * @returns A promise of the prompt inference
+   */
+  _runPrompt(promptData: PromptDataLocal, inputText: string) {
+    const curPrompt = this._formatPrompt(
+      promptData.prompt,
+      inputText,
+      INPUT_TEXT_PLACEHOLDER
+    );
+
+    let runRequest: Promise<TextGenMessage>;
+
+    switch (this.userConfig.preferredLLM) {
+      case SupportedModel['gpt-3.5']:
+        runRequest = textGenGpt(
+          this.userConfig.llmAPIKeys[ModelFamily.openAI],
+          'text-gen',
+          curPrompt,
+          promptData.temperature,
+          'gpt-3.5-turbo',
+          USE_CACHE
+        );
+        break;
+      case SupportedModel['gpt-4']:
+        runRequest = textGenGpt(
+          this.userConfig.llmAPIKeys[ModelFamily.openAI],
+          'text-gen',
+          curPrompt,
+          promptData.temperature,
+          'gpt-4-1106-preview',
+          USE_CACHE
+        );
+        break;
+      case SupportedModel['gemini-pro']:
+        runRequest = textGenGemini(
+          this.userConfig.llmAPIKeys[ModelFamily.google],
+          'text-gen',
+          curPrompt,
+          promptData.temperature,
+          USE_CACHE
+        );
+        break;
+      default:
+        runRequest = textGenWordflow(
+          'text-gen',
+          promptData.prompt,
+          inputText,
+          promptData.temperature,
+          promptData.userID,
+          'gpt-3.5-free',
+          USE_CACHE
+        );
+    }
+    return runRequest;
+  }
 
   /**
    * Show a toast when the API call is timed out
