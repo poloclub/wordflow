@@ -1,29 +1,10 @@
+import type { TextGenMessage } from './gpt';
 import { HarmCategory, HarmBlockThreshold } from '../types/palm-api-types';
 import type {
   PalmGenerateTextRequestBody,
   PalmGenerateTextResponseBody,
   SafetySetting
 } from '../types/palm-api-types';
-
-export type TextGenMessage =
-  | {
-      command: 'finishTextGen';
-      payload: {
-        requestID: string;
-        apiKey: string;
-        result: string;
-        prompt: string;
-        detail: string;
-      };
-    }
-  | {
-      command: 'error';
-      payload: {
-        requestID: string;
-        originalCommand: string;
-        message: string;
-      };
-    };
 
 /**
  * Use PaLM API to generate text based on a given prompt

@@ -32,12 +32,14 @@ export type TextGenMessage =
  * @param temperature Model temperature
  * @param stopSequences Strings to stop the generation
  * @param detail Extra string information to include (will be returned)
+ * @param model GPT 3.5 or GPT 4
  */
 export const textGenGpt = async (
   apiKey: string,
   requestID: string,
   prompt: string,
   temperature: number,
+  model: 'gpt-3.5-turbo' | 'gpt-4-1106-preview',
   useCache: boolean = true,
   stopSequences: string[] = [],
   detail: string = ''
@@ -49,7 +51,7 @@ export const textGenGpt = async (
   };
 
   const body: ChatCompletionRequest = {
-    model: 'gpt-3.5-turbo',
+    model,
     messages: [message],
     temperature,
     stop: stopSequences

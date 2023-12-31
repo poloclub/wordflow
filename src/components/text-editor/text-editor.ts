@@ -3,6 +3,11 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
+import {
+  UserConfig,
+  SupportedModel,
+  ModelFamily
+} from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
 import { textGenWordflow } from '../../llms/wordflow';
 import '../modal-auth/modal-auth';
@@ -79,6 +84,9 @@ export class WordflowTextEditor extends LitElement {
   @property({ attribute: false })
   promptManager!: PromptManager;
 
+  @property({ attribute: false })
+  userConfig!: UserConfig;
+
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
 
@@ -94,9 +102,6 @@ export class WordflowTextEditor extends LitElement {
   editor: Editor | null = null;
   initialText = OLD_TEXT;
   curEditID = 0;
-
-  @property({ type: String })
-  apiKey: string | null = null;
 
   containerBBox: DOMRect = {
     x: 0,
@@ -615,22 +620,50 @@ export class WordflowTextEditor extends LitElement {
         INPUT_TEXT_PLACEHOLDER
       );
 
-      // const runRequest = textGenGpt(
-      //   this.apiKey,
-      //   'text-gen',
-      //   curPrompt,
-      //   promptData.temperature,
-      //   USE_CACHE
-      // );
+      let runRequest: Promise<TextGenMessage>;
 
-      const runRequest = textGenWordflow(
-        'text-gen',
-        promptData.prompt,
-        oldText,
-        promptData.temperature,
-        promptData.userID,
-        USE_CACHE
-      );
+      switch (this.userConfig.preferredLLM) {
+        case SupportedModel['gpt-3.5']:
+          runRequest = textGenGpt(
+            this.userConfig.llmAPIKeys[ModelFamily.openAI],
+            'text-gen',
+            curPrompt,
+            promptData.temperature,
+            'gpt-3.5-turbo',
+            USE_CACHE
+          );
+          break;
+        case SupportedModel['gpt-4']:
+          runRequest = textGenGpt(
+            this.userConfig.llmAPIKeys[ModelFamily.openAI],
+            'text-gen',
+            curPrompt,
+            promptData.temperature,
+            'gpt-4-1106-preview',
+            USE_CACHE
+          );
+          break;
+        case SupportedModel['gemini-pro']:
+          // TODO: Update this
+          runRequest = textGenGpt(
+            this.userConfig.llmAPIKeys[ModelFamily.openAI],
+            'text-gen',
+            curPrompt,
+            promptData.temperature,
+            'gpt-3.5-turbo',
+            USE_CACHE
+          );
+          break;
+        default:
+          runRequest = textGenWordflow(
+            'text-gen',
+            promptData.prompt,
+            oldText,
+            promptData.temperature,
+            promptData.userID,
+            USE_CACHE
+          );
+      }
 
       runRequest.then(message => {
         // Cancel the loading style

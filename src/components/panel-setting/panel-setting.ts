@@ -22,7 +22,7 @@ import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 import '../toast/toast';
 
 import type { TooltipConfig } from '@xiaohk/utils';
-import type { TextGenMessage } from '../../llms/palm';
+import type { TextGenMessage } from '../../llms/gpt';
 import type { NightjarToast } from '../toast/toast';
 
 // Assets
@@ -128,7 +128,7 @@ export class WordflowPanelSetting extends LitElement {
 
   // ===== Event Methods ======
   textGenMessageHandler = (
-    modelFamily: ModelFamily,
+    model: SupportedModel,
     apiKey: string,
     message: TextGenMessage
   ) => {
@@ -137,8 +137,15 @@ export class WordflowPanelSetting extends LitElement {
         // If the textGen is initialized in the auth function, add the api key
         // to the local storage
         if (message.payload.requestID.includes('auth')) {
+          const modelFamily = modelFamilyMap[model];
+
           // Add the api key to the storage
           this.userConfigManager.setAPIKey(modelFamily, apiKey);
+
+          // Also use set this model as preferred model
+          if (this.selectedModel === model) {
+            this.userConfigManager.setPreferredLLM(model);
+          }
 
           this.toastMessage = 'Successfully added an API key';
           this.toastType = 'success';
@@ -193,19 +200,24 @@ export class WordflowPanelSetting extends LitElement {
         textGenPalm(apiKey, requestID, prompt, temperature, false).then(
           value => {
             this.showModelLoader = false;
-            this.textGenMessageHandler(this.selectedModelFamily, apiKey, value);
+            this.textGenMessageHandler(this.selectedModel, apiKey, value);
           }
         );
         break;
       }
 
       case ModelFamily.openAI: {
-        textGenGpt(apiKey, requestID, prompt, temperature, false).then(
-          value => {
-            this.showModelLoader = false;
-            this.textGenMessageHandler(this.selectedModelFamily, apiKey, value);
-          }
-        );
+        textGenGpt(
+          apiKey,
+          requestID,
+          prompt,
+          temperature,
+          'gpt-3.5-turbo',
+          false
+        ).then(value => {
+          this.showModelLoader = false;
+          this.textGenMessageHandler(this.selectedModel, apiKey, value);
+        });
         break;
       }
 
@@ -363,7 +375,6 @@ export class WordflowPanelSetting extends LitElement {
                     @input=${(e: InputEvent) => {
                       const element = e.currentTarget as HTMLInputElement;
                       this.apiInputValue = element.value;
-                      console.log(this.apiInputValue);
                     }}
                   />
                   <div class="right-loader">

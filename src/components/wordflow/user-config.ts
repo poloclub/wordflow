@@ -44,6 +44,8 @@ export class UserConfigManager {
     this._broadcastUserConfig();
 
     this.restoreFinished = this._restoreFromStorage();
+
+    // this._cleanStorage();
   }
 
   setAPIKey(modelFamily: ModelFamily, key: string) {

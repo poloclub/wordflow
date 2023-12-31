@@ -1,4 +1,4 @@
-import type { ChatCompletion } from '../types/gpt-types';
+import type { TextGenMessage } from './gpt';
 import type {
   PromptRunPostBody,
   PromptRunSuccessResponse,
@@ -8,24 +8,6 @@ import { config } from '../config/config';
 
 // Constants
 const ENDPOINT = config.urls.wordflowEndpoint;
-
-export type TextGenMessage =
-  | {
-      command: 'finishTextGen';
-      completion?: ChatCompletion;
-      payload: {
-        result: string;
-        fullPrompt: string;
-        detail: string;
-      };
-    }
-  | {
-      command: 'error';
-      payload: {
-        originalCommand: string;
-        message: string;
-      };
-    };
 
 /**
  * Use Wordflow to generate text based on a given prompt
@@ -44,7 +26,7 @@ export const textGenWordflow = async (
   userID: string,
   useCache: boolean = true,
   detail: string = ''
-) => {
+): Promise<TextGenMessage> => {
   // Check if the model output is cached
   const cachedValue = localStorage.getItem('[wordflow]' + prompt + inputText);
   if (useCache && cachedValue !== null) {
@@ -53,9 +35,11 @@ export const textGenWordflow = async (
     const message: TextGenMessage = {
       command: 'finishTextGen',
       payload: {
+        requestID: '',
+        apiKey: '',
         result: cachedValue,
-        fullPrompt: prompt + inputText,
-        detail: ''
+        prompt: prompt + inputText,
+        detail: detail
       }
     };
     return message;
@@ -93,6 +77,7 @@ export const textGenWordflow = async (
       const message: TextGenMessage = {
         command: 'error',
         payload: {
+          requestID: requestID,
           originalCommand: 'startTextGen',
           message: errorData.payload.message
         }
@@ -104,8 +89,13 @@ export const textGenWordflow = async (
     // Send back the data to the main thread
     const message: TextGenMessage = {
       command: 'finishTextGen',
-      completion: successData.completion,
-      payload: successData.payload
+      payload: {
+        requestID: '',
+        apiKey: '',
+        result: successData.payload.result,
+        prompt: successData.payload.fullPrompt,
+        detail: detail
+      }
     };
 
     // Also cache the model output
@@ -121,8 +111,9 @@ export const textGenWordflow = async (
     const message: TextGenMessage = {
       command: 'error',
       payload: {
+        requestID: requestID,
         originalCommand: 'startTextGen',
-        message: 'API failed'
+        message: error as string
       }
     };
     return message;

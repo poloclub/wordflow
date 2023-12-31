@@ -84,13 +84,10 @@ export class WordflowWordflow extends LitElement {
   workflowElement: HTMLElement | undefined;
 
   @state()
-  showSettingWindow = true;
+  showSettingWindow = false;
 
   @state()
   loadingActionIndex: number | null = null;
-
-  @state()
-  apiKey: string | null = null;
 
   @state()
   promptManager: PromptManager;
@@ -134,8 +131,6 @@ export class WordflowWordflow extends LitElement {
   // ===== Lifecycle Methods ======
   constructor() {
     super();
-    const model = 'gpt';
-    this.apiKey = localStorage.getItem(`${model}APIKey`);
 
     // Set up user info
     this.initUserID();
@@ -438,8 +433,8 @@ export class WordflowWordflow extends LitElement {
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
               .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
-              .apiKey=${this.apiKey}
               .promptManager=${this.promptManager}
+              .userConfig=${this.userConfig}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}
               @show-toast=${(e: CustomEvent<ToastMessage>) => {
                 this.toastMessage = e.detail.message;
