@@ -17,9 +17,11 @@ import {
 } from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
 import { textGenPalm } from '../../llms/palm';
+import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 import '../toast/toast';
 
+import type { TooltipConfig } from '@xiaohk/utils';
 import type { TextGenMessage } from '../../llms/palm';
 import type { NightjarToast } from '../toast/toast';
 
@@ -84,6 +86,10 @@ export class WordflowPanelSetting extends LitElement {
   @query('nightjar-toast')
   toastComponent: NightjarToast | undefined;
 
+  @query('#popper-tooltip-setting')
+  popperElement: HTMLElement | undefined;
+  tooltipConfig: TooltipConfig | null = null;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -96,7 +102,24 @@ export class WordflowPanelSetting extends LitElement {
    * This method is called before new DOM is updated and rendered
    * @param changedProperties Property that has been changed
    */
-  willUpdate(changedProperties: PropertyValues<this>) {}
+  willUpdate(changedProperties: PropertyValues<this>) {
+    if (changedProperties.has('userConfig')) {
+      if (this.selectedModel !== this.userConfig.preferredLLM) {
+        this.selectedModel = this.userConfig.preferredLLM;
+      }
+    }
+  }
+
+  firstUpdated() {
+    // Bind the tooltip
+    if (this.popperElement) {
+      this.tooltipConfig = {
+        tooltipElement: this.popperElement,
+        mouseenterTimer: null,
+        mouseleaveTimer: null
+      };
+    }
+  }
 
   //==========================================================================||
   //                              Custom Methods                              ||
@@ -206,6 +229,43 @@ export class WordflowPanelSetting extends LitElement {
     }
   }
 
+  /**
+   * Event handler for mouse entering the info icon in each filed
+   * @param e Mouse event
+   * @param field Field type
+   */
+  infoIconMouseEntered(e: MouseEvent, field: 'model' | 'api-key') {
+    let message = '';
+
+    switch (field) {
+      case 'model': {
+        message = 'Preferred LLM model to run the prompts';
+        break;
+      }
+
+      case 'api-key': {
+        message = 'Enter the API key to call the LLM model';
+        break;
+      }
+
+      default: {
+        console.error(`Unknown type ${field}`);
+      }
+    }
+
+    const target = (e.currentTarget as HTMLElement).querySelector(
+      '.info-icon'
+    ) as HTMLElement;
+    tooltipMouseEnter(e, message, 'top', this.tooltipConfig, 200, target, 10);
+  }
+
+  /**
+   * Event handler for mouse leaving the info icon in each filed
+   */
+  infoIconMouseLeft() {
+    tooltipMouseLeave(this.tooltipConfig);
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -240,8 +300,12 @@ export class WordflowPanelSetting extends LitElement {
               <div class="name-row">
                 <div
                   class="name-container"
-                  @mouseenter=${() => {}}
-                  @mouseleave=${() => {}}
+                  @mouseenter=${(e: MouseEvent) => {
+                    this.infoIconMouseEntered(e, 'model');
+                  }}
+                  @mouseleave=${() => {
+                    this.infoIconMouseLeft();
+                  }}
                 >
                   <div class="name">LLM Model</div>
                   <span class="svg-icon info-icon"
@@ -262,12 +326,19 @@ export class WordflowPanelSetting extends LitElement {
               </span>
             </section>
 
-            <section class="content-block content-block-api">
+            <section
+              class="content-block content-block-api"
+              ?no-show=${this.selectedModel === SupportedModel['gpt-3.5-free']}
+            >
               <div class="name-row">
                 <div
                   class="name-container"
-                  @mouseenter=${() => {}}
-                  @mouseleave=${() => {}}
+                  @mouseenter=${(e: MouseEvent) => {
+                    this.infoIconMouseEntered(e, 'api-key');
+                  }}
+                  @mouseleave=${() => {
+                    this.infoIconMouseLeft();
+                  }}
                 >
                   <div class="name">
                     ${apiKeyMap[this.selectedModel]} API Key
@@ -320,6 +391,15 @@ export class WordflowPanelSetting extends LitElement {
             </section>
           </div>
         </form>
+
+        <div
+          id="popper-tooltip-setting"
+          class="popper-tooltip hidden"
+          role="tooltip"
+        >
+          <span class="popper-content"></span>
+          <div class="popper-arrow"></div>
+        </div>
       </div>
     `;
   }
