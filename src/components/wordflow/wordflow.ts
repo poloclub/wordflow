@@ -40,6 +40,10 @@ import '../privacy-dialog/privacy-dialog';
 // Assets
 import componentCSS from './wordflow.css?inline';
 import defaultPromptsJSON from '../../prompts/default-prompts.json';
+import logoIcon from '../../images/wordflow-logo.svg?raw';
+import githubIcon from '../../images/icon-github.svg?raw';
+import fileIcon from '../../images/icon-file.svg?raw';
+import youtubeIcon from '../../images/icon-youtube.svg?raw';
 
 const defaultPrompts = defaultPromptsJSON as PromptDataLocal[];
 
@@ -191,6 +195,17 @@ export class WordflowWordflow extends LitElement {
     const observer = new ResizeObserver(() => {
       this.resizeHandler();
     });
+
+    // Set the logo's position
+    const logoElement = this.shadowRoot!.querySelector(
+      '.logo-container'
+    ) as HTMLElement;
+    const containerBBox = this.centerPanelElement!.getBoundingClientRect();
+    const offsetParentBBox = logoElement.offsetParent!.getBoundingClientRect();
+    logoElement.style.left = 'unset';
+    logoElement.style.right = `${
+      offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
+    }px`;
 
     observer.observe(this.workflowElement);
   }
@@ -469,7 +484,19 @@ export class WordflowWordflow extends LitElement {
           ></nightjar-toast>
         </div>
 
+        <div class="logo-container">
+          <a
+            class="row"
+            href="https://github.com/poloclub/wordflow"
+            target="_blank"
+          >
+            <span class="svg-icon">${unsafeHTML(logoIcon)}</span>
+            <span class="name">Wordflow</span>
+          </a>
+        </div>
+
         <div class="left-panel"></div>
+
         <div class="center-panel">
           <div class="editor-content">
             <wordflow-text-editor
@@ -488,6 +515,7 @@ export class WordflowWordflow extends LitElement {
             ></wordflow-text-editor>
           </div>
         </div>
+
         <div class="right-panel"></div>
 
         <div
