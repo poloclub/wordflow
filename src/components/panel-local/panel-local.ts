@@ -18,7 +18,6 @@ import '../confirm-dialog/confirm-dialog';
 // Types
 import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 import type { WordflowPromptCard } from '../prompt-card/prompt-card';
-import type { WordflowPromptEditor } from '../prompt-editor/prompt-editor';
 import type {
   NightjarConfirmDialog,
   DialogInfo

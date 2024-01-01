@@ -25,8 +25,9 @@ import type { VirtualElement } from '@floating-ui/dom';
 import type { WordflowSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
 import type { WordflowFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
-import type { WordflowSettingWindow } from '../setting-window/setting-window';
+import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
 import type { NightjarToast } from '../toast/toast';
+import type { PrivacyDialog } from '../privacy-dialog/privacy-dialog';
 
 // Components
 import '../toast/toast';
@@ -34,6 +35,7 @@ import '../text-editor/text-editor';
 import '../sidebar-menu/sidebar-menu';
 import '../floating-menu/floating-menu';
 import '../setting-window/setting-window';
+import '../privacy-dialog/privacy-dialog';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
@@ -125,6 +127,9 @@ export class WordflowWordflow extends LitElement {
 
   @query('nightjar-toast#toast-wordflow')
   toastComponent: NightjarToast | undefined;
+
+  @query('wordflow-privacy-dialog')
+  privacyDialogComponent: PrivacyDialog | undefined;
 
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
@@ -400,17 +405,56 @@ export class WordflowWordflow extends LitElement {
       throw Error('workflowElement is undefined');
     }
 
-    // Delegate the event to the text editor component
-    if (!this.textEditorElement) return;
-    const [prompt, index] = e.detail;
-    this.textEditorElement.floatingMenuToolButtonClickHandler(prompt);
+    const handleButtonClick = () => {
+      // Delegate the event to the text editor component
+      if (!this.textEditorElement) return;
+      const [prompt, index] = e.detail;
+      this.textEditorElement.floatingMenuToolButtonClickHandler(prompt);
 
-    // Start the loading animation
-    this.loadingActionIndex = index;
+      // Start the loading animation
+      this.loadingActionIndex = index;
+    };
+
+    // First check if the user has agreed the privacy policy
+    const hasConfirmedPrivacy = localStorage.getItem('has-confirmed-privacy');
+    if (hasConfirmedPrivacy === 'true') {
+      handleButtonClick();
+    } else {
+      if (!this.privacyDialogComponent) {
+        throw Error('privacyDialogComponent is null');
+      }
+      this.privacyDialogComponent.show(handleButtonClick);
+    }
   }
 
   textEditorLoadingFinishedHandler() {
     this.loadingActionIndex = null;
+  }
+
+  promptEditorShareClicked(e: CustomEvent<SharePromptMessage>) {
+    if (!this.toastComponent) {
+      throw Error('Toast is undefined.');
+    }
+
+    const prompt = e.detail.data;
+    const stopLoader = e.detail.stopLoader;
+
+    const handleShareClick = () => {
+      this.remotePromptManager.sharePrompt(prompt).then(status => {
+        stopLoader(status);
+      });
+    };
+
+    // First check if the user has agreed the privacy policy
+    const hasConfirmedPrivacy = localStorage.getItem('has-confirmed-privacy');
+    if (hasConfirmedPrivacy === 'true') {
+      handleShareClick();
+    } else {
+      if (!this.privacyDialogComponent) {
+        throw Error('privacyDialogComponent is null');
+      }
+      this.privacyDialogComponent.show(handleShareClick);
+    }
   }
 
   // ===== Templates and Styles ======
@@ -487,7 +531,11 @@ export class WordflowWordflow extends LitElement {
           @close-button-clicked=${() => {
             this.showSettingWindow = false;
           }}
+          @share-clicked=${(e: CustomEvent<SharePromptMessage>) =>
+            this.promptEditorShareClicked(e)}
         ></wordflow-setting-window>
+
+        <wordflow-privacy-dialog></wordflow-privacy-dialog>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>

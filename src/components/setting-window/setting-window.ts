@@ -150,19 +150,6 @@ export class WordflowSettingWindow extends LitElement {
     this.activeMenuItemIndex = 0;
   }
 
-  promptEditorShareClicked(e: CustomEvent<SharePromptMessage>) {
-    if (!this.toastComponent) {
-      throw Error('Toast is undefined.');
-    }
-
-    const prompt = e.detail.data;
-    const stopLoader = e.detail.stopLoader;
-
-    this.remotePromptManager.sharePrompt(prompt).then(status => {
-      stopLoader(status);
-    });
-  }
-
   closeButtonClicked() {
     const event = new Event('close-button-clicked', {
       bubbles: true,
@@ -199,8 +186,6 @@ export class WordflowSettingWindow extends LitElement {
           .promptManager=${this.promptManager}
           .localPrompts=${this.localPrompts}
           .favPrompts=${this.favPrompts}
-          @share-clicked=${(e: CustomEvent<SharePromptMessage>) =>
-            this.promptEditorShareClicked(e)}
         ></wordflow-panel-local>`
       },
       {
