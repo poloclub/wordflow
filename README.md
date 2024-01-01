@@ -1,8 +1,8 @@
-# Wordflow <a href="https://poloclub.github.io/wordflow/"><picture>
+<h1>Wordflow <a href="https://poloclub.github.io/wordflow/"><picture>
 
   <source media="(prefers-color-scheme: dark)" srcset="https://i.imgur.com/PtyzO16.png">
   <img align="right" alt="Wordflow logo." src="public/android-chrome-192x192.png" width="30" height="30">
-</picture></a>
+</picture></a></h1>
 
 [![Github Actions Status](https://github.com/poloclub/wordflow/workflows/build/badge.svg)](https://github.com/poloclub/wordflow/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/License-MIT-blue)](https://github.com/poloclub/wordflow/blob/main/LICENSE)
