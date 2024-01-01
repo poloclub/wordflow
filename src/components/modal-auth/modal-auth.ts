@@ -2,7 +2,7 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { textGenPalm } from '../../llms/palm';
 import { textGenGpt } from '../../llms/gpt';
-import type { TextGenMessage } from '../../llms/palm';
+import type { TextGenMessage } from '../../llms/gpt';
 
 import componentCSS from './modal-auth.css?inline';
 
@@ -183,12 +183,17 @@ export class WordflowModalAuth extends LitElement {
       }
 
       case 'gpt': {
-        textGenGpt(apiKey, requestID, prompt, temperature, false).then(
-          value => {
-            console.log(value);
-            this.textGenMessageHandler(model, messageElement, value);
-          }
-        );
+        textGenGpt(
+          apiKey,
+          requestID,
+          prompt,
+          temperature,
+          'gpt-3.5-turbo',
+          false
+        ).then(value => {
+          console.log(value);
+          this.textGenMessageHandler(model, messageElement, value);
+        });
         break;
       }
 
