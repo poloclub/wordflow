@@ -14,11 +14,7 @@ export type PromptRunSuccessResponse = {
 };
 
 export type PromptRunErrorResponse = {
-  command: 'error';
-  payload: {
-    originalCommand: string;
-    message: string;
-  };
+  message: string;
 };
 
 export interface PromptRunPostBody {

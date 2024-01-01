@@ -241,9 +241,13 @@ export class WordflowPanelSetting extends LitElement {
       SupportedModel[select.value as keyof typeof SupportedModel];
     this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
 
-    // Save the preferred LLM if its API is set
-    if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
+    if (this.selectedModel === SupportedModel['gpt-3.5-free']) {
       this.userConfigManager.setPreferredLLM(this.selectedModel);
+    } else {
+      // Save the preferred LLM if its API is set
+      if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
+        this.userConfigManager.setPreferredLLM(this.selectedModel);
+      }
     }
   }
 

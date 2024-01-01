@@ -632,6 +632,9 @@ export class WordflowTextEditor extends LitElement {
             }
 
             if (DEV_MODE) {
+              console.info(
+                `Finished running prompt with [${this.userConfig.preferredLLM}]`
+              );
               console.info(message.payload.result);
             }
 
@@ -828,8 +831,13 @@ export class WordflowTextEditor extends LitElement {
     console.error('Failed to generate text', errorMessage);
 
     let message = 'Failed to run this prompt. Try again later.';
+
     if (errorMessage === 'time out') {
       message = 'Fail to run this prompt (OpenAI API timed out!)';
+    }
+
+    if (errorMessage === 'Rate limit exceeded.') {
+      message = 'You have run too many prompts. Try again later.';
     }
     // Show a toast
     const event = new CustomEvent<ToastMessage>('show-toast', {

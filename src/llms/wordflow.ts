@@ -82,7 +82,7 @@ export const textGenWordflow = async (
         payload: {
           requestID: requestID,
           originalCommand: 'startTextGen',
-          message: errorData.payload.message
+          message: errorData.message
         }
       };
       return message;
