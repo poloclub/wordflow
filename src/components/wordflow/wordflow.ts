@@ -191,11 +191,6 @@ export class WordflowWordflow extends LitElement {
     if (this.workflowElement === undefined) {
       throw Error('workflowElement undefined.');
     }
-    // Observe the app's content size and update menu positions accordingly
-    const observer = new ResizeObserver(() => {
-      this.resizeHandler();
-    });
-    observer.observe(this.workflowElement);
   }
 
   /**
@@ -319,8 +314,7 @@ export class WordflowWordflow extends LitElement {
     const idealTop = cursorCoordinate.top + invisibleHeight + lineHeight / 2;
     const boundedTop = Math.min(maxTop, Math.max(minTop, idealTop));
 
-    popperElement.style.top = `${boundedTop}px`;
-    this.updateSidebarMenuXPos(boxPosition);
+    popperElement.style.marginTop = `${boundedTop}px`;
   };
 
   async updateSidebarMenuXPos(boxPosition: 'left' | 'right') {
@@ -360,14 +354,6 @@ export class WordflowWordflow extends LitElement {
   }
 
   // ===== Event Methods ======
-  resizeHandler() {
-    this.updateSidebarMenuXPos(
-      this.lastUpdateSidebarMenuProps
-        ? this.lastUpdateSidebarMenuProps.boxPosition
-        : 'left'
-    );
-  }
-
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     // Delegate the event to the text editor component
     if (!this.textEditorElement) return;
@@ -449,8 +435,30 @@ export class WordflowWordflow extends LitElement {
   render() {
     return html`
       <div class="wordflow">
+        <div class="toast-container">
+          <nightjar-toast
+            id="toast-wordflow"
+            message=${this.toastMessage}
+            type=${this.toastType}
+          ></nightjar-toast>
+        </div>
+
+        <div class="left-panel">
+          <div class="left-padding"></div>
+          <div
+            class="popper-box popper-sidebar-menu hidden"
+            id="popper-sidebar-box"
+          >
+            <wordflow-sidebar-menu
+              id="right-sidebar-menu"
+              @footer-button-clicked=${(e: CustomEvent<string>) =>
+                this.sidebarMenuFooterButtonClickedHandler(e)}
+            ></wordflow-sidebar-menu>
+          </div>
+          <div class="right-padding"></div>
+        </div>
+
         <div class="logo-container">
-          <div class="left"></div>
           <div class="center">
             <a
               class="row"
@@ -461,18 +469,7 @@ export class WordflowWordflow extends LitElement {
               <span class="name">Wordflow</span>
             </a>
           </div>
-          <div class="right"></div>
         </div>
-
-        <div class="toast-container">
-          <nightjar-toast
-            id="toast-wordflow"
-            message=${this.toastMessage}
-            type=${this.toastType}
-          ></nightjar-toast>
-        </div>
-
-        <div class="left-panel"></div>
 
         <div class="center-panel">
           <div class="editor-content">
@@ -493,17 +490,6 @@ export class WordflowWordflow extends LitElement {
         </div>
 
         <div class="right-panel"></div>
-
-        <div
-          class="popper-box popper-sidebar-menu hidden"
-          id="popper-sidebar-box"
-        >
-          <wordflow-sidebar-menu
-            id="right-sidebar-menu"
-            @footer-button-clicked=${(e: CustomEvent<string>) =>
-              this.sidebarMenuFooterButtonClickedHandler(e)}
-          ></wordflow-sidebar-menu>
-        </div>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <wordflow-floating-menu
