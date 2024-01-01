@@ -195,18 +195,6 @@ export class WordflowWordflow extends LitElement {
     const observer = new ResizeObserver(() => {
       this.resizeHandler();
     });
-
-    // Set the logo's position
-    const logoElement = this.shadowRoot!.querySelector(
-      '.logo-container'
-    ) as HTMLElement;
-    const containerBBox = this.centerPanelElement!.getBoundingClientRect();
-    const offsetParentBBox = logoElement.offsetParent!.getBoundingClientRect();
-    logoElement.style.left = 'unset';
-    logoElement.style.right = `${
-      offsetParentBBox.width - containerBBox.x + MENU_X_OFFSET
-    }px`;
-
     observer.observe(this.workflowElement);
   }
 
@@ -371,19 +359,6 @@ export class WordflowWordflow extends LitElement {
     }
   }
 
-  updateFloatingMenuXPos = async () => {
-    if (
-      this.centerPanelElement === undefined ||
-      this.floatingMenuBox === undefined
-    ) {
-      console.error('centerPanelElement is undefined');
-      return;
-    }
-    const containerBBox = this.centerPanelElement.getBoundingClientRect();
-    const floatingMenuBox = await this.floatingMenuBox;
-    floatingMenuBox.style.left = `${containerBBox.x + containerBBox.width}px`;
-  };
-
   // ===== Event Methods ======
   resizeHandler() {
     this.updateSidebarMenuXPos(
@@ -391,8 +366,6 @@ export class WordflowWordflow extends LitElement {
         ? this.lastUpdateSidebarMenuProps.boxPosition
         : 'left'
     );
-
-    this.updateFloatingMenuXPos();
   }
 
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
@@ -476,23 +449,27 @@ export class WordflowWordflow extends LitElement {
   render() {
     return html`
       <div class="wordflow">
+        <div class="logo-container">
+          <div class="left"></div>
+          <div class="center">
+            <a
+              class="row"
+              href="https://github.com/poloclub/wordflow"
+              target="_blank"
+            >
+              <span class="svg-icon">${unsafeHTML(logoIcon)}</span>
+              <span class="name">Wordflow</span>
+            </a>
+          </div>
+          <div class="right"></div>
+        </div>
+
         <div class="toast-container">
           <nightjar-toast
             id="toast-wordflow"
             message=${this.toastMessage}
             type=${this.toastType}
           ></nightjar-toast>
-        </div>
-
-        <div class="logo-container">
-          <a
-            class="row"
-            href="https://github.com/poloclub/wordflow"
-            target="_blank"
-          >
-            <span class="svg-icon">${unsafeHTML(logoIcon)}</span>
-            <span class="name">Wordflow</span>
-          </a>
         </div>
 
         <div class="left-panel"></div>
@@ -503,7 +480,6 @@ export class WordflowWordflow extends LitElement {
               .popperSidebarBox=${this.popperSidebarBox}
               .floatingMenuBox=${this.floatingMenuBox}
               .updateSidebarMenu=${this.updateSidebarMenu}
-              .updateFloatingMenuXPos=${this.updateFloatingMenuXPos}
               .promptManager=${this.promptManager}
               .userConfig=${this.userConfig}
               @loading-finished=${() => this.textEditorLoadingFinishedHandler()}

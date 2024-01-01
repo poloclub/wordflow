@@ -80,9 +80,6 @@ export class WordflowTextEditor extends LitElement {
     | undefined;
 
   @property({ attribute: false })
-  updateFloatingMenuXPos: (() => Promise<void>) | undefined;
-
-  @property({ attribute: false })
   promptManager!: PromptManager;
 
   @property({ attribute: false })
@@ -135,10 +132,7 @@ export class WordflowTextEditor extends LitElement {
     }
 
     this.floatingMenuBox.then(element => {
-      element.style.left = `${
-        this.containerBBox.x + this.containerBBox.width
-      }px`;
-      element.style.top = `${100}px`;
+      element.style.marginTop = `${100}px`;
       element.classList.remove('hidden');
     });
 
@@ -155,8 +149,7 @@ export class WordflowTextEditor extends LitElement {
       this.containerElement === undefined ||
       this.floatingMenuBox === undefined ||
       this.popperSidebarBox === undefined ||
-      this.updateSidebarMenu === undefined ||
-      this.updateFloatingMenuXPos === undefined
+      this.updateSidebarMenu === undefined
     ) {
       console.error(
         'Text editor / select menu element is not added to DOM yet!'
@@ -223,7 +216,6 @@ export class WordflowTextEditor extends LitElement {
     });
 
     const myEventHandler = EventHandler.configure({
-      updateFloatingMenuXPos: this.updateFloatingMenuXPos,
       floatingMenuBox: this.floatingMenuBox
     });
 

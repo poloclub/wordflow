@@ -4,7 +4,6 @@ import { EditorView } from '@tiptap/pm/view';
 import { Editor } from '@tiptap/core';
 
 export interface EventHandlerProps {
-  updateFloatingMenuXPos: () => Promise<void>;
   floatingMenuBox: Promise<HTMLElement>;
 }
 
@@ -61,6 +60,5 @@ const updateFloatingMenuPosition = async (
   const idealTop = cursorCoordinate.top + invisibleHeight + lineHeight / 2;
   const boundedTop = Math.min(maxTop, Math.max(minTop, idealTop));
 
-  floatingMenuBox.style.top = `${boundedTop}px`;
-  options.updateFloatingMenuXPos();
+  floatingMenuBox.style.marginTop = `${boundedTop}px`;
 };

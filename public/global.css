@@ -7,7 +7,6 @@ html {
   -moz-text-size-adjust: 100%;
   scroll-behavior: smooth;
   overscroll-behavior: none;
-  overflow-x: hidden;
 }
 
 html,
