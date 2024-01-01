@@ -25,6 +25,14 @@
   &:focus {
     outline: none;
   }
+
+  p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
 }
 
 button {
@@ -89,6 +97,8 @@ button {
 .text-editor[is-hovering-floating-menu],
 .text-editor {
   & p {
+    margin: 0px;
+    padding: 0px;
     transition: background linear 300ms;
 
     &.is-loading {

@@ -12,6 +12,7 @@ import {
 import { textGenGpt } from '../../llms/gpt';
 import { textGenWordflow } from '../../llms/wordflow';
 import { textGenGemini } from '../../llms/gemini';
+import { WELCOME_TEXT } from './welcome-text';
 import '../modal-auth/modal-auth';
 import DiffMatchPatch from 'diff-match-patch';
 
@@ -20,6 +21,7 @@ import { Editor } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import Paragraph from '@tiptap/extension-paragraph';
 import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { EditHighlight } from './edit-highlight';
 import { LoadingHighlight } from './loading-highlight';
 import { Collapse } from './collapse-node';
@@ -45,11 +47,6 @@ import type { PromptManager } from '../wordflow/prompt-manager';
 // CSS
 import componentCSS from './text-editor.css?inline';
 import { style } from '../../../node_modules/@tiptap/core/src/style';
-
-const OLD_TEXT =
-  "Given thousands of equally accurate machine learning (ML) models, how can users choose among them? A recent ML technique enables domain experts and data scientists to generate a complete Rashomon set for sparse decision trees--a huge set of almost-optimal interpretable ML models. To help ML practitioners identify models with desirable properties from this Rashomon set, we develop TimberTrek, the first interactive visualization system that summarizes thousands of sparse decision trees at scale. Two usage scenarios highlight how TimberTrek can empower users to easily explore, compare, and curate models that align with their domain knowledge and values. Our open-source tool runs directly in users' computational notebooks and web browsers, lowering the barrier to creating more responsible ML models. TimberTrek is available at the following public demo link.";
-const NEW_TEXT =
-  "Given thousands of equally accurate machine learning (ML) models, how can users choose among them? A recent ML technique enables domain experts and data scientists to generate a complete Rashomon set for sparse decision trees—a vast collection of nearly optimal interpretable ML models. To assist ML practitioners in identifying models with desirable properties from this Rashomon set, we have developed TimberTrek, the first interactive visualization system that provides a summary of thousands of sparse decision trees on a large scale. Two usage scenarios demonstrate how TimberTrek empowers users to easily explore, compare, and curate models that align with their domain knowledge and values. Our open-source tool runs directly in users' computational notebooks and web browsers, thereby reducing the barrier to creating more responsible ML models. TimberTrek can be accessed through the following public demo link.";
 
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
@@ -98,7 +95,6 @@ export class WordflowTextEditor extends LitElement {
   isHoveringFloatingMenu = false;
 
   editor: Editor | null = null;
-  initialText = OLD_TEXT;
   curEditID = 0;
 
   containerBBox: DOMRect = {
@@ -219,7 +215,11 @@ export class WordflowTextEditor extends LitElement {
       floatingMenuBox: this.floatingMenuBox
     });
 
-    const defaultText = `<p>${this.initialText}</p>`;
+    const defaultText = `${WELCOME_TEXT}`;
+
+    const myPlaceholder = Placeholder.configure({
+      placeholder: 'Type or paste your text here to start...'
+    });
 
     this.editor = new Editor({
       element: this.editorElement,
@@ -231,11 +231,10 @@ export class WordflowTextEditor extends LitElement {
         myLoadingHighlight,
         Collapse,
         mySidebarMenu,
-        myEventHandler
+        myEventHandler,
+        myPlaceholder
       ],
-      content: `
-        ${defaultText}
-      `,
+      content: defaultText,
       autofocus: true
     });
   }
@@ -468,62 +467,6 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                               Event Handlers                             ||
   //==========================================================================||
-  highlightButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-    if (this.editor === null) {
-      console.error('Editor is not initialized yet.');
-      return;
-    }
-
-    this.editor.chain().focus().toggleHighlight({ color: '#ffc078' }).run();
-  }
-
-  dehighlightButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-    if (this.editor === null) {
-      console.error('Editor is not initialized yet.');
-      return;
-    }
-
-    this.editor
-      .chain()
-      .focus()
-      .unsetMark('edit-highlight', { extendEmptyMarkRange: true })
-      .run();
-  }
-
-  changeButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-
-    if (this.editor === null) {
-      console.warn('Editor is not initialized');
-      return;
-    }
-
-    // Get the word-level differences
-    const oldText = this.editor.getText();
-    const newText = NEW_TEXT;
-    let diffText = this.diffParagraph(oldText, newText);
-    diffText = `<p>${diffText}</p>`;
-
-    this.editor.commands.setContent(diffText);
-  }
-
-  selectButtonClicked(e: MouseEvent) {
-    e.preventDefault();
-
-    if (this.editor === null) {
-      console.error('Editor is not initialized yet.');
-      return;
-    }
-
-    if (this.editor.isActive('edit-highlight')) {
-      const attributes = this.editor.getAttributes(
-        'edit-highlight'
-      ) as EditHighlightAttributes;
-    }
-  }
-
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     switch (e.detail) {
       case 'accept': {
