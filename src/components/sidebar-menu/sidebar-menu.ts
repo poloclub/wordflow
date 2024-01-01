@@ -144,12 +144,6 @@ export class WordflowSidebarMenu extends LitElement {
               <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
             </button>
           </div>
-
-          <div class="group">
-            <button class="button" button-key="explain">
-              <span class="button-label">Explain</span>
-            </button>
-          </div>
         </div>
       </div>
     `;
