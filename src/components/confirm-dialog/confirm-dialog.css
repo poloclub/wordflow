@@ -84,7 +84,7 @@
   width: 100%;
   padding: 0px var(--padding-h) var(--padding-v) var(--padding-h);
 
-  button {
+  & button {
     all: unset;
     cursor: pointer;
     background-color: var(--gray-200);
