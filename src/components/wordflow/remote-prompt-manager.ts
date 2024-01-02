@@ -122,9 +122,8 @@ export class RemotePromptManager {
     url.searchParams.append('type', 'prompt');
 
     const promptBody = { ...prompt } as PromptPOSTBody;
-    // TODO: Clean the properties
-    // delete promptBody.created;
-    // delete promptBody.promptRunCount;
+    delete promptBody.created;
+    delete promptBody.promptRunCount;
     delete promptBody.key;
 
     const requestOptions: RequestInit = {
@@ -138,22 +137,6 @@ export class RemotePromptManager {
 
     const response = await fetch(url.toString(), requestOptions);
     return response.status;
-  }
-
-  /**
-   * Load all records
-   */
-  async _getAllRecords() {
-    const url = new URL(ENDPOINT);
-    url.searchParams.append('getAll', 'true');
-
-    const requestOptions: RequestInit = {
-      method: 'GET',
-      credentials: 'include'
-    };
-    const response = await fetch(url.toString(), requestOptions);
-    const data = (await response.json()) as PromptDataRemote[];
-    return data;
   }
 
   /**

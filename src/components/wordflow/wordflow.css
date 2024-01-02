@@ -150,6 +150,8 @@
     .svg-icon {
       opacity: 0.7;
       filter: grayscale(1);
+      -webkit-transform: translateZ(0);
+
       transition:
         filter 100ms,
         opacity 100ms;

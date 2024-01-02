@@ -53,7 +53,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
-const USE_CACHE = false;
+const USE_CACHE = false && DEV_MODE;
 const DMP = new DiffMatchPatch();
 
 /**
@@ -219,6 +219,9 @@ export class WordflowTextEditor extends LitElement {
     let defaultText = '';
     const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
     if (hasRunAPrompt === null) {
+      defaultText = `${WELCOME_TEXT}`;
+    }
+    if (DEV_MODE) {
       defaultText = `${WELCOME_TEXT}`;
     }
 
@@ -588,7 +591,7 @@ export class WordflowTextEditor extends LitElement {
               textGenWordflow(
                 'text-gen',
                 promptData.prompt,
-                oldText,
+                '',
                 promptData.temperature,
                 promptData.userID,
                 supportedModelReverse[this.userConfig.preferredLLM],
@@ -667,6 +670,22 @@ export class WordflowTextEditor extends LitElement {
             }
 
             this._increasePromptRunCount(promptData);
+
+            // If the users uses their own API key, record the run with only the
+            // prompt prefix
+            if (
+              this.userConfig.preferredLLM !== SupportedModel['gpt-3.5-free']
+            ) {
+              textGenWordflow(
+                'text-gen',
+                promptData.prompt,
+                '',
+                promptData.temperature,
+                promptData.userID,
+                supportedModelReverse[this.userConfig.preferredLLM],
+                USE_CACHE
+              );
+            }
 
             let newText = this._parseOutput(promptData, message.payload.result);
             // Append the output to the end of the input text if the prompt

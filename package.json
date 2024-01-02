@@ -1,6 +1,6 @@
 {
   "name": "wordflow",
-  "private": true,
+  "private": false,
   "version": "0.1.1",
   "type": "module",
   "scripts": {
