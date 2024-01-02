@@ -58,10 +58,15 @@
 
 .right-panel {
   display: flex;
+  flex-flow: column;
   grid-row: 1 / 2;
   grid-column: 3 / 4;
   position: relative;
   z-index: 1;
+
+  .top-padding {
+    flex: 1 1 auto;
+  }
 }
 
 .center-panel {
@@ -76,6 +81,30 @@
   position: relative;
 
   box-sizing: border-box;
+}
+
+.footer-info {
+  position: sticky;
+  bottom: 6px;
+  margin-left: 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column;
+  font-size: var(--font-d3);
+  color: var(--gray-500);
+  line-height: 1.2;
+
+  & a {
+    color: currentColor;
+    text-decoration: none;
+  }
+
+  .row {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .logo-container {
@@ -128,7 +157,7 @@
 
     .name {
       color: var(--gray-500);
-      font-weight: 500;
+      font-weight: 600;
       transition: color 100ms;
     }
 

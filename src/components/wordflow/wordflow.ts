@@ -39,11 +39,12 @@ import '../privacy-dialog/privacy-dialog';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
-import defaultPromptsJSON from '../../prompts/default-prompts.json';
 import logoIcon from '../../images/wordflow-logo.svg?raw';
 import githubIcon from '../../images/icon-github.svg?raw';
 import fileIcon from '../../images/icon-file.svg?raw';
 import youtubeIcon from '../../images/icon-youtube.svg?raw';
+import defaultPromptsJSON from '../../prompts/default-prompts.json';
+import packageInfoJSON from '../../../package.json';
 
 const defaultPrompts = defaultPromptsJSON as PromptDataLocal[];
 
@@ -489,7 +490,31 @@ export class WordflowWordflow extends LitElement {
           </div>
         </div>
 
-        <div class="right-panel"></div>
+        <div class="right-panel">
+          <div class="top-padding"></div>
+          <div class="footer-info">
+            <a
+              class="row"
+              href="https://github.com/poloclub/wordflow"
+              target="_blank"
+              >Version (${packageInfoJSON.version})</a
+            >
+            <div
+              class="row"
+              @click=${() => {
+                this.privacyDialogComponent?.show(() => {});
+              }}
+            >
+              Privacy
+            </div>
+            <a
+              class="row"
+              href="https://github.com/poloclub/wordflow/issues/new"
+              target="_blank"
+              >Report an issue</a
+            >
+          </div>
+        </div>
 
         <div class="floating-menu-box hidden" id="floating-menu-box">
           <wordflow-floating-menu
