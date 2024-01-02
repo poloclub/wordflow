@@ -215,7 +215,12 @@ export class WordflowTextEditor extends LitElement {
       floatingMenuBox: this.floatingMenuBox
     });
 
-    const defaultText = `${WELCOME_TEXT}`;
+    // Show welcome text if the user has never run a prompt
+    let defaultText = '';
+    const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
+    if (hasRunAPrompt === null) {
+      defaultText = `${WELCOME_TEXT}`;
+    }
 
     const myPlaceholder = Placeholder.configure({
       placeholder: 'Type or paste your text here to start...'
@@ -794,6 +799,9 @@ export class WordflowTextEditor extends LitElement {
     const newPrompt = structuredClone(promptData);
     newPrompt.promptRunCount += 1;
     this.promptManager.setPrompt(newPrompt);
+
+    // Also update the local storage
+    localStorage.setItem('has-run-a-prompt', 'true');
   }
 
   /**
