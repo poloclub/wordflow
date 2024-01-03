@@ -436,16 +436,22 @@ export class WordflowTextEditor extends LitElement {
       });
 
       // Replace the text content in the highlight with the old text
-      // TODO: handle deletion
       const tr = state.tr;
-      const newText = schema.text(markAttribute.oldText);
-      const newSelection = TextSelection.create(
-        state.doc,
-        from + newText.nodeSize
-      );
-      // Need to set the selection before replacing the text
-      tr.setSelection(newSelection);
-      tr.replaceWith(from, to, newText);
+
+      if (markAttribute.oldText.length > 0) {
+        // Reject replacement
+        const newText = schema.text(markAttribute.oldText);
+        const newSelection = TextSelection.create(
+          state.doc,
+          from + newText.nodeSize
+        );
+        // Need to set the selection before replacing the text
+        tr.setSelection(newSelection);
+        tr.replaceWith(from, to, newText);
+      } else {
+        // Reject addition
+        tr.delete(from, to);
+      }
       view.dispatch(tr);
       view.focus();
     } else if (this.editor.isActive('collapse')) {
