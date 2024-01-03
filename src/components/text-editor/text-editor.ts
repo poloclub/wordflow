@@ -467,6 +467,50 @@ export class WordflowTextEditor extends LitElement {
     }
   }
 
+  /**
+   * Accept all edits in the selection (replace, add, or delete)
+   */
+  acceptAllChanges() {
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const view = this.editor.view;
+    const state = view.state;
+    const selection = state.selection;
+    const { $from, $to } = selection;
+    const tr = state.tr;
+
+    // Remove all the marks
+    const markType = state.schema.marks['edit-highlight'];
+    tr.removeMark($from.pos, $to.pos, markType);
+
+    // Remove all the collapse nodes
+    let positions: number[] = [];
+    state.doc.nodesBetween($from.pos, $to.pos, (node, pos) => {
+      if (node.type.name === 'collapse') {
+        positions.push(pos);
+      }
+    });
+
+    // Delete from the end to not mess up the pos index
+    positions = positions.reverse();
+
+    for (const pos of positions) {
+      const node = state.doc.nodeAt(pos);
+      if (node) {
+        tr.delete(pos, pos + node.nodeSize);
+      }
+    }
+
+    view.dispatch(tr);
+    view.focus();
+  }
+
+  rejectAllChanges() {
+    console.log('reject all');
+  }
+
   //==========================================================================||
   //                               Event Handlers                             ||
   //==========================================================================||
@@ -479,6 +523,16 @@ export class WordflowTextEditor extends LitElement {
 
       case 'reject': {
         this.rejectChange();
+        break;
+      }
+
+      case 'accept-all': {
+        this.acceptAllChanges();
+        break;
+      }
+
+      case 'reject-all': {
+        this.rejectAllChanges();
         break;
       }
 

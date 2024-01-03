@@ -62,11 +62,11 @@ export class WordflowSidebarMenu extends LitElement {
       },
       delete: {
         backgroundColor: config.customColors.deletedColor,
-        circleColor: config.colors['pink-200']
+        circleColor: config.colors['pink-300']
       },
       summary: {
         backgroundColor: 'inherit',
-        circleColor: config.colors['gray-200']
+        circleColor: config.colors['gray-300']
       }
     };
 
@@ -186,10 +186,16 @@ export class WordflowSidebarMenu extends LitElement {
           @click=${(e: MouseEvent) => this.footerButtonClicked(e)}
         >
           <div class="group">
-            <button class="button" button-key="accept">
+            <button
+              class="button"
+              button-key=${this.mode === 'summary' ? 'accept-all' : 'accept'}
+            >
               <span class="svg-icon">${unsafeHTML(checkIcon)}</span>
             </button>
-            <button class="button" button-key="reject">
+            <button
+              class="button"
+              button-key=${this.mode === 'summary' ? 'reject-all' : 'reject'}
+            >
               <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
             </button>
           </div>
