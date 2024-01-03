@@ -84,6 +84,17 @@
     background-color: var(--gray-200);
     box-sizing: border-box;
 
+    &.summary-text {
+      display: flex;
+      flex-flow: column;
+      gap: 7px;
+      padding: 5px 0;
+
+      .summary-row {
+        padding: 2px 3px;
+      }
+    }
+
     &[is-hidden] {
       display: none;
     }

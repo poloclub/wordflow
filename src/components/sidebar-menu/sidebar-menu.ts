@@ -8,7 +8,13 @@ import checkIcon from '../../images/icon-check.svg?raw';
 import crossIcon from '../../images/icon-cross.svg?raw';
 import questionIcon from '../../images/icon-question.svg?raw';
 
-export type Mode = 'add' | 'replace' | 'delete';
+export type Mode = 'add' | 'replace' | 'delete' | 'summary';
+
+export interface SidebarSummaryCounter {
+  add: number;
+  replace: number;
+  delete: number;
+}
 
 interface Colors {
   backgroundColor: string;
@@ -34,8 +40,12 @@ export class WordflowSidebarMenu extends LitElement {
   @property({ type: String })
   newText = '';
 
+  @property({ attribute: false })
+  summaryCounter: SidebarSummaryCounter | null = null;
+
   modeColorMap: Record<Mode, Colors>;
   headerTextMap: Record<Mode, string>;
+  counterNameMap: Record<keyof SidebarSummaryCounter, string>;
 
   // ===== Lifecycle Methods ======
   constructor() {
@@ -53,13 +63,24 @@ export class WordflowSidebarMenu extends LitElement {
       delete: {
         backgroundColor: config.customColors.deletedColor,
         circleColor: config.colors['pink-200']
+      },
+      summary: {
+        backgroundColor: 'inherit',
+        circleColor: config.colors['gray-200']
       }
     };
 
     this.headerTextMap = {
       add: 'Adding Text',
       replace: 'Replacing Text',
-      delete: 'Removing Text'
+      delete: 'Removing Text',
+      summary: 'Editing Text'
+    };
+
+    this.counterNameMap = {
+      add: 'addition',
+      replace: 'replacement',
+      delete: 'deletion'
     };
   }
 
@@ -98,6 +119,25 @@ export class WordflowSidebarMenu extends LitElement {
 
   // ===== Templates and Styles ======
   render() {
+    // Compose the summary text
+    let summaryText = html``;
+
+    if (this.summaryCounter) {
+      for (const key of Object.keys(this.summaryCounter)) {
+        const k = key as keyof SidebarSummaryCounter;
+        const count = this.summaryCounter[k];
+        if (count > 0) {
+          summaryText = html`${summaryText}
+            <div
+              class="summary-row"
+              style="background-color: ${this.modeColorMap[k].backgroundColor};"
+            >
+              ${count} ${this.counterNameMap[k]}${count > 1 ? 's' : ''}
+            </div>`;
+        }
+      }
+    }
+
     return html`
       <div class="sidebar-menu" ?is-on-left=${this.isOnLeft}>
         <div class="header-row">
@@ -112,7 +152,7 @@ export class WordflowSidebarMenu extends LitElement {
         <div class="content-row">
           <div
             class="text-block old-text"
-            ?is-hidden=${this.mode === 'add'}
+            ?is-hidden=${this.mode === 'add' || this.mode === 'summary'}
             style="background-color: ${this.mode === 'delete'
               ? this.modeColorMap[this.mode].backgroundColor
               : 'inherent'};"
@@ -124,11 +164,20 @@ export class WordflowSidebarMenu extends LitElement {
 
           <div
             class="text-block new-text"
-            ?is-hidden=${this.mode === 'delete'}
+            ?is-hidden=${this.mode === 'delete' || this.mode === 'summary'}
             style="background-color: ${this.modeColorMap[this.mode]
               .backgroundColor};"
           >
             ${this.newText}
+          </div>
+
+          <div
+            class="text-block summary-text"
+            ?is-hidden=${this.mode !== 'summary'}
+            style="background-color: ${this.modeColorMap[this.mode]
+              .backgroundColor};"
+          >
+            ${summaryText}
           </div>
         </div>
 

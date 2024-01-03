@@ -90,7 +90,7 @@
   box-sizing: border-box;
   display: flex;
   flex-flow: column;
-  font-size: var(--font-d3);
+  font-size: var(--font-d4);
   color: var(--gray-500);
   line-height: 1.2;
 

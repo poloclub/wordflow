@@ -53,7 +53,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
-const USE_CACHE = false && DEV_MODE;
+const USE_CACHE = true && DEV_MODE;
 const DMP = new DiffMatchPatch();
 
 /**
@@ -131,11 +131,6 @@ export class WordflowTextEditor extends LitElement {
       element.style.marginTop = `${100}px`;
       element.classList.remove('hidden');
     });
-
-    setTimeout(() => {
-      const e = new Event('click') as MouseEvent;
-      // this.improveButtonClicked(e);
-    }, 300);
   }
 
   initEditor() {

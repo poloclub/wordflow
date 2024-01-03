@@ -4,10 +4,10 @@ import { EditorState, Plugin, PluginKey, PluginView } from '@tiptap/pm/state';
 import { EditorView } from '@tiptap/pm/view';
 
 // Types
-import type { Mode } from '../sidebar-menu/sidebar-menu';
+import type { Mode, SidebarSummaryCounter } from '../sidebar-menu/sidebar-menu';
 import type { EditHighlightAttributes } from './edit-highlight';
 import type { CollapseAttributes } from './collapse-node';
-import type { Node as PMNode } from '@tiptap/pm/model';
+import type { Node as PMNode, Mark } from '@tiptap/pm/model';
 import type { UpdateSidebarMenuProps } from '../wordflow/wordflow';
 
 export interface PopperOptions {
@@ -25,6 +25,12 @@ export interface SidebarMenuPluginProps {
 export type SidebarMenuViewProps = SidebarMenuPluginProps & {
   view: EditorView;
 };
+
+interface MarkCounter {
+  addMarks: Mark[];
+  replaceMarks: Mark[];
+  deleteNodes: PMNode[];
+}
 
 const _getDefaultDomRect = (): DOMRect => {
   return {
@@ -50,6 +56,7 @@ export class SidebarMenuView implements PluginView {
   mode: Mode = 'add';
   oldText = '';
   newText = '';
+  summaryCounter: SidebarSummaryCounter | null = null;
   curBoxPosition: 'left' | 'right' = 'left';
 
   constructor(props: SidebarMenuViewProps) {
@@ -97,7 +104,7 @@ export class SidebarMenuView implements PluginView {
   async update(view: EditorView, oldState?: EditorState) {
     const { state } = view;
     const { doc, selection } = state;
-    const { $from } = selection;
+    const { $from, $to } = selection;
 
     const isSame =
       oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
@@ -108,6 +115,7 @@ export class SidebarMenuView implements PluginView {
 
     let shouldShow = false;
 
+    // Check if the user has clicked the highlighted text
     if (this.editor.isActive('edit-highlight')) {
       if ($from.marks().length > 0) {
         shouldShow = true;
@@ -118,16 +126,52 @@ export class SidebarMenuView implements PluginView {
       }
     }
 
+    // Check if the selected region includes special nodes
+    const counter: MarkCounter = {
+      addMarks: [],
+      replaceMarks: [],
+      deleteNodes: []
+    };
+
+    if (selection) {
+      state.doc.nodesBetween($from.pos, $to.pos, node => {
+        for (const mark of node.marks) {
+          const markAttribute = mark.attrs as EditHighlightAttributes;
+          if (mark.type.name === 'edit-highlight') {
+            if (markAttribute.oldText.length === 0) {
+              counter.addMarks.push(mark);
+            } else {
+              counter.replaceMarks.push(mark);
+            }
+            break;
+          }
+        }
+
+        if (node.type.name === 'collapse') {
+          counter.deleteNodes.push(node);
+        }
+      });
+
+      if (
+        counter.addMarks.length +
+          counter.replaceMarks.length +
+          counter.deleteNodes.length >
+        0
+      ) {
+        shouldShow = true;
+      }
+    }
+
     if (!shouldShow) {
       this.hide();
       return;
     }
 
-    await this.updatePosition(view);
+    await this.updatePosition(view, counter);
     this.show();
   }
 
-  async updatePosition(view: EditorView) {
+  async updatePosition(view: EditorView, markCounter: MarkCounter) {
     const { state } = view;
     const { doc, selection } = state;
     const { $from } = selection;
@@ -202,7 +246,8 @@ export class SidebarMenuView implements PluginView {
         editor: this.editor,
         newText: this.newText,
         oldText: this.oldText,
-        mode: this.mode
+        mode: this.mode,
+        summaryCounter: null
       });
       this.curBoxPosition = boxPosition;
     } else if (this.editor.isActive('collapse')) {
@@ -236,9 +281,63 @@ export class SidebarMenuView implements PluginView {
         editor: this.editor,
         newText: this.newText,
         oldText: this.oldText,
-        mode: this.mode
+        mode: this.mode,
+        summaryCounter: null
       });
       this.curBoxPosition = boxPosition;
+    } else if (
+      markCounter.addMarks.length +
+        markCounter.replaceMarks.length +
+        markCounter.deleteNodes.length >
+      0
+    ) {
+      // Allow users to accept all and reject all
+      this.mode = 'summary';
+      this.oldText = '';
+      this.newText = '';
+
+      // Use the first highlight or collapse node to anchor the sidebar
+      let nodeElement: Element | null = null;
+
+      if (
+        markCounter.addMarks.length > 0 ||
+        markCounter.replaceMarks.length > 0
+      ) {
+        const mark = markCounter.addMarks[0] || markCounter.replaceMarks[0];
+        nodeElement = this.editor.options.element.querySelector(
+          `mark#${mark.attrs.id}`
+        );
+        this.curBoxPosition = boxPosition;
+
+        if (nodeElement === null) {
+          throw Error(`Can't find span#${mark.attrs.id}`);
+        }
+      } else {
+        const node = markCounter.deleteNodes[0];
+        nodeElement = this.editor.options.element.querySelector(
+          `span.collapse-item#${node.attrs.id}`
+        );
+        this.curBoxPosition = boxPosition;
+
+        if (nodeElement === null) {
+          throw Error(`Can't find span#${node.attrs.id}`);
+        }
+      }
+
+      // Update popper
+      this.popperOptions.updateSidebarMenu({
+        anchor: nodeElement,
+        boxPosition,
+        editor: this.editor,
+        newText: this.newText,
+        oldText: this.oldText,
+        mode: this.mode,
+        summaryCounter: {
+          add: markCounter.addMarks.length,
+          replace: markCounter.replaceMarks.length,
+          delete: markCounter.deleteNodes.length
+        }
+      });
     }
   }
 

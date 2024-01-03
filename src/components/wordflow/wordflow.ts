@@ -22,7 +22,11 @@ import type {
   TagData
 } from '../../types/wordflow';
 import type { VirtualElement } from '@floating-ui/dom';
-import type { WordflowSidebarMenu, Mode } from '../sidebar-menu/sidebar-menu';
+import type {
+  WordflowSidebarMenu,
+  Mode,
+  SidebarSummaryCounter
+} from '../sidebar-menu/sidebar-menu';
 import type { WordflowFloatingMenu } from '../floating-menu/floating-menu';
 import type { Editor } from '@tiptap/core';
 import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
@@ -55,6 +59,7 @@ export interface UpdateSidebarMenuProps {
   anchor: Element | VirtualElement;
   editor: Editor;
   boxPosition: 'left' | 'right';
+  summaryCounter: SidebarSummaryCounter | null;
   mode?: Mode;
   oldText?: string;
   newText?: string;
@@ -255,7 +260,8 @@ export class WordflowWordflow extends LitElement {
     editor,
     mode,
     oldText,
-    newText
+    newText,
+    summaryCounter
   }: UpdateSidebarMenuProps) => {
     if (
       this.centerPanelElement === undefined ||
@@ -274,6 +280,11 @@ export class WordflowWordflow extends LitElement {
     if (mode) menuElement.mode = mode;
     if (oldText) menuElement.oldText = oldText;
     if (newText) menuElement.newText = newText;
+    if (summaryCounter) {
+      menuElement.summaryCounter = summaryCounter;
+    } else {
+      menuElement.summaryCounter = null;
+    }
 
     // Cache the props
     this.lastUpdateSidebarMenuProps = {
@@ -282,7 +293,8 @@ export class WordflowWordflow extends LitElement {
       editor,
       mode: menuElement.mode,
       oldText: menuElement.oldText,
-      newText: menuElement.newText
+      newText: menuElement.newText,
+      summaryCounter: menuElement.summaryCounter
     };
 
     const { view } = editor;
