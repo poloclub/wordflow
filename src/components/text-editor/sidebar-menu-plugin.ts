@@ -195,6 +195,8 @@ export class SidebarMenuView implements PluginView {
     // or the collapse node in the selection
     if (this.editor.isActive('edit-highlight')) {
       const mark = $from.marks()[0];
+      if (mark === undefined) return;
+
       const markAttribute = mark.attrs as EditHighlightAttributes;
 
       // Do not shift around the box if user has already selected the element

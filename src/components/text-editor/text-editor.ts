@@ -38,6 +38,7 @@ import type { PopperOptions } from './sidebar-menu-plugin';
 import type { TextGenMessage } from '../../llms/gpt';
 import type { PromptDataLocal } from '../../types/wordflow';
 import type { ResolvedPos } from '@tiptap/pm/model';
+import type { EditorView } from '@tiptap/pm/view';
 import type {
   UpdateSidebarMenuProps,
   ToastMessage
@@ -435,6 +436,7 @@ export class WordflowTextEditor extends LitElement {
       });
 
       // Replace the text content in the highlight with the old text
+      // TODO: handle deletion
       const tr = state.tr;
       const newText = schema.text(markAttribute.oldText);
       const newSelection = TextSelection.create(
@@ -507,8 +509,57 @@ export class WordflowTextEditor extends LitElement {
     view.focus();
   }
 
+  /**
+   * Reject all edits in the selection (replace, add, or delete)
+   */
   rejectAllChanges() {
-    console.log('reject all');
+    if (this.editor === null) {
+      throw Error('Editor is not fully initialized');
+    }
+
+    const view = this.editor.view;
+    const state = view.state;
+    const { selection, schema } = state;
+    const { $from, $to } = selection;
+    const tr = state.tr;
+
+    // To reject a change, we need to replace the new content with old text
+    let posOffset = 0;
+
+    state.doc.nodesBetween($from.pos, $to.pos, (node, pos) => {
+      // Reject adds and replacement
+      for (const mark of node.marks) {
+        const markAttribute = mark.attrs as EditHighlightAttributes;
+        if (mark.type.name === 'edit-highlight') {
+          const markFrom = pos + posOffset;
+          const markTo = pos + node.nodeSize + posOffset;
+
+          if (markAttribute.oldText.length === 0) {
+            // If the old text is empty, delete this mark node
+            tr.delete(markFrom, markTo);
+            posOffset -= node.nodeSize;
+          } else {
+            const newText = schema.text(markAttribute.oldText);
+            tr.replaceWith(markFrom, markTo, newText);
+            posOffset = posOffset - node.nodeSize + newText.nodeSize;
+          }
+        }
+      }
+
+      // Reject deletions
+      if (node.type.name === 'collapse') {
+        const nodeAttrs = node.attrs as CollapseAttributes;
+        const newText = schema.text(nodeAttrs['deleted-text']);
+        const nodeFrom = pos + posOffset;
+        const nodeTo = pos + node.nodeSize + posOffset;
+
+        tr.replaceWith(nodeFrom, nodeTo, newText);
+        posOffset = posOffset - node.nodeSize + newText.nodeSize;
+      }
+    });
+
+    view.dispatch(tr);
+    view.focus();
   }
 
   //==========================================================================||
