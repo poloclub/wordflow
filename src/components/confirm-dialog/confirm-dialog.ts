@@ -78,7 +78,6 @@ export class NightjarConfirmDialog extends LitElement {
     // First check if the user has skipped this action
     const skipDialog = localStorage.getItem(`<skip-confirm>${this.actionKey}`);
 
-    console.log(skipDialog, dialogInfo);
     if (skipDialog === 'true') {
       this.confirmAction();
     } else {

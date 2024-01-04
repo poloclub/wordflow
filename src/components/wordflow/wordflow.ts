@@ -235,18 +235,22 @@ export class WordflowWordflow extends LitElement {
     );
 
     if (hasAddedDefaultPrompts === null) {
-      for (const [i, prompt] of defaultPrompts.entries()) {
+      for (const [_, prompt] of defaultPrompts.entries()) {
         // Update some fields
         prompt.key = uuidv4();
         prompt.userID = userID;
         prompt.created = new Date().toISOString();
         this.promptManager.addPrompt(prompt);
-
-        // Add the first three as fav prompts
-        if (i < 3) {
-          this.promptManager.setFavPrompt(i, prompt);
-        }
       }
+
+      // Add the last three as fav prompts
+      for (const [i, prompt] of defaultPrompts
+        .reverse()
+        .slice(0, 3)
+        .entries()) {
+        this.promptManager.setFavPrompt(i, prompt);
+      }
+
       localStorage.setItem('has-added-default-prompts', 'true');
     }
   }
