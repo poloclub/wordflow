@@ -9,18 +9,18 @@
 
 Social and customizable AI writing assistant tool.
 
-<!-- <table>
+<table>
   <tr>
-    <td colspan="2"><a href="https://poloclub.github.io/supernova"><img src='https://i.imgur.com/wy2NbdR.png'></a></td>
+    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/12b30a97-3970-4719-9b41-3e21c835d04c'></a></td>
   </tr>
   <tr></tr>
   <tr align="center">
-    <td><a href="https://poloclub.github.io/wordflow">🚀 Live Demo: discover and run AI prompts with Wordflow!</a></td>
-    <td><a href="https://youtu.be/3eGqTmsStJM">📺 Demo Video</a></td>
+    <td><a href="https://poloclub.github.io/wordflow">🚀 Live Demo: Run, Discover, and Share AI Prompts!</a></td>
+    <!-- <td><a href="https://youtu.be/3eGqTmsStJM">📺 Demo Video</a></td>
     <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td>
-    <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td>
+    <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td> -->
   </tr>
-</table> -->
+</table>
 
 ## What is Wordflow?
 
@@ -54,7 +54,7 @@ Navigate to localhost:3000. You should see three Explainers running in your brow
 
 ## Credits
 
-WebSHAP is created by <a href='https://zijie.wang/' target='_blank'>Jay Wang</a>, <a href='https://www.linkedin.com/in/achakrav6' target='_blank'>Aishwarya Chakravarthy</a>, <a href='https://davidmunechika.com/' target='_blank'>David Munechika</a>, and <a href='' target='_blank'>Polo Chau</a>.
+Wordflow is created by <a href='https://zijie.wang/' target='_blank'>Jay Wang</a>, <a href='https://www.linkedin.com/in/achakrav6' target='_blank'>Aishwarya Chakravarthy</a>, <a href='https://davidmunechika.com/' target='_blank'>David Munechika</a>, and <a href='' target='_blank'>Polo Chau</a>.
 
 ## License
 
