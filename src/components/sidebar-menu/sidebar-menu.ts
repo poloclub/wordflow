@@ -2,6 +2,11 @@ import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { config } from '../../config/config';
+import {
+  tooltipMouseEnter,
+  tooltipMouseLeave,
+  TooltipConfig
+} from '@xiaohk/utils';
 
 import componentCSS from './sidebar-menu.css?inline';
 import checkIcon from '../../images/icon-check.svg?raw';
@@ -42,6 +47,10 @@ export class WordflowSidebarMenu extends LitElement {
 
   @property({ attribute: false })
   summaryCounter: SidebarSummaryCounter | null = null;
+
+  @query('#popper-tooltip-sidebar')
+  popperElement: HTMLElement | undefined;
+  tooltipConfig: TooltipConfig | null = null;
 
   modeColorMap: Record<Mode, Colors>;
   headerTextMap: Record<Mode, string>;
@@ -90,6 +99,17 @@ export class WordflowSidebarMenu extends LitElement {
    */
   willUpdate(changedProperties: PropertyValues<this>) {}
 
+  firstUpdated() {
+    // Bind the tooltip
+    if (this.popperElement) {
+      this.tooltipConfig = {
+        tooltipElement: this.popperElement,
+        mouseenterTimer: null,
+        mouseleaveTimer: null
+      };
+    }
+  }
+
   // ===== Custom Methods ======
   async initData() {}
 
@@ -117,6 +137,23 @@ export class WordflowSidebarMenu extends LitElement {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Event handler for mouse entering the info icon in each filed
+   * @param e Mouse event
+   * @param field Field type
+   */
+  buttonMouseEntered(e: MouseEvent, message: string) {
+    const target = e.currentTarget as HTMLElement;
+    tooltipMouseEnter(e, message, 'top', this.tooltipConfig, 200, target, 10);
+  }
+
+  /**
+   * Event handler for mouse leaving the info icon in each filed
+   */
+  buttonMouseLeft() {
+    tooltipMouseLeave(this.tooltipConfig);
+  }
+
   // ===== Templates and Styles ======
   render() {
     // Compose the summary text
@@ -140,6 +177,15 @@ export class WordflowSidebarMenu extends LitElement {
 
     return html`
       <div class="sidebar-menu" ?is-on-left=${this.isOnLeft}>
+        <div
+          id="popper-tooltip-sidebar"
+          class="popper-tooltip hidden"
+          role="tooltip"
+        >
+          <span class="popper-content"></span>
+          <div class="popper-arrow"></div>
+        </div>
+
         <div class="header-row">
           <span
             class="header-circle"
@@ -189,12 +235,24 @@ export class WordflowSidebarMenu extends LitElement {
             <button
               class="button"
               button-key=${this.mode === 'summary' ? 'accept-all' : 'accept'}
+              @mouseenter=${(e: MouseEvent) =>
+                this.buttonMouseEntered(
+                  e,
+                  this.mode === 'summary' ? 'Accept all' : 'Accept'
+                )}
+              @mouseleave=${() => this.buttonMouseLeft()}
             >
               <span class="svg-icon">${unsafeHTML(checkIcon)}</span>
             </button>
             <button
               class="button"
               button-key=${this.mode === 'summary' ? 'reject-all' : 'reject'}
+              @mouseenter=${(e: MouseEvent) =>
+                this.buttonMouseEntered(
+                  e,
+                  this.mode === 'summary' ? 'Reject all' : 'Reject'
+                )}
+              @mouseleave=${() => this.buttonMouseLeft()}
             >
               <span class="svg-icon">${unsafeHTML(crossIcon)}</span>
             </button>
