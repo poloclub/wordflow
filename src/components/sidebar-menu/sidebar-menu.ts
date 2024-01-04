@@ -36,6 +36,9 @@ export class WordflowSidebarMenu extends LitElement {
   @property({ type: Boolean })
   isOnLeft = true;
 
+  @property({ type: Boolean })
+  isHidden = false;
+
   @property({ type: String })
   mode: Mode = 'add';
 
@@ -176,7 +179,11 @@ export class WordflowSidebarMenu extends LitElement {
     }
 
     return html`
-      <div class="sidebar-menu" ?is-on-left=${this.isOnLeft}>
+      <div
+        class="sidebar-menu"
+        ?is-on-left=${this.isOnLeft}
+        ?is-hidden=${this.isHidden}
+      >
         <div
           id="popper-tooltip-sidebar"
           class="popper-tooltip hidden"

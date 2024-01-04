@@ -428,7 +428,6 @@ export class WordflowWordflow extends LitElement {
 
     const handleShareClick = () => {
       this.remotePromptManager.sharePrompt(prompt).then(status => {
-        console.log(status);
         stopLoader(status);
       });
     };

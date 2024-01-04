@@ -26,6 +26,12 @@
       justify-content: flex-end;
     }
   }
+
+  &[is-hidden] {
+    & button {
+      cursor: default;
+    }
+  }
 }
 
 .header-row {

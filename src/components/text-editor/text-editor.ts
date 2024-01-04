@@ -687,7 +687,7 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            this._increasePromptRunCount(promptData);
+            this._updateAfterSuccessfulPromptRun(promptData);
 
             // If the users uses their own API key, record the run with only the
             // prompt prefix
@@ -775,7 +775,7 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            this._increasePromptRunCount(promptData);
+            this._updateAfterSuccessfulPromptRun(promptData);
 
             // If the users uses their own API key, record the run with only the
             // prompt prefix
@@ -920,7 +920,7 @@ export class WordflowTextEditor extends LitElement {
    * Increase the prompt run count by 1
    * @param promptData Prompt data
    */
-  _increasePromptRunCount(promptData: PromptDataLocal) {
+  _updateAfterSuccessfulPromptRun(promptData: PromptDataLocal) {
     const newPrompt = structuredClone(promptData);
     newPrompt.promptRunCount += 1;
     this.promptManager.setPrompt(newPrompt);

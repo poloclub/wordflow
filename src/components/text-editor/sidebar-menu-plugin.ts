@@ -346,12 +346,24 @@ export class SidebarMenuView implements PluginView {
   async show() {
     const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
     popperSidebarBoxElement.classList.remove('hidden');
+
+    // Also set the component's attribute to set button's cursor to default when hidden
+    const sidebarComponent = popperSidebarBoxElement.querySelector(
+      'wordflow-sidebar-menu'
+    );
+    sidebarComponent?.removeAttribute('isHidden');
   }
 
   async hide() {
     this.curShownActiveID = null;
     const popperSidebarBoxElement = await this.popperOptions.popperSidebarBox;
     popperSidebarBoxElement.classList.add('hidden');
+
+    // Also set the component's attribute to set button's cursor to default when hidden
+    const sidebarComponent = popperSidebarBoxElement.querySelector(
+      'wordflow-sidebar-menu'
+    );
+    sidebarComponent?.setAttribute('isHidden', 'true');
   }
 
   destroy() {
