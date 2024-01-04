@@ -132,6 +132,14 @@ export class WordflowTextEditor extends LitElement {
       element.style.marginTop = `${100}px`;
       element.classList.remove('hidden');
     });
+
+    window.addEventListener('beforeunload', () => {
+      if (this.editor !== null) {
+        // Save the editor's content to local storage
+        const content = this.editor.getHTML();
+        localStorage.setItem('last-editor-content', content);
+      }
+    });
   }
 
   initEditor() {
@@ -219,6 +227,12 @@ export class WordflowTextEditor extends LitElement {
     }
     if (DEV_MODE) {
       defaultText = `${WELCOME_TEXT}`;
+    }
+
+    // Try to restore the last session's content
+    const lastEditorContent = localStorage.getItem('last-editor-content');
+    if (lastEditorContent !== null) {
+      defaultText = lastEditorContent;
     }
 
     const myPlaceholder = Placeholder.configure({
@@ -687,8 +701,6 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            this._updateAfterSuccessfulPromptRun(promptData);
-
             // If the users uses their own API key, record the run with only the
             // prompt prefix
             if (
@@ -727,6 +739,8 @@ export class WordflowTextEditor extends LitElement {
                 { updateSelection: true }
               )
               .run();
+
+            this._updateAfterSuccessfulPromptRun(promptData);
             break;
           }
 
@@ -775,8 +789,6 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            this._updateAfterSuccessfulPromptRun(promptData);
-
             // If the users uses their own API key, record the run with only the
             // prompt prefix
             if (
@@ -816,6 +828,8 @@ export class WordflowTextEditor extends LitElement {
               )
               .joinBackward()
               .run();
+
+            this._updateAfterSuccessfulPromptRun(promptData);
             break;
           }
 
@@ -921,12 +935,21 @@ export class WordflowTextEditor extends LitElement {
    * @param promptData Prompt data
    */
   _updateAfterSuccessfulPromptRun(promptData: PromptDataLocal) {
+    if (this.editor === null) {
+      console.error('Editor is not initialized yet.');
+      return;
+    }
+
     const newPrompt = structuredClone(promptData);
     newPrompt.promptRunCount += 1;
     this.promptManager.setPrompt(newPrompt);
 
     // Also update the local storage
     localStorage.setItem('has-run-a-prompt', 'true');
+
+    // Save the editor's content to local storage
+    const content = this.editor.getHTML();
+    localStorage.setItem('last-editor-content', content);
   }
 
   /**
