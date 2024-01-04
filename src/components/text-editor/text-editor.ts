@@ -221,10 +221,6 @@ export class WordflowTextEditor extends LitElement {
 
     // Show welcome text if the user has never run a prompt
     let defaultText: string | JSONContent = '';
-    const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
-    if (hasRunAPrompt === null) {
-      defaultText = `${WELCOME_TEXT}`;
-    }
     if (DEV_MODE) {
       defaultText = `${WELCOME_TEXT}`;
     }
@@ -233,6 +229,11 @@ export class WordflowTextEditor extends LitElement {
     const lastEditorContent = localStorage.getItem('last-editor-content');
     if (lastEditorContent !== null) {
       defaultText = JSON.parse(lastEditorContent) as JSONContent;
+    }
+
+    const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
+    if (hasRunAPrompt === null) {
+      defaultText = `${WELCOME_TEXT}`;
     }
 
     const myPlaceholder = Placeholder.configure({
