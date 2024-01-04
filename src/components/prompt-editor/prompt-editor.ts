@@ -215,15 +215,6 @@ export class WordflowPromptEditor extends LitElement {
   @query('nightjar-slider')
   sliderComponent: NightjarSlider | undefined;
 
-  @state()
-  dialogInfo: DialogInfo = {
-    header: 'Delete Item',
-    message:
-      'Are you sure you want to delete this prompt? This action cannot be undone.',
-    yesButtonText: 'Delete',
-    actionKey: 'delete-prompt'
-  };
-
   @query('nightjar-confirm-dialog')
   confirmDialogComponent: NightjarConfirmDialog | undefined;
 
@@ -445,6 +436,10 @@ export class WordflowPromptEditor extends LitElement {
       throw Error('Shadow root is null');
     }
 
+    if (this.confirmDialogComponent === undefined) {
+      throw Error('confirmDialogComponent is undefined');
+    }
+
     // Parse the input fields
     const newPromptData = this.parseForm();
 
@@ -542,19 +537,35 @@ export class WordflowPromptEditor extends LitElement {
           'The same prompt has been shared by a user. Try a different prompt.';
         this.toastType = 'error';
         toastComponent.show();
-      } else {
+      } else if (status === 201) {
         this.toastMessage = 'This prompt is shared.';
         this.toastType = 'success';
         toastComponent.show();
       }
     };
 
-    const event = new CustomEvent<SharePromptMessage>('share-clicked', {
-      bubbles: true,
-      composed: true,
-      detail: { data: newPromptData, stopLoader }
-    });
-    this.dispatchEvent(event);
+    const dialogInfo: DialogInfo = {
+      header: 'Share Prompt',
+      message:
+        'Are you sure you want to share this prompt? You cannot unshare it.',
+      yesButtonText: 'Share',
+      actionKey: 'share-prompt-local'
+    };
+
+    const confirmAction = () => {
+      const event = new CustomEvent<SharePromptMessage>('share-clicked', {
+        bubbles: true,
+        composed: true,
+        detail: { data: newPromptData, stopLoader }
+      });
+      this.dispatchEvent(event);
+    };
+
+    const cancelAction = () => {
+      stopLoader(204);
+    };
+
+    this.confirmDialogComponent.show(dialogInfo, confirmAction, cancelAction);
   }
 
   /**
@@ -565,7 +576,15 @@ export class WordflowPromptEditor extends LitElement {
       throw Error('confirmDialogComponent is undefined');
     }
 
-    this.confirmDialogComponent.show(() => {
+    const dialogInfo: DialogInfo = {
+      header: 'Delete Prompt',
+      message:
+        'Are you sure you want to delete this prompt? This action cannot be undone.',
+      yesButtonText: 'Delete',
+      actionKey: 'delete-prompt'
+    };
+
+    this.confirmDialogComponent.show(dialogInfo, () => {
       this.promptManager.deletePrompt(this.promptData);
       this.closeButtonClicked();
     });
@@ -1164,9 +1183,7 @@ ${this.promptData.description || ''}</textarea
         <div class="popper-arrow"></div>
       </div>
 
-      <nightjar-confirm-dialog
-        .dialogInfo=${this.dialogInfo}
-      ></nightjar-confirm-dialog>
+      <nightjar-confirm-dialog></nightjar-confirm-dialog>
     `;
   }
 

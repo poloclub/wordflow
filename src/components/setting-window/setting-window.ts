@@ -73,7 +73,7 @@ export class WordflowSettingWindow extends LitElement {
   userConfig!: UserConfig;
 
   @state()
-  activeMenuItemIndex = 2;
+  activeMenuItemIndex = 0;
 
   @state()
   toastMessage = '';

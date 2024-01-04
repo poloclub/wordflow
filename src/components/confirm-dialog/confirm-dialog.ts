@@ -24,21 +24,25 @@ export class NightjarConfirmDialog extends LitElement {
   @query('dialog')
   dialogElement: HTMLDialogElement | undefined;
 
-  @property({ attribute: false })
-  dialogInfo: DialogInfo = {
-    header: 'Delete Item',
-    message:
-      'Are you sure you want to delete this item? This action cannot be undone.',
-    yesButtonText: 'Delete',
-    actionKey: 'deletion'
-  };
+  @state()
+  header = 'Delete Item';
 
+  @state()
+  message =
+    'Are you sure you want to delete this item? This action cannot be undone.';
+
+  @state()
+  yesButtonText = 'Delete';
+
+  actionKey = 'deletion';
   confirmAction: () => void;
+  cancelAction: () => void;
 
   // ===== Lifecycle Methods ======
   constructor() {
     super();
     this.confirmAction = () => {};
+    this.cancelAction = () => {};
   }
 
   firstUpdated() {
@@ -54,13 +58,27 @@ export class NightjarConfirmDialog extends LitElement {
   // ===== Custom Methods ======
   initData = async () => {};
 
-  show(confirmAction: () => void) {
+  show(
+    dialogInfo: DialogInfo,
+    confirmAction: () => void,
+    cancelAction?: () => void
+  ) {
+    this.header = dialogInfo.header;
+    this.message = dialogInfo.message;
+    this.yesButtonText = dialogInfo.yesButtonText;
+    this.actionKey = dialogInfo.actionKey;
     this.confirmAction = confirmAction;
 
+    if (cancelAction === undefined) {
+      this.cancelAction = () => {};
+    } else {
+      this.cancelAction = cancelAction;
+    }
+
     // First check if the user has skipped this action
-    const skipDialog = localStorage.getItem(
-      `<skip-confirm>${this.dialogInfo.actionKey}`
-    );
+    const skipDialog = localStorage.getItem(`<skip-confirm>${this.actionKey}`);
+
+    console.log(skipDialog, dialogInfo);
     if (skipDialog === 'true') {
       this.confirmAction();
     } else {
@@ -81,6 +99,7 @@ export class NightjarConfirmDialog extends LitElement {
     e.stopPropagation();
     if (this.dialogElement) {
       this.dialogElement.close();
+      this.cancelAction();
     }
   }
 
@@ -93,7 +112,7 @@ export class NightjarConfirmDialog extends LitElement {
         '#checkbox-skip-confirmation'
       );
       if (checkbox && checkbox.checked) {
-        const key = `<skip-confirm>${this.dialogInfo.actionKey}`;
+        const key = `<skip-confirm>${this.actionKey}`;
         localStorage.setItem(key, 'true');
       }
 
@@ -110,11 +129,11 @@ export class NightjarConfirmDialog extends LitElement {
         @click=${(e: MouseEvent) => this.dialogClicked(e)}
       >
         <div class="header">
-          <div class="header-name">${this.dialogInfo.header}</div>
+          <div class="header-name">${this.header}</div>
         </div>
 
         <div class="content">
-          <div class="message">${this.dialogInfo.message}</div>
+          <div class="message">${this.message}</div>
           <div class="skip-bar">
             <input
               type="checkbox"
@@ -138,7 +157,7 @@ export class NightjarConfirmDialog extends LitElement {
             class="confirm-button"
             @click=${(e: MouseEvent) => this.confirmClicked(e)}
           >
-            ${this.dialogInfo.yesButtonText}
+            ${this.yesButtonText}
           </button>
         </div>
       </dialog>

@@ -428,12 +428,14 @@ export class WordflowWordflow extends LitElement {
 
     const handleShareClick = () => {
       this.remotePromptManager.sharePrompt(prompt).then(status => {
+        console.log(status);
         stopLoader(status);
       });
     };
 
     // First check if the user has agreed the privacy policy
     const hasConfirmedPrivacy = localStorage.getItem('has-confirmed-privacy');
+
     if (hasConfirmedPrivacy === 'true') {
       handleShareClick();
     } else {
