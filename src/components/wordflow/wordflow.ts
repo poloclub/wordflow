@@ -6,6 +6,7 @@ import {
   query,
   queryAsync
 } from 'lit/decorators.js';
+import { random } from '@xiaohk/utils';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { WordflowTextEditor } from '../text-editor/text-editor';
 import { v4 as uuidv4 } from 'uuid';
@@ -240,6 +241,7 @@ export class WordflowWordflow extends LitElement {
         prompt.key = uuidv4();
         prompt.userID = userID;
         prompt.created = new Date().toISOString();
+        // prompt.promptRunCount = random(12, 250);
         this.promptManager.addPrompt(prompt);
       }
 

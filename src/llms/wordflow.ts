@@ -103,8 +103,11 @@ export const textGenWordflow = async (
 
     // Also cache the model output
     if (useCache) {
-      if (localStorage.getItem('[wordflow]' + prompt) === null) {
-        localStorage.setItem('[wordflow]' + prompt, successData.payload.result);
+      if (localStorage.getItem('[wordflow]' + prompt + inputText) === null) {
+        localStorage.setItem(
+          '[wordflow]' + prompt + inputText,
+          successData.payload.result
+        );
       }
     }
 

@@ -29,8 +29,8 @@
     "promptRunCount": 0,
     "created": "",
     "title": "Translate English to Japanese",
-    "outputParsingPattern": "",
-    "outputParsingReplacement": "",
+    "outputParsingPattern": ".*<output>(.*)</output>.*",
+    "outputParsingReplacement": "$1",
     "recommendedModels": [],
     "injectionMode": "replace",
     "key": ""
@@ -65,8 +65,8 @@
     "promptRunCount": 0,
     "created": "",
     "title": "Improve Text Flow",
-    "outputParsingPattern": ".*<output>(.*)</output>.*",
-    "outputParsingReplacement": "$1",
+    "outputParsingPattern": "",
+    "outputParsingReplacement": "",
     "recommendedModels": [],
     "injectionMode": "replace",
     "key": ""

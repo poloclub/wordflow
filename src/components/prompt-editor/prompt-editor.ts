@@ -639,6 +639,9 @@ export class WordflowPromptEditor extends LitElement {
     // Collapse all accordions
     this.showAdvancedOptions = false;
     this.showSharingOptions = false;
+
+    // Hide toast
+    this.toastComponent?.hide();
   }
 
   /**

@@ -15,7 +15,7 @@ Social and customizable AI writing assistant tool.
   </tr>
   <tr></tr>
   <tr align="center">
-    <td><a href="https://poloclub.github.io/wordflow">🚀 Live Demo: Run, Discover, and Share AI Prompts!</a></td>
+    <td><a href="https://poloclub.github.io/wordflow">🚀 Wordflow: Run, Discover, and Share AI Prompts!</a></td>
     <!-- <td><a href="https://youtu.be/3eGqTmsStJM">📺 Demo Video</a></td>
     <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td>
     <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td> -->
@@ -26,9 +26,35 @@ Social and customizable AI writing assistant tool.
 
 Wordflow is a social and customizable AI writing assistant tool! With Wordflow, you can easily write and run AI prompts with different large language models (e.g., GPT 4 and Gemini Pro). You can also discover and share your favorite prompts with the community.
 
+<table>
+  <tr>
+    <td>✅</td>
+    <td>Store and run your favorite AI prompts</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>✅</td>
+    <td>Support multiple AI models (e.g., GPT 4 and Gemini Pro)</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>✅</td>
+    <td>Powerful customization (e.g., temperature, templates)</td>
+  </tr>
+  <tr></tr>
+    <tr>
+    <td>✅</td>
+    <td>Discover and share community prompts</td>
+  </tr>
+  <tr></tr>
+  <tr></tr>
+</table>
+
 ## Get Started
 
 To use Wordflow, visit: <https://poloclub.github.io/wordflow/>.
+
+If you use macOS, we highly recommend you [creating a Web App using Safari](https://support.apple.com/en-us/104996). Open Wordflow in Safari, and then from the menu bar, choose `File` > `Add to Dock`.
 
 ## Developing Wordflow
 

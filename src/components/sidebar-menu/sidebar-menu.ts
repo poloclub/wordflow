@@ -74,7 +74,7 @@ export class WordflowSidebarMenu extends LitElement {
       },
       delete: {
         backgroundColor: config.customColors.deletedColor,
-        circleColor: config.colors['pink-300']
+        circleColor: config.colors['pink-200']
       },
       summary: {
         backgroundColor: 'inherit',

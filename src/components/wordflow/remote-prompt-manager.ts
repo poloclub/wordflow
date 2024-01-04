@@ -56,7 +56,7 @@ export class RemotePromptManager {
 
     // console.log('Start populating prompts...');
     // console.time('Populating prompts');
-    // this._populateRemotePrompts(55).then(() => {
+    // this._populateRemotePrompts(100).then(() => {
     //   // Use fake data for testing
     //   this.getPromptsByTag('', 'popular');
     //   this.getPopularTags();

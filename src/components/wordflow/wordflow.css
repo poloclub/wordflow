@@ -193,6 +193,7 @@
   top: 0px; */
 
   flex: 0 1 250px;
+  /* flex: 0 1 200px; */
   height: max-content;
   z-index: 3;
   box-shadow:

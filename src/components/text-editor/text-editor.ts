@@ -54,7 +54,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
-const USE_CACHE = false && DEV_MODE;
+const USE_CACHE = true && DEV_MODE;
 const DMP = new DiffMatchPatch();
 
 /**
@@ -221,9 +221,6 @@ export class WordflowTextEditor extends LitElement {
 
     // Show welcome text if the user has never run a prompt
     let defaultText: string | JSONContent = '';
-    if (DEV_MODE) {
-      defaultText = `${WELCOME_TEXT}`;
-    }
 
     // Try to restore the last session's content
     const lastEditorContent = localStorage.getItem('last-editor-content');
@@ -233,6 +230,10 @@ export class WordflowTextEditor extends LitElement {
 
     const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
     if (hasRunAPrompt === null) {
+      defaultText = `${WELCOME_TEXT}`;
+    }
+
+    if (DEV_MODE) {
       defaultText = `${WELCOME_TEXT}`;
     }
 
