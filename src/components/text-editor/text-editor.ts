@@ -17,7 +17,7 @@ import '../modal-auth/modal-auth';
 import DiffMatchPatch from 'diff-match-patch';
 
 // Editor
-import { Editor } from '@tiptap/core';
+import { Editor, JSONContent } from '@tiptap/core';
 import Text from '@tiptap/extension-text';
 import Paragraph from '@tiptap/extension-paragraph';
 import StarterKit from '@tiptap/starter-kit';
@@ -54,7 +54,7 @@ const REPLACED_COLOR = config.customColors.replacedColor;
 const INPUT_TEXT_PLACEHOLDER = '{{text}}';
 
 const DEV_MODE = import.meta.env.DEV;
-const USE_CACHE = true && DEV_MODE;
+const USE_CACHE = false && DEV_MODE;
 const DMP = new DiffMatchPatch();
 
 /**
@@ -136,8 +136,8 @@ export class WordflowTextEditor extends LitElement {
     window.addEventListener('beforeunload', () => {
       if (this.editor !== null) {
         // Save the editor's content to local storage
-        const content = this.editor.getHTML();
-        localStorage.setItem('last-editor-content', content);
+        const content = this.editor.getJSON();
+        localStorage.setItem('last-editor-content', JSON.stringify(content));
       }
     });
   }
@@ -220,7 +220,7 @@ export class WordflowTextEditor extends LitElement {
     });
 
     // Show welcome text if the user has never run a prompt
-    let defaultText = '';
+    let defaultText: string | JSONContent = '';
     const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
     if (hasRunAPrompt === null) {
       defaultText = `${WELCOME_TEXT}`;
@@ -232,7 +232,7 @@ export class WordflowTextEditor extends LitElement {
     // Try to restore the last session's content
     const lastEditorContent = localStorage.getItem('last-editor-content');
     if (lastEditorContent !== null) {
-      defaultText = lastEditorContent;
+      defaultText = JSON.parse(lastEditorContent) as JSONContent;
     }
 
     const myPlaceholder = Placeholder.configure({
@@ -327,6 +327,17 @@ export class WordflowTextEditor extends LitElement {
           // Case 3: add new => show new
           // Add empty string as the old text
           if (i >= 1 && differences[i - 1][0] === 0) {
+            diffText += `<mark
+              id="edit-highlight-${this.curEditID++}"
+              data-color="${ADDED_COLOR}"
+              data-old-text="${lastDeletedText}"
+            >${diff[1]}</mark>`;
+            replaceMap.set(diff[1], '');
+            lastDeletedText = '';
+          }
+
+          // Case 4: no old, add new => show new
+          if (i === 0) {
             diffText += `<mark
               id="edit-highlight-${this.curEditID++}"
               data-color="${ADDED_COLOR}"
@@ -628,7 +639,10 @@ export class WordflowTextEditor extends LitElement {
 
     // Highlight the paragraph
     if (!hasSelection) {
-      this._setParagraphAttribute($from, 'is-highlighted', 'true');
+      const node = $from.node();
+      if (node.content.size > 0) {
+        this._setParagraphAttribute($from, 'is-highlighted', 'true');
+      }
     }
   }
 
@@ -659,11 +673,6 @@ export class WordflowTextEditor extends LitElement {
       return;
     }
 
-    // if (this.apiKey === null) {
-    //   console.error('API key is null.');
-    //   return;
-    // }
-
     const { state } = this.editor.view;
     const { $from, $to } = state.selection;
     const hasSelection = this.isEmptySelection();
@@ -672,7 +681,10 @@ export class WordflowTextEditor extends LitElement {
     if (!hasSelection) {
       // Change the highlight style
       this._setParagraphAttribute($from, 'is-highlighted', null);
-      this._setParagraphAttribute($from, 'is-loading', 'true');
+
+      if ($from.node().content.size > 0) {
+        this._setParagraphAttribute($from, 'is-loading', 'true');
+      }
 
       // Find the paragraph node of the cursor's region
       const paragraphNode = $from.node(1);
@@ -718,10 +730,13 @@ export class WordflowTextEditor extends LitElement {
             }
 
             let newText = this._parseOutput(promptData, message.payload.result);
+
             // Append the output to the end of the input text if the prompt
             // uses append mode
             if (promptData.injectionMode === 'append') {
-              newText = oldText + '\n' + newText;
+              if (oldText !== '') {
+                newText = oldText + '\n' + newText;
+              }
             }
 
             let diffText = this.diffParagraph(oldText, newText);
