@@ -135,8 +135,12 @@ export class RemotePromptManager {
       credentials: 'include'
     };
 
-    const response = await fetch(url.toString(), requestOptions);
-    return response.status;
+    try {
+      const response = await fetch(url.toString(), requestOptions);
+      return response.status;
+    } catch {
+      return 401;
+    }
   }
 
   /**

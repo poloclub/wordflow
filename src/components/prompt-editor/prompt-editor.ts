@@ -541,13 +541,17 @@ export class WordflowPromptEditor extends LitElement {
         this.toastMessage = 'This prompt is shared.';
         this.toastType = 'success';
         toastComponent.show();
+      } else if (status > 400 && status < 600) {
+        this.toastMessage = 'Failed to share this prompt. Try again later.';
+        this.toastType = 'error';
+        toastComponent.show();
       }
     };
 
     const dialogInfo: DialogInfo = {
       header: 'Share Prompt',
       message:
-        'Are you sure you want to share this prompt? You cannot unshare it.',
+        'Are you sure you want to share this prompt? You cannot unshare it. The shared content will be using a CC0 license.',
       yesButtonText: 'Share',
       actionKey: 'share-prompt-local'
     };
