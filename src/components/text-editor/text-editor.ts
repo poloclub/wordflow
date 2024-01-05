@@ -231,6 +231,9 @@ export class WordflowTextEditor extends LitElement {
     const hasRunAPrompt = localStorage.getItem('has-run-a-prompt');
     if (hasRunAPrompt === null) {
       defaultText = `${WELCOME_TEXT}`;
+    } else {
+      // TODO: Safari web app can't save to local storage before window close
+      defaultText = '';
     }
 
     if (DEV_MODE) {
@@ -988,8 +991,8 @@ export class WordflowTextEditor extends LitElement {
     localStorage.setItem('has-run-a-prompt', 'true');
 
     // Save the editor's content to local storage
-    const content = this.editor.getHTML();
-    localStorage.setItem('last-editor-content', content);
+    const content = this.editor.getJSON();
+    localStorage.setItem('last-editor-content', JSON.stringify(content));
   }
 
   /**
