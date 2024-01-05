@@ -314,6 +314,12 @@ export class WordflowTextEditor extends LitElement {
         case 1: {
           // Added
 
+          // Special case: if the new content is a new line, ignore it
+          if (diff[1] === '\n\n') {
+            diffText += diff[1];
+            continue;
+          }
+
           // Case 1: delete old, add new => show add
           // Also record the original old text
           if (i >= 1 && differences[i - 1][0] === -1) {
@@ -831,6 +837,23 @@ export class WordflowTextEditor extends LitElement {
 
             let diffText = this.diffParagraph(oldText, newText);
             diffText = `${diffText}`;
+
+            const diffTextChunks = diffText.split('\n\n');
+            if (diffTextChunks.length > 1) {
+              let newDiffText = '';
+              for (const [i, chunk] of diffTextChunks.entries()) {
+                if (i === 0) {
+                  // First chunk
+                  newDiffText += `${chunk}<p></p>`;
+                } else if (i === diffTextChunks.length - 1) {
+                  // Last chunk
+                  newDiffText += `${chunk}`;
+                } else {
+                  newDiffText += `<p>${chunk}</p><p></p>`;
+                }
+              }
+              diffText = newDiffText;
+            }
 
             this.editor
               .chain()
