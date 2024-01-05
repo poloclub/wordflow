@@ -7,18 +7,18 @@
 [![Github Actions Status](https://github.com/poloclub/wordflow/workflows/build/badge.svg)](https://github.com/poloclub/wordflow/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/License-MIT-blue)](https://github.com/poloclub/wordflow/blob/main/LICENSE)
 
-Social and customizable AI writing assistant tool.
+Social and customizable AI writing assistant tool ✍️
 
 <table>
   <tr>
-    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/12b30a97-3970-4719-9b41-3e21c835d04c'></a></td>
+    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/0aca0110-b35c-42e1-a5ba-a1c1f049c952'></a></td>
   </tr>
   <tr></tr>
   <tr align="center">
     <td><a href="https://poloclub.github.io/wordflow">🚀 Wordflow: Run, Discover, and Share AI Prompts!</a></td>
-    <!-- <td><a href="https://youtu.be/3eGqTmsStJM">📺 Demo Video</a></td>
-    <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td>
-    <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td> -->
+    <td><a href="https://youtu.be/OKjoR3PEsaY">📺 Demo Video</a></td>
+    <!-- <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td> -->
+    <!-- <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td> -->
   </tr>
 </table>
 
@@ -55,6 +55,8 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
 To use Wordflow, visit: <https://poloclub.github.io/wordflow/>.
 
 If you use macOS, we highly recommend you [creating a Web App using Safari](https://support.apple.com/en-us/104996). Open Wordflow in Safari, and then from the menu bar, choose `File` > `Add to Dock`.
+
+<img height="100px" src="https://i.imgur.com/hkGw5zx.png">
 
 ## Developing Wordflow
 

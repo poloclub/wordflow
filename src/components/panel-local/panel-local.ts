@@ -253,7 +253,9 @@ export class WordflowPanelLocal extends LitElement {
     miniCard.appendChild(title);
     tempFavSlot.appendChild(miniCard);
 
-    this.promptContainerElement?.append(tempFavSlot);
+    // Need to add the temp element to body, because it seems safari has some
+    // problems when using elements in a shadow element as drag image
+    document.body.appendChild(tempFavSlot);
     this.draggingImageElement = tempFavSlot;
     e.dataTransfer?.setDragImage(tempFavSlot, 10, 10);
   }

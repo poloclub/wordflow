@@ -84,6 +84,90 @@ button:focus {
   border-color: #666;
 }
 
+.fav-prompt-slot {
+  width: 33%;
+  height: 60px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--gray-300);
+  font-size: var(--font-d2);
+  background-color: white;
+  transition: background-color 100ms;
+  position: relative;
+
+  &:hover {
+    box-shadow:
+      0 0 10px hsla(0, 0%, 0%, 0.05),
+      0 0 4px hsla(0, 0%, 0%, 0.05);
+  }
+
+  .prompt-mini-card {
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    margin: auto 0px;
+    display: flex;
+    flex-flow: row;
+    padding: 12px;
+    gap: 8px;
+    box-sizing: border-box;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    &[is-empty] {
+      .title {
+        display: flex;
+        align-items: center;
+        line-height: 1;
+        top: -1px;
+        position: relative;
+        color: var(--gray-500);
+      }
+    }
+  }
+
+  .title {
+    display: -webkit-box;
+    line-height: 1.2;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    text-align: center;
+    transform-origin: center center 0px;
+    background-color: white;
+
+    border-radius: 100%;
+    border: 1px solid var(--gray-300);
+    position: relative;
+
+    box-sizing: border-box;
+    transition: box-shadow linear 100ms;
+
+    & span {
+      /* Trick to horizontally align emojis */
+      font-size: 34px;
+      transform: scale(0.5);
+
+      color: var(--gray-700);
+      font-weight: 700;
+      line-height: 1;
+    }
+  }
+}
+
 :root {
   /* Shadows */
   --shadow-border-light: 0px 0px 5px hsla(0, 0%, 0%, 0.1),
