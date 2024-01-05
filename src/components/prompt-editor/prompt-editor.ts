@@ -912,6 +912,12 @@ ${this.promptData.prompt}</textarea
                       value="${round(this.temperature, 2)}"
                       maxlength="${MAX_OUTPUT_PARSING_LENGTH}"
                       placeholder=${this.temperature}
+                      @change=${(e: InputEvent) => {
+                        const target = e.currentTarget as HTMLInputElement;
+                        const value = parseFloat(target.value);
+                        this.temperature = Math.min(1, Math.max(0, value));
+                        target.value = `${round(this.temperature, 2)}`;
+                      }}
                     />
                   </div>
                 </section>
