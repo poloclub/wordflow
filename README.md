@@ -50,6 +50,13 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
   <tr></tr>
 </table>
 
+### Demo Video
+
+<details>
+  <summary>Click to see the demo video!</summary>
+  <video src="https://github.com/poloclub/wordflow/assets/15007159/f586f435-bb26-457d-a477-3d390e7b60df"></video>
+</details>
+
 ## Get Started
 
 To use Wordflow, visit: <https://poloclub.github.io/wordflow/>.
