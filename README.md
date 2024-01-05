@@ -61,7 +61,7 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
 
 To use Wordflow, visit: <https://poloclub.github.io/wordflow/>.
 
-If you use macOS, we highly recommend you [creating a Web App using Safari](https://support.apple.com/en-us/104996). Open Wordflow in Safari, and then from the menu bar, choose `File` > `Add to Dock`.
+If you use macOS, we highly recommend you [creating a Web App using Safari](https://support.apple.com/en-us/104996). Open [Wordflow](https://poloclub.github.io/wordflow/) in Safari, and then from the menu bar, choose `File` > `Add to Dock`.
 
 <img height="100px" src="https://i.imgur.com/hkGw5zx.png">
 
@@ -85,7 +85,7 @@ Then run Loan Explainer:
 npm run dev
 ```
 
-Navigate to localhost:3000. You should see three Explainers running in your browser :)
+Navigate to localhost:3000. You should see Wordflow running in your browser :)
 
 ## Credits
 
