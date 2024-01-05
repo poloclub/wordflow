@@ -185,6 +185,9 @@ export class WordflowPanelCommunity extends LitElement {
       this.curSelectedTag = tag;
     }
 
+    // Reset the pagination
+    this.curPage = 1;
+
     // Update the prompt list
     // Show the loader and disable scrolling
     this.isWaitingForQueryResponse = true;
