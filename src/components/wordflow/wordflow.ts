@@ -192,6 +192,9 @@ export class WordflowWordflow extends LitElement {
       this.userConfig = userConfig;
     };
     this.userConfigManager = new UserConfigManager(updateUserConfig);
+
+    // We do not collect usage data now
+    localStorage.setItem('has-confirmed-privacy', 'true');
   }
 
   firstUpdated() {
@@ -519,7 +522,7 @@ export class WordflowWordflow extends LitElement {
               >Version (${packageInfoJSON.version})</a
             >
             <div
-              class="row"
+              class="row no-show"
               @click=${() => {
                 this.privacyDialogComponent?.show(() => {});
               }}
