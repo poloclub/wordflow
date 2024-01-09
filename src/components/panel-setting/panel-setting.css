@@ -100,7 +100,7 @@ button {
     line-height: 1.25;
   }
 
-  input[type='text'] {
+  & input[type='text'] {
     all: unset;
     border: 1px solid var(--gray-300);
     border-radius: 5px;
@@ -118,7 +118,7 @@ button {
     }
   }
 
-  textarea {
+  & textarea {
     border: 1px solid var(--gray-300);
     border-radius: 5px;
     padding: 5px 5px;
@@ -372,7 +372,7 @@ button {
   display: flex;
   justify-content: center;
 
-  nightjar-toast {
+  & nightjar-toast {
     max-width: 300px;
   }
 }

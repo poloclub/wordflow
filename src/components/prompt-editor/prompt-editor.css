@@ -501,7 +501,7 @@ button {
     align-items: center;
     gap: 4px;
 
-    input[type='checkbox'] {
+    & input[type='checkbox'] {
       margin: 0;
     }
   }
@@ -656,7 +656,7 @@ button {
   width: 100%;
   gap: 10px;
 
-  input[type='text'].content-text {
+  & input[type='text'].content-text {
     width: 48px;
   }
 

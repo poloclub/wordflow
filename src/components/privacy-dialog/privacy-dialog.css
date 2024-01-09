@@ -124,7 +124,7 @@
     }
   }
 
-  a {
+  & a {
     color: currentColor;
     font-style: normal;
     text-decoration: none;

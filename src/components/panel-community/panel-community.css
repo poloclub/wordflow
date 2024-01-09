@@ -176,7 +176,7 @@
   justify-content: center;
 
   &[no-show] {
-    nightjar-pagination {
+    & nightjar-pagination {
       display: none;
     }
     margin-bottom: 0;
@@ -196,7 +196,7 @@
   }
 }
 
-wordflow-prompt-card {
+& wordflow-prompt-card {
   cursor: pointer;
   border-radius: 10px;
 

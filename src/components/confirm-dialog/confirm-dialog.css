@@ -18,7 +18,8 @@
   align-items: flex-start;
 
   max-width: 500px;
-  box-shadow: 0px 11px 15px -7px hsla(0, 0%, 0%, 0.2),
+  box-shadow:
+    0px 11px 15px -7px hsla(0, 0%, 0%, 0.2),
     0px 24px 38px 3px hsla(0, 0%, 0%, 0.14),
     0px 9px 46px 8px hsla(0, 0%, 0%, 0.12);
 
@@ -102,21 +103,21 @@
       background-color: var(--gray-400);
     }
 
-    // &.cancel-button {
-    //   color: white;
-    //   background-color: $blue-500;
+    /* &.cancel-button {
+      color: white;
+      background-color: $blue-500;
 
-    //   &:hover {
-    //     background-color: $blue-600;
-    //   }
+      &:hover {
+        background-color: $blue-600;
+      }
 
-    //   &:active {
-    //     background-color: $blue-700;
-    //   }
-    // }
+      &:active {
+        background-color: $blue-700;
+      }
+    } */
   }
 
-  a {
+  & a {
     color: currentColor;
     font-style: normal;
     text-decoration: none;
