@@ -9,6 +9,7 @@ import type { PromptDataLocal } from '../../types/wordflow';
 // Assets
 import componentCSS from './floating-menu.css?inline';
 import gearIcon from '../../images/icon-gear.svg?raw';
+import homeIcon from '../../images/icon-home.svg?raw';
 
 /**
  * Floating menu element.
@@ -148,7 +149,7 @@ export class WordflowFloatingMenu extends LitElement {
       updatePopperTooltip(
         tooltip,
         e.target as HTMLElement,
-        'Settings',
+        'Manage prompts',
         'right',
         true,
         10
@@ -218,7 +219,7 @@ export class WordflowFloatingMenu extends LitElement {
             this.settingButtonMouseEnterHandler(e)}
           @mouseleave=${(e: MouseEvent) => this.toolButtonMouseLeaveHandler(e)}
         >
-          <div class="svg-icon">${unsafeHTML(gearIcon)}</div>
+          <div class="svg-icon">${unsafeHTML(homeIcon)}</div>
         </button>
       </div>
     `;

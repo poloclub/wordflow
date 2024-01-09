@@ -246,7 +246,7 @@ export class WordflowSettingWindow extends LitElement {
           </div>
 
           <div class="header">
-            <div class="name">Wordflow Settings</div>
+            <div class="name">Prompt Manager</div>
             <div
               class="svg-icon close-button"
               @click=${() => this.closeButtonClicked()}
