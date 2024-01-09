@@ -47,7 +47,7 @@ import componentCSS from './wordflow.css?inline';
 import logoIcon from '../../images/wordflow-logo.svg?raw';
 import githubIcon from '../../images/icon-github.svg?raw';
 import fileIcon from '../../images/icon-file.svg?raw';
-import youtubeIcon from '../../images/icon-youtube.svg?raw';
+import youtubeIcon from '../../images/icon-play.svg?raw';
 import defaultPromptsJSON from '../../prompts/default-prompts.json';
 import packageInfoJSON from '../../../package.json';
 
@@ -515,12 +515,6 @@ export class WordflowWordflow extends LitElement {
         <div class="right-panel">
           <div class="top-padding"></div>
           <div class="footer-info">
-            <a
-              class="row"
-              href="https://github.com/poloclub/wordflow"
-              target="_blank"
-              >Version (${packageInfoJSON.version})</a
-            >
             <div
               class="row no-show"
               @click=${() => {
@@ -529,6 +523,25 @@ export class WordflowWordflow extends LitElement {
             >
               Privacy
             </div>
+
+            <a
+              class="row"
+              href="https://github.com/poloclub/wordflow/"
+              target="_blank"
+              ><span class="svg-icon">${unsafeHTML(githubIcon)}</span> Code</a
+            >
+
+            <a class="row" href="https://youtu.be/OKjoR3PEsaY" target="_blank"
+              ><span class="svg-icon">${unsafeHTML(youtubeIcon)}</span> Video</a
+            >
+
+            <a
+              class="row"
+              href="https://github.com/poloclub/wordflow"
+              target="_blank"
+              >Version (${packageInfoJSON.version})</a
+            >
+
             <a
               class="row"
               href="https://github.com/poloclub/wordflow/issues/new"

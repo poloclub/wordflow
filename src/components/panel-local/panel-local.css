@@ -314,6 +314,8 @@ button {
   background-color: white;
   transition: background-color 100ms;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
 
   &:hover {
     box-shadow:
@@ -498,6 +500,7 @@ wordflow-prompt-card {
 
   .fav-prompt-slot {
     &[is-temp] {
+      cursor: grabbing;
       position: absolute;
       z-index: -1;
       left: 1000px;

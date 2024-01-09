@@ -149,7 +149,7 @@ export class WordflowFloatingMenu extends LitElement {
       updatePopperTooltip(
         tooltip,
         e.target as HTMLElement,
-        'Manage prompts',
+        'Prompt manager',
         'right',
         true,
         10

@@ -63,9 +63,16 @@
   grid-column: 3 / 4;
   position: relative;
   z-index: 1;
+  container-type: inline-size;
 
   .top-padding {
     flex: 1 1 auto;
+  }
+
+  @container (max-width: 100px) {
+    .footer-info {
+      display: none;
+    }
   }
 }
 
@@ -93,6 +100,8 @@
   font-size: var(--font-d4);
   color: var(--gray-500);
   line-height: 1.2;
+  gap: 1px;
+  width: max-content;
 
   & a {
     color: currentColor;
@@ -101,6 +110,15 @@
 
   .row {
     cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 3px;
+
+    .svg-icon {
+      top: -1px;
+    }
+
     &:hover {
       text-decoration: underline;
     }
