@@ -85,6 +85,8 @@
     color: var(--gray-600);
     transition: color 100ms;
 
+    -webkit-transform: translate3d(0, 0, 0);
+
     &::before {
       z-index: -1;
       content: '';
