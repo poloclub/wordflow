@@ -236,6 +236,7 @@ button {
   }
 
   & select {
+    -webkit-appearance: none;
     position: absolute;
     align-self: baseline;
     width: 100%;
