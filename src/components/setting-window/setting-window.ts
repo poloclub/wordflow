@@ -6,7 +6,13 @@ import {
   PropertyValues,
   TemplateResult
 } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import {
+  customElement,
+  property,
+  state,
+  query,
+  queryAsync
+} from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { PromptManager } from '../wordflow/prompt-manager';
 import { RemotePromptManager } from '../wordflow/remote-prompt-manager';
@@ -26,6 +32,7 @@ import type {
 } from '../../types/wordflow';
 import type { NightjarToast } from '../toast/toast';
 import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
+import type { WordflowPanelCommunity } from '../panel-community/panel-community';
 
 // Assets
 import componentCSS from './setting-window.css?inline';
@@ -84,6 +91,9 @@ export class WordflowSettingWindow extends LitElement {
   @query('nightjar-toast#setting-toast')
   toastComponent: NightjarToast | undefined;
 
+  @queryAsync('wordflow-panel-community')
+  communityPanelComponent!: Promise<WordflowPanelCommunity>;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -109,6 +119,17 @@ export class WordflowSettingWindow extends LitElement {
   //                              Custom Methods                              ||
   //==========================================================================||
   async initData() {}
+
+  /**
+   * Show a community prompt without clicking
+   * @param prompt remote prompt data
+   */
+  showCommunityPrompt(prompt: PromptDataRemote) {
+    this.activeMenuItemIndex = 1;
+    this.communityPanelComponent.then(panel => {
+      panel.promptCardClicked(prompt);
+    });
+  }
 
   //==========================================================================||
   //                              Event Handlers                              ||

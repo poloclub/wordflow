@@ -144,6 +144,23 @@ export class RemotePromptManager {
   }
 
   /**
+   * Get a particular prompt
+   * @param promptID Remote prompt ID
+   */
+  async getPrompt(promptID: string) {
+    const url = new URL(ENDPOINT);
+    url.searchParams.append('getPrompt', promptID);
+
+    const requestOptions: RequestInit = {
+      method: 'GET',
+      credentials: 'include'
+    };
+    const response = await fetch(url.toString(), requestOptions);
+    const remotePrompt = (await response.json()) as PromptDataRemote;
+    return remotePrompt;
+  }
+
+  /**
    * Pass the remotePrompts to consumers as their remotePrompts
    */
   _broadcastRemotePrompts() {

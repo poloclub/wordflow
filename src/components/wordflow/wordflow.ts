@@ -9,7 +9,7 @@ import {
 import { random } from '@xiaohk/utils';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { WordflowTextEditor } from '../text-editor/text-editor';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 import { config } from '../../config/config';
 import { PromptManager } from './prompt-manager';
 import { RemotePromptManager } from './remote-prompt-manager';
@@ -33,6 +33,7 @@ import type { Editor } from '@tiptap/core';
 import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
 import type { NightjarToast } from '../toast/toast';
 import type { PrivacyDialog } from '../privacy-dialog/privacy-dialog';
+import type { WordflowSettingWindow } from '../setting-window/setting-window';
 
 // Components
 import '../toast/toast';
@@ -142,6 +143,9 @@ export class WordflowWordflow extends LitElement {
   @query('wordflow-privacy-dialog')
   privacyDialogComponent: PrivacyDialog | undefined;
 
+  @queryAsync('wordflow-setting-window')
+  settingWindowComponent!: Promise<WordflowSettingWindow>;
+
   lastUpdateSidebarMenuProps: UpdateSidebarMenuProps | null = null;
 
   // ===== Lifecycle Methods ======
@@ -195,6 +199,21 @@ export class WordflowWordflow extends LitElement {
 
     // We do not collect usage data now
     localStorage.setItem('has-confirmed-privacy', 'true');
+
+    // Query and show a prompt if the URL includes the prompt search param
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has('prompt')) {
+      const promptID = urlParams.get('prompt')!;
+      if (validate(promptID)) {
+        this.remotePromptManager.getPrompt(promptID).then(prompt => {
+          this.showSettingWindow = true;
+          this.settingWindowComponent.then(window => {
+            window.showCommunityPrompt(prompt);
+          });
+        });
+      }
+    }
   }
 
   firstUpdated() {
