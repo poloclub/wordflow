@@ -207,10 +207,12 @@ export class WordflowWordflow extends LitElement {
       const promptID = urlParams.get('prompt')!;
       if (validate(promptID)) {
         this.remotePromptManager.getPrompt(promptID).then(prompt => {
-          this.showSettingWindow = true;
-          this.settingWindowComponent.then(window => {
-            window.showCommunityPrompt(prompt);
-          });
+          if (prompt !== null) {
+            this.showSettingWindow = true;
+            this.settingWindowComponent.then(window => {
+              window.showCommunityPrompt(prompt);
+            });
+          }
         });
       }
     }

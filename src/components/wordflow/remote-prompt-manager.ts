@@ -156,8 +156,13 @@ export class RemotePromptManager {
       credentials: 'include'
     };
     const response = await fetch(url.toString(), requestOptions);
-    const remotePrompt = (await response.json()) as PromptDataRemote;
-    return remotePrompt;
+
+    if (response.status === 200) {
+      const remotePrompt = (await response.json()) as PromptDataRemote;
+      return remotePrompt;
+    } else {
+      return null;
+    }
   }
 
   /**
