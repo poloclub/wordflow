@@ -115,10 +115,7 @@ export class WordflowPromptViewer extends LitElement {
       text: this.promptData.title,
       url: `https://poloclub.github.io/wordflow?prompt=${promptID}`
     };
-    console.log(shareData.url);
-    if (navigator.canShare()) {
-      navigator.share(shareData);
-    }
+    navigator.share(shareData);
   }
 
   //==========================================================================||
@@ -208,7 +205,7 @@ export class WordflowPromptViewer extends LitElement {
       <span></span>
       <span class="value"
         ><span class="text-button" @click=${() => this.shareButtonClicked()}
-          >Send prompt to a friend</span
+          >Share with a friend</span
         ></span
       > `;
 
