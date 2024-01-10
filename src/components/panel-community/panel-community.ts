@@ -90,6 +90,9 @@ export class WordflowPanelCommunity extends LitElement {
   @query('.prompt-modal')
   promptModalElement: HTMLDialogElement | undefined;
 
+  @query('.prompt-loader')
+  promptLoaderElement: HTMLElement | undefined;
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
@@ -175,7 +178,7 @@ export class WordflowPanelCommunity extends LitElement {
   }
 
   tagClicked(tag: string) {
-    if (this.promptContentElement === undefined) {
+    if (!this.promptContentElement || !this.promptLoaderElement) {
       throw Error('promptContentElement is undefined');
     }
 
@@ -190,6 +193,10 @@ export class WordflowPanelCommunity extends LitElement {
 
     // Update the prompt list
     // Show the loader and disable scrolling
+    this.promptLoaderElement.style.setProperty(
+      'top',
+      `${this.promptContentElement.scrollTop}px`
+    );
     this.isWaitingForQueryResponse = true;
     const promptContentElement = this.promptContentElement;
     promptContentElement.classList.add('no-scroll');
@@ -254,11 +261,15 @@ export class WordflowPanelCommunity extends LitElement {
 
   headerModeButtonClicked(newMode: 'popular' | 'new') {
     if (this.curMode !== newMode) {
-      if (this.promptContentElement === undefined) {
+      if (!this.promptContentElement || !this.promptLoaderElement) {
         throw Error('promptContentElement is undefined');
       }
 
       // Show the loader and disable scrolling
+      this.promptLoaderElement.style.setProperty(
+        'top',
+        `${this.promptContentElement.scrollTop}px`
+      );
       this.isWaitingForQueryResponse = true;
       const promptContentElement = this.promptContentElement;
       promptContentElement.classList.add('no-scroll');
