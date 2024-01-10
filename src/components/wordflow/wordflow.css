@@ -17,7 +17,7 @@
 
   box-sizing: border-box;
   overscroll-behavior: none;
-  background-color: var(--gray-100);
+  background-color: var(--gray-50);
 }
 
 .svg-icon {

@@ -17,7 +17,8 @@
   justify-content: flex-start;
   align-items: flex-start;
 
-  max-width: 720px;
+  /* max-width: min(720px, 90vw); */
+  max-width: min(470px, 90vw);
   max-height: min(800px, 95vh);
 
   box-shadow:

@@ -33,6 +33,7 @@ import type { Editor } from '@tiptap/core';
 import type { SharePromptMessage } from '../prompt-editor/prompt-editor';
 import type { NightjarToast } from '../toast/toast';
 import type { PrivacyDialog } from '../privacy-dialog/privacy-dialog';
+import type { PrivacyDialogSimple } from '../privacy-dialog/privacy-dialog-simple';
 import type { WordflowSettingWindow } from '../setting-window/setting-window';
 
 // Components
@@ -42,6 +43,7 @@ import '../sidebar-menu/sidebar-menu';
 import '../floating-menu/floating-menu';
 import '../setting-window/setting-window';
 import '../privacy-dialog/privacy-dialog';
+import '../privacy-dialog/privacy-dialog-simple';
 
 // Assets
 import componentCSS from './wordflow.css?inline';
@@ -140,8 +142,8 @@ export class WordflowWordflow extends LitElement {
   @query('nightjar-toast#toast-wordflow')
   toastComponent: NightjarToast | undefined;
 
-  @query('wordflow-privacy-dialog')
-  privacyDialogComponent: PrivacyDialog | undefined;
+  @query('wordflow-privacy-dialog-simple')
+  privacyDialogComponent: PrivacyDialogSimple | undefined;
 
   @queryAsync('wordflow-setting-window')
   settingWindowComponent!: Promise<WordflowSettingWindow>;
@@ -536,15 +538,6 @@ export class WordflowWordflow extends LitElement {
         <div class="right-panel">
           <div class="top-padding"></div>
           <div class="footer-info">
-            <div
-              class="row no-show"
-              @click=${() => {
-                this.privacyDialogComponent?.show(() => {});
-              }}
-            >
-              Privacy
-            </div>
-
             <a
               class="row"
               href="https://github.com/poloclub/wordflow/"
@@ -558,17 +551,26 @@ export class WordflowWordflow extends LitElement {
 
             <a
               class="row"
+              href="https://github.com/poloclub/wordflow/issues/new"
+              target="_blank"
+              >Report an issue</a
+            >
+
+            <a
+              class="row"
               href="https://github.com/poloclub/wordflow"
               target="_blank"
               >Version (${packageInfoJSON.version})</a
             >
 
-            <a
+            <div
               class="row"
-              href="https://github.com/poloclub/wordflow/issues/new"
-              target="_blank"
-              >Report an issue</a
+              @click=${() => {
+                this.privacyDialogComponent?.show(() => {});
+              }}
             >
+              Privacy
+            </div>
           </div>
         </div>
 
@@ -606,7 +608,7 @@ export class WordflowWordflow extends LitElement {
             this.promptEditorShareClicked(e)}
         ></wordflow-setting-window>
 
-        <wordflow-privacy-dialog></wordflow-privacy-dialog>
+        <wordflow-privacy-dialog-simple></wordflow-privacy-dialog-simple>
 
         <div id="popper-tooltip" class="popper-tooltip hidden" role="tooltip">
           <span class="popper-content"></span>
