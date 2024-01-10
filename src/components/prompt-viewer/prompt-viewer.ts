@@ -105,6 +105,22 @@ export class WordflowPromptViewer extends LitElement {
     this.closeButtonClicked();
   }
 
+  /**
+   * Use web share api to share this prompt
+   */
+  shareButtonClicked() {
+    const promptID = this.promptData.forkFrom.replace('prompt#', '');
+    const shareData: ShareData = {
+      title: 'Wordflow',
+      text: this.promptData.title,
+      url: `https://poloclub.github.io/wordflow?prompt=${promptID}`
+    };
+    console.log(shareData.url);
+    if (navigator.canShare()) {
+      navigator.share(shareData);
+    }
+  }
+
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
@@ -184,6 +200,16 @@ export class WordflowPromptViewer extends LitElement {
       <span></span>
       <span class="value"
         ><a href="mailto:jayw@gatech.edu">Report a concern</a></span
+      > `;
+
+    // Add a sharing row
+    infoContent = html`${infoContent}
+      <span class="key">Share</span>
+      <span></span>
+      <span class="value"
+        ><span class="text-button" @click=${() => this.shareButtonClicked()}
+          >Send prompt to a friend</span
+        ></span
       > `;
 
     return html`

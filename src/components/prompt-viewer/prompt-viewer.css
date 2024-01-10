@@ -241,6 +241,14 @@ button {
   font-size: var(--font-d3);
   color: var(--gray-600);
   /* column-gap: 10px; */
+
+  .value {
+    .text-button {
+      color: var(--blue-800);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
 
 .add-button {
