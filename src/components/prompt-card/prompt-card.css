@@ -3,6 +3,8 @@
 .prompt-card {
   --padding-h: 16px;
   --padding-v: 16px;
+  /* --padding-h: 14px; */
+  /* --padding-v: 10px; */
 
   width: 100%;
   height: 100%;

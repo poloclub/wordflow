@@ -9,6 +9,8 @@
 .panel-local {
   --padding-h: 20px;
   --padding-v: 12px;
+  /* --padding-h: 16px; */
+  /* --padding-v: 10px; */
 
   width: 100%;
   height: 100%;

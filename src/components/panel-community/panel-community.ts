@@ -27,14 +27,10 @@ import expandIcon from '../../images/icon-more-circle.svg?raw';
 import shrinkIcon from '../../images/icon-shrink.svg?raw';
 import crossIcon from '../../images/icon-cross.svg?raw';
 
-import fakePromptsJSON from '../../data/fake-prompts-100.json';
-
 // Constants
 const NUM_CARDS_PER_PAGE = 18;
 const PAGINATION_WINDOW = 4;
 const MAX_POPULAR_TAGS = 30;
-
-const fakePrompts = fakePromptsJSON as PromptDataRemote[];
 
 /**
  * Panel community element.
@@ -49,7 +45,7 @@ export class WordflowPanelCommunity extends LitElement {
   remotePromptManager!: RemotePromptManager;
 
   @property({ attribute: false })
-  remotePrompts: PromptDataRemote[] = fakePrompts;
+  remotePrompts: PromptDataRemote[] = [];
 
   @property({ attribute: false })
   popularTags: TagData[] = [];
@@ -58,7 +54,7 @@ export class WordflowPanelCommunity extends LitElement {
   'is-shown' = false;
 
   @state()
-  selectedPrompt: PromptDataRemote | null = fakePrompts[0];
+  selectedPrompt: PromptDataRemote | null = null;
 
   @state()
   curMode: 'popular' | 'new' = 'popular';

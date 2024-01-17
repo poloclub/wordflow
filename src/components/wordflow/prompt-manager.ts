@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { get, set, del, clear } from 'idb-keyval';
+import d3 from '../../utils/d3-import';
 import type { PromptDataLocal, PromptDataRemote } from '../../types/wordflow';
 
+const DEV_MODE = import.meta.env.DEV;
 const PREFIX = 'local-prompt';
 
 export class PromptManager {
@@ -102,10 +104,6 @@ export class PromptManager {
     // Notify the consumers
     this._broadcastLocalPrompts();
     this._broadcastFavPrompts();
-
-    // console.log(this.promptKeys);
-    // console.log(this.localPrompts);
-    // console.log(this.favPromptKeys);
   }
 
   /**
@@ -375,6 +373,48 @@ export class PromptManager {
   _broadcastLocalPrompts() {
     this.localPromptCount = this.localPrompts.length;
     this.localPromptBroadcastCount = this.localPrompts.length;
+
+    // const getRandomISODateString = () => {
+    //   const start = new Date('2023-11-01');
+    //   const end = new Date('2023-12-31T23:59:59');
+    //   const randomDate = new Date(
+    //     start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    //   );
+    //   return randomDate.toISOString();
+    // };
+
+    // const newPrompts = structuredClone(this.localPrompts);
+    // if (DEV_MODE) {
+    //   const prompts = structuredClone(this.localPrompts);
+    //   for (const prompt of prompts) {
+    //     if (prompt.title.toLocaleLowerCase().includes('academic')) {
+    //       newPrompts[1] = prompt;
+    //     }
+
+    //     if (prompt.title.toLocaleLowerCase().includes('explainer')) {
+    //       newPrompts[0] = prompt;
+    //     }
+
+    //     if (prompt.title.toLocaleLowerCase().includes('flow')) {
+    //       newPrompts[2] = prompt;
+    //     }
+
+    //     if (prompt.title.toLocaleLowerCase().includes('japanese')) {
+    //       newPrompts[3] = prompt;
+    //     }
+    //   }
+    //   this.localPromptsUpdateCallback(newPrompts);
+    // }
+
+    // for (const prompt of newPrompts) {
+    //   prompt.created = getRandomISODateString();
+    // }
+
+    // newPrompts[0].promptRunCount = 397;
+    // newPrompts[1].promptRunCount = 188;
+    // newPrompts[2].promptRunCount = 80;
+    // newPrompts[3].promptRunCount = 59;
+
     this.localPromptsUpdateCallback(structuredClone(this.localPrompts));
   }
 

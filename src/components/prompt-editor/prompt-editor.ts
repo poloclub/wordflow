@@ -108,7 +108,7 @@ const FIELD_INFO: Record<Field, FieldInfo> = {
     tooltip: 'Choose an emoji or a character as the icon for your prompt'
   },
   [Field.prompt]: {
-    description: 'Prompt content',
+    description: 'Prompt template',
     placeholder:
       'You are an experienced writer. Given some input text, you will make it succinct and clear.',
     tooltip:
