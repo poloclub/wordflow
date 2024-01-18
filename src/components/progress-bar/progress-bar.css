@@ -1,0 +1,64 @@
+.progress-bar {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  box-sizing: border-box;
+  background-color: var(--gray-100);
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.current-progress {
+  height: 100%;
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    var(--gray-600) 0%,
+    hsla(0, 0%, 0%, 0.4) 50%,
+    var(--gray-600) 100%
+  );
+  background-size: 300% 300%;
+  animation: gradientAnimation 3000ms infinite linear;
+
+  transition: width 300ms ease-in-out;
+
+  &[is-done] {
+    animation: none;
+    background: var(--gray-600);
+  }
+}
+
+.progress-label {
+  position: absolute;
+  padding: 0 7px;
+  top: 50%;
+  right: 0px;
+  transform: translate(0px, -50%);
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+  color: white;
+
+  &[align-left] {
+    transform: translate(100%, -50%);
+    color: var(--gray-600);
+  }
+
+  &.temp {
+    opacity: 0;
+  }
+}

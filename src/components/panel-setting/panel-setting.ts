@@ -22,10 +22,12 @@ import { textGenGemini } from '../../llms/gemini';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 
 import '../toast/toast';
+import '../progress-bar/progress-bar';
 
 import type { TooltipConfig } from '@xiaohk/utils';
 import type { TextGenMessage } from '../../llms/gpt';
 import type { NightjarToast } from '../toast/toast';
+import type { NightjarProgressBar } from '../progress-bar/progress-bar';
 
 // Assets
 import infoIcon from '../../images/icon-info.svg?raw';
@@ -85,7 +87,10 @@ export class WordflowPanelSetting extends LitElement {
   toastType: 'success' | 'warning' | 'error' = 'success';
 
   @query('nightjar-toast')
-  toastComponent: NightjarToast | undefined;
+  toastComponent: NightjarToast | undefined | null;
+
+  @query('nightjar-progress-bar')
+  progressBarComponent: NightjarProgressBar | undefined | null;
 
   @query('#popper-tooltip-setting')
   popperElement: HTMLElement | undefined;
@@ -511,6 +516,8 @@ export class WordflowPanelSetting extends LitElement {
                 >
                   Install (630 MB)
                 </button>
+
+                <nightjar-progress-bar></nightjar-progress-bar>
               </div>
             </section>
           </div>

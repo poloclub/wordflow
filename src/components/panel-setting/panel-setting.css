@@ -87,6 +87,10 @@ button {
     flex: 1 1 auto;
   }
 
+  &.content-block-local {
+    flex: 1 1 auto;
+  }
+
   &[no-show] {
     display: none;
   }
@@ -222,13 +226,19 @@ button {
     flex: 1 1 auto;
     display: flex;
     flex-flow: row nowrap;
-    align-items: baseline;
+    align-items: center;
     position: relative;
     gap: 10px;
 
     .add-button {
       height: 100%;
+    }
+
+    & nightjar-progress-bar {
+      height: 100%;
       flex: 1 1 auto;
+      border-radius: 5px;
+      overflow: hidden;
     }
   }
 }
