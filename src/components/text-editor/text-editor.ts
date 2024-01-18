@@ -6,6 +6,7 @@ import { config } from '../../config/config';
 import {
   UserConfig,
   SupportedRemoteModel,
+  SupportedLocalModel,
   supportedModelReverseLookup,
   ModelFamily
 } from '../wordflow/user-config';
@@ -44,6 +45,7 @@ import type {
   ToastMessage
 } from '../wordflow/wordflow';
 import type { PromptManager } from '../wordflow/prompt-manager';
+import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
 
 // CSS
 import componentCSS from './text-editor.css?inline';
@@ -82,6 +84,12 @@ export class WordflowTextEditor extends LitElement {
 
   @property({ attribute: false })
   userConfig!: UserConfig;
+
+  @property({ attribute: false })
+  textGenLocalWorker!: Worker;
+  textGenLocalWorkerResolve = (
+    value: TextGenMessage | PromiseLike<TextGenMessage>
+  ) => {};
 
   @query('.text-editor-container')
   containerElement: HTMLElement | undefined;
@@ -140,6 +148,14 @@ export class WordflowTextEditor extends LitElement {
         localStorage.setItem('last-editor-content', JSON.stringify(content));
       }
     });
+
+    // Add event listener to the local text gen worker
+    this.textGenLocalWorker.addEventListener(
+      'message',
+      (e: MessageEvent<TextGenLocalWorkerMessage>) => {
+        this.textGenLocalWorkerMessageHandler(e);
+      }
+    );
   }
 
   initEditor() {
@@ -607,6 +623,45 @@ export class WordflowTextEditor extends LitElement {
   //==========================================================================||
   //                               Event Handlers                             ||
   //==========================================================================||
+  /**
+   * Event handler for the text gen local worker
+   * @param e Text gen message
+   */
+  textGenLocalWorkerMessageHandler(e: MessageEvent<TextGenLocalWorkerMessage>) {
+    switch (e.data.command) {
+      case 'finishTextGen': {
+        const message: TextGenMessage = {
+          command: 'finishTextGen',
+          payload: e.data.payload
+        };
+        this.textGenLocalWorkerResolve(message);
+        break;
+      }
+
+      case 'progressLoadModel': {
+        break;
+      }
+
+      case 'finishLoadModel': {
+        break;
+      }
+
+      case 'error': {
+        const message: TextGenMessage = {
+          command: 'error',
+          payload: e.data.payload
+        };
+        this.textGenLocalWorkerResolve(message);
+        break;
+      }
+
+      default: {
+        console.error('Worker: unknown message', e.data.command);
+        break;
+      }
+    }
+  }
+
   sidebarMenuFooterButtonClickedHandler(e: CustomEvent<string>) {
     switch (e.detail) {
       case 'accept': {
@@ -932,6 +987,21 @@ export class WordflowTextEditor extends LitElement {
           promptData.temperature,
           USE_CACHE
         );
+        break;
+      case SupportedLocalModel['tinyllama-1.1b']:
+        runRequest = new Promise<TextGenMessage>(resolve => {
+          this.textGenLocalWorkerResolve = resolve;
+        });
+        const message: TextGenLocalWorkerMessage = {
+          command: 'startTextGen',
+          payload: {
+            apiKey: '',
+            prompt: curPrompt,
+            requestID: '',
+            temperature: promptData.temperature
+          }
+        };
+        this.textGenLocalWorker.postMessage(message);
         break;
       default:
         runRequest = textGenWordflow(

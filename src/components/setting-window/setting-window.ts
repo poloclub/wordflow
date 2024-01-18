@@ -79,6 +79,9 @@ export class WordflowSettingWindow extends LitElement {
   @property({ attribute: false })
   userConfig!: UserConfig;
 
+  @property({ attribute: false })
+  textGenLocalWorker!: Worker;
+
   @state()
   activeMenuItemIndex = 2;
 
@@ -227,6 +230,7 @@ export class WordflowSettingWindow extends LitElement {
           class="setting-panel"
           .userConfigManager=${this.userConfigManager}
           .userConfig=${this.userConfig}
+          .textGenLocalWorker=${this.textGenLocalWorker}
           ?is-shown=${this.activeMenuItemIndex === 2}
         ></wordflow-panel-setting>`
       }

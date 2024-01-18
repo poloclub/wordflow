@@ -28,6 +28,7 @@ import type { TooltipConfig } from '@xiaohk/utils';
 import type { TextGenMessage } from '../../llms/gpt';
 import type { NightjarToast } from '../toast/toast';
 import type { NightjarProgressBar } from '../progress-bar/progress-bar';
+import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
 
 // Assets
 import infoIcon from '../../images/icon-info.svg?raw';
@@ -66,6 +67,9 @@ export class WordflowPanelSetting extends LitElement {
 
   @property({ attribute: false })
   userConfig!: UserConfig;
+
+  @property({ attribute: false })
+  textGenLocalWorker!: Worker;
 
   @state()
   selectedModel: SupportedRemoteModel | SupportedLocalModel;
@@ -135,6 +139,14 @@ export class WordflowPanelSetting extends LitElement {
         mouseleaveTimer: null
       };
     }
+
+    // Add event listener to the local text gen worker
+    this.textGenLocalWorker.addEventListener(
+      'message',
+      (e: MessageEvent<TextGenLocalWorkerMessage>) => {
+        this.textGenLocalWorkerMessageHandler(e);
+      }
+    );
   }
 
   //==========================================================================||
@@ -190,6 +202,50 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   //                              Event Handlers                              ||
   //==========================================================================||
+
+  /**
+   * Event handler for the text gen local worker
+   * @param e Text gen message
+   */
+  textGenLocalWorkerMessageHandler(e: MessageEvent<TextGenLocalWorkerMessage>) {
+    switch (e.data.command) {
+      case 'finishTextGen': {
+        break;
+      }
+
+      case 'progressLoadModel': {
+        this.progressBarComponent?.updateProgress(e.data.payload.progress);
+        break;
+      }
+
+      case 'finishLoadModel': {
+        break;
+      }
+
+      case 'error': {
+        break;
+      }
+
+      default: {
+        console.error('Worker: unknown message', e.data.command);
+        break;
+      }
+    }
+  }
+
+  installButtonClicked(e: MouseEvent) {
+    e.preventDefault();
+    // Request the worker to start text gen
+    const message: TextGenLocalWorkerMessage = {
+      command: 'startLoadModel',
+      payload: {
+        temperature: 0.2,
+        model: this.selectedModel as SupportedLocalModel
+      }
+    };
+    this.textGenLocalWorker.postMessage(message);
+  }
+
   addButtonClicked(e: MouseEvent) {
     e.preventDefault();
 
@@ -512,7 +568,7 @@ export class WordflowPanelSetting extends LitElement {
                   ?has-set=${this.installedLocalModel.has(
                     this.selectedModel as SupportedLocalModel
                   )}
-                  @click=${(e: MouseEvent) => this.addButtonClicked(e)}
+                  @click=${(e: MouseEvent) => this.installButtonClicked(e)}
                 >
                   Install (630 MB)
                 </button>

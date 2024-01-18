@@ -77,7 +77,7 @@ button {
   display: flex;
   flex-flow: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 3px;
 
   &.content-block-title {
     flex: 0 1 auto;
