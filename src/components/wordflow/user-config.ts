@@ -2,38 +2,48 @@ import { get, set, del, clear } from 'idb-keyval';
 
 const PREFIX = 'user-config';
 
-export enum SupportedModel {
+export enum SupportedLocalModel {
+  'tinyllama-1.1b' = 'TinyLlama (1.1B)'
+}
+
+export enum SupportedRemoteModel {
   'gpt-3.5-free' = 'GPT 3.5 (free)',
   'gpt-3.5' = 'GPT 3.5',
   'gpt-4' = 'GPT 4',
   'gemini-pro' = 'Gemini Pro'
 }
 
-export const supportedModelReverse: Record<
-  SupportedModel,
-  keyof typeof SupportedModel
+export const supportedModelReverseLookup: Record<
+  SupportedRemoteModel | SupportedLocalModel,
+  keyof typeof SupportedRemoteModel | keyof typeof SupportedLocalModel
 > = {
-  [SupportedModel['gpt-3.5-free']]: 'gpt-3.5-free',
-  [SupportedModel['gpt-3.5']]: 'gpt-3.5',
-  [SupportedModel['gpt-4']]: 'gpt-4',
-  [SupportedModel['gemini-pro']]: 'gemini-pro'
+  [SupportedRemoteModel['gpt-3.5-free']]: 'gpt-3.5-free',
+  [SupportedRemoteModel['gpt-3.5']]: 'gpt-3.5',
+  [SupportedRemoteModel['gpt-4']]: 'gpt-4',
+  [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
+  [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b'
 };
 
 export enum ModelFamily {
   google = 'Google',
-  openAI = 'Open AI'
+  openAI = 'Open AI',
+  local = 'Local'
 }
 
-export const modelFamilyMap: Record<SupportedModel, ModelFamily> = {
-  [SupportedModel['gpt-3.5']]: ModelFamily.openAI,
-  [SupportedModel['gpt-3.5-free']]: ModelFamily.openAI,
-  [SupportedModel['gpt-4']]: ModelFamily.openAI,
-  [SupportedModel['gemini-pro']]: ModelFamily.google
+export const modelFamilyMap: Record<
+  SupportedRemoteModel | SupportedLocalModel,
+  ModelFamily
+> = {
+  [SupportedRemoteModel['gpt-3.5']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-3.5-free']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-4']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gemini-pro']]: ModelFamily.google,
+  [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local
 };
 
 export interface UserConfig {
   llmAPIKeys: Record<ModelFamily, string>;
-  preferredLLM: SupportedModel;
+  preferredLLM: SupportedRemoteModel | SupportedLocalModel;
 }
 
 export class UserConfigManager {
@@ -41,16 +51,17 @@ export class UserConfigManager {
   updateUserConfig: (userConfig: UserConfig) => void;
 
   #llmAPIKeys: Record<ModelFamily, string>;
-  #preferredLLM: SupportedModel;
+  #preferredLLM: SupportedRemoteModel | SupportedLocalModel;
 
   constructor(updateUserConfig: (userConfig: UserConfig) => void) {
     this.updateUserConfig = updateUserConfig;
 
     this.#llmAPIKeys = {
       [ModelFamily.openAI]: '',
-      [ModelFamily.google]: ''
+      [ModelFamily.google]: '',
+      [ModelFamily.local]: ''
     };
-    this.#preferredLLM = SupportedModel['gpt-3.5-free'];
+    this.#preferredLLM = SupportedRemoteModel['gpt-3.5-free'];
     this._broadcastUserConfig();
 
     this.restoreFinished = this._restoreFromStorage();
@@ -64,7 +75,7 @@ export class UserConfigManager {
     this._broadcastUserConfig();
   }
 
-  setPreferredLLM(model: SupportedModel) {
+  setPreferredLLM(model: SupportedRemoteModel | SupportedLocalModel) {
     this.#preferredLLM = model;
     this._syncStorage();
     this._broadcastUserConfig();

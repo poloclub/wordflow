@@ -100,7 +100,7 @@ export class WordflowWordflow extends LitElement {
   workflowElement: HTMLElement | undefined;
 
   @state()
-  showSettingWindow = false;
+  showSettingWindow = true;
 
   @state()
   loadingActionIndex: number | null = null;

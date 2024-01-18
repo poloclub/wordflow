@@ -66,7 +66,7 @@ button {
 .two-section-container {
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
   gap: 20px;
   margin-bottom: 12px;
@@ -196,6 +196,7 @@ button {
 
   .length-input-container {
     width: 100%;
+    flex: 1 1 auto;
     display: flex;
     flex-flow: row nowrap;
     align-items: stretch;
@@ -213,6 +214,21 @@ button {
         right: 1px;
         transform: translate(0px, -50%);
       }
+    }
+  }
+
+  .download-info-container {
+    width: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: baseline;
+    position: relative;
+    gap: 10px;
+
+    .add-button {
+      height: 100%;
+      flex: 1 1 auto;
     }
   }
 }

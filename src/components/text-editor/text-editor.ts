@@ -5,8 +5,8 @@ import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
 import {
   UserConfig,
-  SupportedModel,
-  supportedModelReverse,
+  SupportedRemoteModel,
+  supportedModelReverseLookup,
   ModelFamily
 } from '../wordflow/user-config';
 import { textGenGpt } from '../../llms/gpt';
@@ -727,7 +727,8 @@ export class WordflowTextEditor extends LitElement {
             // If the users uses their own API key, record the run with only the
             // prompt prefix
             if (
-              this.userConfig.preferredLLM !== SupportedModel['gpt-3.5-free']
+              this.userConfig.preferredLLM !==
+              SupportedRemoteModel['gpt-3.5-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -735,7 +736,7 @@ export class WordflowTextEditor extends LitElement {
                 '',
                 promptData.temperature,
                 promptData.userID,
-                supportedModelReverse[this.userConfig.preferredLLM],
+                supportedModelReverseLookup[this.userConfig.preferredLLM],
                 USE_CACHE
               );
             }
@@ -818,7 +819,8 @@ export class WordflowTextEditor extends LitElement {
             // If the users uses their own API key, record the run with only the
             // prompt prefix
             if (
-              this.userConfig.preferredLLM !== SupportedModel['gpt-3.5-free']
+              this.userConfig.preferredLLM !==
+              SupportedRemoteModel['gpt-3.5-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -826,7 +828,7 @@ export class WordflowTextEditor extends LitElement {
                 '',
                 promptData.temperature,
                 promptData.userID,
-                supportedModelReverse[this.userConfig.preferredLLM],
+                supportedModelReverseLookup[this.userConfig.preferredLLM],
                 USE_CACHE
               );
             }
@@ -902,7 +904,7 @@ export class WordflowTextEditor extends LitElement {
     let runRequest: Promise<TextGenMessage>;
 
     switch (this.userConfig.preferredLLM) {
-      case SupportedModel['gpt-3.5']:
+      case SupportedRemoteModel['gpt-3.5']:
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -912,7 +914,7 @@ export class WordflowTextEditor extends LitElement {
           USE_CACHE
         );
         break;
-      case SupportedModel['gpt-4']:
+      case SupportedRemoteModel['gpt-4']:
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -922,7 +924,7 @@ export class WordflowTextEditor extends LitElement {
           USE_CACHE
         );
         break;
-      case SupportedModel['gemini-pro']:
+      case SupportedRemoteModel['gemini-pro']:
         runRequest = textGenGemini(
           this.userConfig.llmAPIKeys[ModelFamily.google],
           'text-gen',

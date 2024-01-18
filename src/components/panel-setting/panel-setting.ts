@@ -11,8 +11,9 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import {
   UserConfigManager,
   UserConfig,
-  SupportedModel,
-  supportedModelReverse,
+  SupportedRemoteModel,
+  SupportedLocalModel,
+  supportedModelReverseLookup,
   ModelFamily,
   modelFamilyMap
 } from '../wordflow/user-config';
@@ -30,11 +31,11 @@ import type { NightjarToast } from '../toast/toast';
 import infoIcon from '../../images/icon-info.svg?raw';
 import componentCSS from './panel-setting.css?inline';
 
-const apiKeyMap: Record<SupportedModel, string> = {
-  [SupportedModel['gpt-3.5']]: 'Open AI',
-  [SupportedModel['gpt-3.5-free']]: 'Open AI',
-  [SupportedModel['gpt-4']]: 'Open AI',
-  [SupportedModel['gemini-pro']]: 'Gemini'
+const apiKeyMap: Record<SupportedRemoteModel, string> = {
+  [SupportedRemoteModel['gpt-3.5']]: 'Open AI',
+  [SupportedRemoteModel['gpt-3.5-free']]: 'Open AI',
+  [SupportedRemoteModel['gpt-4']]: 'Open AI',
+  [SupportedRemoteModel['gemini-pro']]: 'Gemini'
 };
 
 const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
@@ -45,7 +46,8 @@ const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
   [ModelFamily.google]: html`Get the key at
     <a href="https://makersuite.google.com/" target="_blank"
       >Google AI Studio</a
-    >`
+    >`,
+  [ModelFamily.local]: html``
 };
 
 /**
@@ -64,7 +66,7 @@ export class WordflowPanelSetting extends LitElement {
   userConfig!: UserConfig;
 
   @state()
-  selectedModel: SupportedModel;
+  selectedModel: SupportedRemoteModel | SupportedLocalModel;
 
   get selectedModelFamily() {
     return modelFamilyMap[this.selectedModel];
@@ -89,12 +91,16 @@ export class WordflowPanelSetting extends LitElement {
   popperElement: HTMLElement | undefined;
   tooltipConfig: TooltipConfig | null = null;
 
+  // Currently local model weights are not stored persistently, so the configuration
+  // information is stored here instead of user-config
+  installedLocalModel = new Set<SupportedLocalModel>();
+
   //==========================================================================||
   //                             Lifecycle Methods                            ||
   //==========================================================================||
   constructor() {
     super();
-    this.selectedModel = SupportedModel['gpt-3.5-free'];
+    this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
   }
 
   /**
@@ -110,7 +116,7 @@ export class WordflowPanelSetting extends LitElement {
         const selectElement = this.shadowRoot!.querySelector(
           '.model-mode-select'
         ) as HTMLSelectElement;
-        selectElement.value = supportedModelReverse[this.selectedModel];
+        selectElement.value = supportedModelReverseLookup[this.selectedModel];
       }
     }
   }
@@ -133,7 +139,7 @@ export class WordflowPanelSetting extends LitElement {
 
   // ===== Event Methods ======
   textGenMessageHandler = (
-    model: SupportedModel,
+    model: SupportedRemoteModel,
     apiKey: string,
     message: TextGenMessage
   ) => {
@@ -206,7 +212,11 @@ export class WordflowPanelSetting extends LitElement {
         textGenGemini(apiKey, requestID, prompt, temperature, false).then(
           value => {
             this.showModelLoader = false;
-            this.textGenMessageHandler(this.selectedModel, apiKey, value);
+            this.textGenMessageHandler(
+              this.selectedModel as SupportedRemoteModel,
+              apiKey,
+              value
+            );
           }
         );
         break;
@@ -222,8 +232,16 @@ export class WordflowPanelSetting extends LitElement {
           false
         ).then(value => {
           this.showModelLoader = false;
-          this.textGenMessageHandler(this.selectedModel, apiKey, value);
+          this.textGenMessageHandler(
+            this.selectedModel as SupportedRemoteModel,
+            apiKey,
+            value
+          );
         });
+        break;
+      }
+
+      case ModelFamily.local: {
         break;
       }
 
@@ -237,17 +255,35 @@ export class WordflowPanelSetting extends LitElement {
     const select = e.currentTarget as HTMLSelectElement;
 
     // Update the UI
-    this.selectedModel =
-      SupportedModel[select.value as keyof typeof SupportedModel];
-    this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
+    if (
+      SupportedRemoteModel[
+        select.value as keyof typeof SupportedRemoteModel
+      ] !== undefined
+    ) {
+      // Handle remote model selection
+      this.selectedModel =
+        SupportedRemoteModel[select.value as keyof typeof SupportedRemoteModel];
+      this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
 
-    if (this.selectedModel === SupportedModel['gpt-3.5-free']) {
+      if (this.selectedModel === SupportedRemoteModel['gpt-3.5-free']) {
+        this.userConfigManager.setPreferredLLM(this.selectedModel);
+      } else {
+        // Save the preferred LLM if its API is set
+        if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
+          this.userConfigManager.setPreferredLLM(this.selectedModel);
+        }
+      }
+    } else if (
+      SupportedLocalModel[select.value as keyof typeof SupportedLocalModel] !==
+      undefined
+    ) {
+      // Handle local model selection
+      this.selectedModel =
+        SupportedLocalModel[select.value as keyof typeof SupportedLocalModel];
+      this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
       this.userConfigManager.setPreferredLLM(this.selectedModel);
     } else {
-      // Save the preferred LLM if its API is set
-      if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
-        this.userConfigManager.setPreferredLLM(this.selectedModel);
-      }
+      console.error('Unknown model selected');
     }
   }
 
@@ -256,7 +292,10 @@ export class WordflowPanelSetting extends LitElement {
    * @param e Mouse event
    * @param field Field type
    */
-  infoIconMouseEntered(e: MouseEvent, field: 'model' | 'api-key') {
+  infoIconMouseEntered(
+    e: MouseEvent,
+    field: 'model' | 'api-key' | 'local-llm'
+  ) {
     let message = '';
 
     switch (field) {
@@ -267,6 +306,12 @@ export class WordflowPanelSetting extends LitElement {
 
       case 'api-key': {
         message = 'Enter the API key to call the LLM model';
+        break;
+      }
+
+      case 'local-llm': {
+        message =
+          'Install open-source LLM models to run them directly in your browser';
         break;
       }
 
@@ -297,9 +342,18 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   render() {
     // Compose the model select options
-    let modelSelectOptions = html``;
-    for (const [name, label] of Object.entries(SupportedModel)) {
-      modelSelectOptions = html`${modelSelectOptions}
+    let remoteModelSelectOptions = html``;
+    let localModelSelectOptions = html``;
+
+    // Remote models
+    for (const [name, label] of Object.entries(SupportedRemoteModel)) {
+      remoteModelSelectOptions = html`${remoteModelSelectOptions}
+        <option value=${name}>${label}</option> `;
+    }
+
+    // Local models
+    for (const [name, label] of Object.entries(SupportedLocalModel)) {
+      localModelSelectOptions = html`${localModelSelectOptions}
         <option value=${name}>${label}</option> `;
     }
 
@@ -340,17 +394,25 @@ export class WordflowPanelSetting extends LitElement {
                 <span class="model-mode-text">${this.selectedModel}</span>
                 <select
                   class="model-mode-select"
-                  value="${supportedModelReverse[this.selectedModel]}"
+                  value="${supportedModelReverseLookup[this.selectedModel]}"
                   @change=${(e: InputEvent) => this.modelSelectChanged(e)}
                 >
-                  ${modelSelectOptions}
+                  <optgroup label="Remote LLMs">
+                    ${remoteModelSelectOptions}
+                  </optgroup>
+
+                  <optgroup label="Local LLMs">
+                    ${localModelSelectOptions}
+                  </optgroup>
                 </select>
               </span>
             </section>
 
             <section
               class="content-block content-block-api"
-              ?no-show=${this.selectedModel === SupportedModel['gpt-3.5-free']}
+              ?no-show=${this.selectedModel ===
+                SupportedRemoteModel['gpt-3.5-free'] ||
+              this.selectedModelFamily === ModelFamily.local}
             >
               <div class="name-row">
                 <div
@@ -363,7 +425,8 @@ export class WordflowPanelSetting extends LitElement {
                   }}
                 >
                   <div class="name">
-                    ${apiKeyMap[this.selectedModel]} API Key
+                    ${apiKeyMap[this.selectedModel as SupportedRemoteModel]} API
+                    Key
                   </div>
                   <span class="svg-icon info-icon"
                     >${unsafeHTML(infoIcon)}</span
@@ -410,6 +473,43 @@ export class WordflowPanelSetting extends LitElement {
                   ${this.userConfig.llmAPIKeys[this.selectedModelFamily] === ''
                     ? 'Add'
                     : 'Update'}
+                </button>
+              </div>
+            </section>
+
+            <section
+              class="content-block content-block-local"
+              ?no-show=${this.selectedModelFamily !== ModelFamily.local}
+            >
+              <div class="name-row">
+                <div
+                  class="name-container"
+                  @mouseenter=${(e: MouseEvent) => {
+                    this.infoIconMouseEntered(e, 'local-llm');
+                  }}
+                  @mouseleave=${() => {
+                    this.infoIconMouseLeft();
+                  }}
+                >
+                  <div class="name">Local LLM</div>
+                  <span class="svg-icon info-icon"
+                    >${unsafeHTML(infoIcon)}</span
+                  >
+                </div>
+                <span class="name-info"
+                  >${apiKeyDescriptionMap[this.selectedModelFamily]}</span
+                >
+              </div>
+
+              <div class="download-info-container">
+                <button
+                  class="add-button"
+                  ?has-set=${this.installedLocalModel.has(
+                    this.selectedModel as SupportedLocalModel
+                  )}
+                  @click=${(e: MouseEvent) => this.addButtonClicked(e)}
+                >
+                  Install (630 MB)
                 </button>
               </div>
             </section>
