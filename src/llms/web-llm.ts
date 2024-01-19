@@ -181,3 +181,112 @@ export const hasLocalModelInCache = async (model: SupportedLocalModel) => {
   const inCache = await webllm.hasModelInCache(curModel, appConfig);
   return inCache;
 };
+
+// Below helper functions are from TVM
+// https:github.com/mlc-ai/relax/blob/71e8089ff3d26877f4fd139e52c30cba24f23315/web/src/webgpu.ts#L36
+
+// Overwrite the types for below fields to string as TS doesn't support them yet and
+// we won't use them
+export interface GPUDeviceDetectOutput {
+  adapter: string;
+  adapterInfo: string;
+  device: string;
+}
+
+/**
+ * DetectGPU device in the environment.
+ */
+export async function detectGPUDevice(): Promise<
+  GPUDeviceDetectOutput | undefined
+> {
+  if (typeof navigator !== 'undefined' && navigator.gpu !== undefined) {
+    const adapter = await navigator.gpu.requestAdapter({
+      powerPreference: 'high-performance'
+    });
+    if (adapter == null) {
+      throw Error('Cannot find adapter that matches the request');
+    }
+    const computeMB = (value: number) => {
+      return Math.ceil(value / (1 << 20)) + 'MB';
+    };
+
+    // more detailed error message
+    const requiredMaxBufferSize = 1 << 30;
+    if (requiredMaxBufferSize > adapter.limits.maxBufferSize) {
+      throw Error(
+        `Cannot initialize runtime because of requested maxBufferSize ` +
+          `exceeds limit. requested=${computeMB(requiredMaxBufferSize)}, ` +
+          `limit=${computeMB(adapter.limits.maxBufferSize)}. ` +
+          `This error may be caused by an older version of the browser (e.g. Chrome 112). ` +
+          `You can try to upgrade your browser to Chrome 113 or later.`
+      );
+    }
+
+    let requiredMaxStorageBufferBindingSize = 1 << 30; // 1GB
+    if (
+      requiredMaxStorageBufferBindingSize >
+      adapter.limits.maxStorageBufferBindingSize
+    ) {
+      // If 1GB is too large, try 128MB (default size for Android)
+      const backupRequiredMaxStorageBufferBindingSize = 1 << 27; // 128MB
+      console.log(
+        `Requested maxStorageBufferBindingSize exceeds limit. \n` +
+          `requested=${computeMB(requiredMaxStorageBufferBindingSize)}, \n` +
+          `limit=${computeMB(adapter.limits.maxStorageBufferBindingSize)}. \n` +
+          `WARNING: Falling back to ${computeMB(
+            backupRequiredMaxStorageBufferBindingSize
+          )}...`
+      );
+      requiredMaxStorageBufferBindingSize =
+        backupRequiredMaxStorageBufferBindingSize;
+      if (
+        backupRequiredMaxStorageBufferBindingSize >
+        adapter.limits.maxStorageBufferBindingSize
+      ) {
+        // Fail if 128MB is still too big
+        throw Error(
+          `Cannot initialize runtime because of requested maxStorageBufferBindingSize ` +
+            `exceeds limit. requested=${computeMB(
+              backupRequiredMaxStorageBufferBindingSize
+            )}, ` +
+            `limit=${computeMB(adapter.limits.maxStorageBufferBindingSize)}. `
+        );
+      }
+    }
+
+    const requiredMaxComputeWorkgroupStorageSize = 32 << 10;
+    if (
+      requiredMaxComputeWorkgroupStorageSize >
+      adapter.limits.maxComputeWorkgroupStorageSize
+    ) {
+      throw Error(
+        `Cannot initialize runtime because of requested maxComputeWorkgroupStorageSize ` +
+          `exceeds limit. requested=${requiredMaxComputeWorkgroupStorageSize}, ` +
+          `limit=${adapter.limits.maxComputeWorkgroupStorageSize}. `
+      );
+    }
+
+    const requiredFeatures: string[] = [];
+    // Always require f16 if available
+    if (adapter.features.has('shader-f16')) {
+      requiredFeatures.push('shader-f16');
+    }
+
+    const adapterInfo = await adapter.requestAdapterInfo();
+    const device = await adapter.requestDevice({
+      requiredLimits: {
+        maxBufferSize: requiredMaxBufferSize,
+        maxStorageBufferBindingSize: requiredMaxStorageBufferBindingSize,
+        maxComputeWorkgroupStorageSize: requiredMaxComputeWorkgroupStorageSize
+      },
+      requiredFeatures
+    });
+    return {
+      adapter: adapter,
+      adapterInfo: adapterInfo,
+      device: device
+    };
+  } else {
+    return undefined;
+  }
+}

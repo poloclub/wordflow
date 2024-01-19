@@ -340,6 +340,19 @@ button {
       background-color: var(--gray-600);
     }
   }
+
+  &[is-disabled] {
+    background-color: var(--gray-600);
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: var(--gray-600);
+    }
+
+    &:active {
+      background-color: var(--gray-600);
+    }
+  }
 }
 
 @keyframes circle-loader-animation {

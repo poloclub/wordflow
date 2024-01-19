@@ -20,7 +20,7 @@ import {
 import { textGenGpt } from '../../llms/gpt';
 import { textGenGemini } from '../../llms/gemini';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
-import { hasLocalModelInCache } from '../../llms/web-llm';
+import { hasLocalModelInCache, detectGPUDevice } from '../../llms/web-llm';
 
 import '../toast/toast';
 import '../progress-bar/progress-bar';
@@ -57,7 +57,9 @@ const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
 const LOCAL_MODEL_MESSAGES = {
   default: html`Run LLMs privately in your browser with
     <a href=" https://webllm.mlc.ai/" target="_blank">Web LLM</a>`,
-  downloading: html`You can use other models during installation process</a>`
+  downloading: html`You can use other models during installation process</a>`,
+  incompatible: html`Browser unsupported (see
+    <a href=" https://webllm.mlc.ai/" target="_blank">Web LLM</a> for more info)`
 };
 
 /**
@@ -87,6 +89,9 @@ export class WordflowPanelSetting extends LitElement {
 
   @state()
   selectedLocalModelInCache = false;
+
+  @state()
+  curDeviceSupportsLocalModel = false;
 
   @state()
   apiInputValue = '';
@@ -185,6 +190,22 @@ export class WordflowPanelSetting extends LitElement {
     );
 
     this._updateSelectedLocalModelInCache();
+
+    // Check if the current device supports WebLLM
+    try {
+      detectGPUDevice().then(result => {
+        if (result !== undefined) {
+          this.curDeviceSupportsLocalModel = true;
+        } else {
+          this.curDeviceSupportsLocalModel = false;
+          this.localModelMessage = LOCAL_MODEL_MESSAGES.incompatible;
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      this.curDeviceSupportsLocalModel = false;
+      this.localModelMessage = LOCAL_MODEL_MESSAGES.incompatible;
+    }
   }
 
   //==========================================================================||
@@ -287,6 +308,10 @@ export class WordflowPanelSetting extends LitElement {
 
   localModelButtonClicked(e: MouseEvent) {
     e.preventDefault();
+
+    if (!this.curDeviceSupportsLocalModel) return;
+    if (this.userConfig.preferredLLM === this.selectedModel) return;
+
     // Request the worker to start loading the model
     const message: TextGenLocalWorkerMessage = {
       command: 'startLoadModel',
@@ -649,6 +674,7 @@ export class WordflowPanelSetting extends LitElement {
                   }}
                   ?has-set=${this.userConfig.preferredLLM ===
                   this.selectedModel}
+                  ?is-disabled=${!this.curDeviceSupportsLocalModel}
                   @click=${(e: MouseEvent) => this.localModelButtonClicked(e)}
                 >
                   ${this.userConfig.preferredLLM === this.selectedModel
