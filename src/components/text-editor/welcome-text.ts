@@ -1,5 +1,5 @@
 export const WELCOME_TEXT = `<p>Welcome to Wordflow, your AI writing assistant! With Wordflow, you can easily use AI prompts to improve and enhance your writing. To run a prompt, simply click on a button on the right toolbar. The toolbar consists of three emojis, each corresponding to a prompt. By default, Wordflow applies the selected prompt to the current paragraph in the document. If you prefer, you can also select some text before clicking the button to use the selected text as the prompt's input.</p>
 <p></p>
-<p>Wordflow is highly customizable. To create a new prompt, customize your shortcut buttons in the toolbar, or configure AI models (e.g., GPT 4 and Gemini Pro), simply click on the home button on the right to access your Prompt Manager.</p>
+<p>Wordflow is highly customizable. To create a new prompt, customize your shortcut buttons in the toolbar, or configure AI models (e.g., GPT 4 and Gemini Pro), simply click on the home button to access your Prompt Manager.</p>
 <p></p>
 <p>Wordflow is meant to be social! You can explore trending prompts from other users and add them to your library (Prompt Manager > Community > Select a prompt > Add). You can also share your prompts, allowing others to benefit from your creativity and ideas (Prompt Manager > My Prompts > Select a prompt > Share)!</p>`;

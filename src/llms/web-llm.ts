@@ -37,12 +37,20 @@ const appConfig: webllm.AppConfig = {
       local_id: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
       model_lib_url:
         'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/TinyLlama-1.1B-Chat-v0.4/TinyLlama-1.1B-Chat-v0.4-q4f16_1-ctx1k-webgpu.wasm'
+    },
+    {
+      model_url:
+        'https://huggingface.co/mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC/resolve/main/',
+      local_id: 'Llama-2-7b-chat-hf-q4f16_1',
+      model_lib_url:
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Llama-2-7b-chat-hf/Llama-2-7b-chat-hf-q4f16_1-ctx1k-webgpu.wasm'
     }
   ]
 };
 
 const modelMap: Record<SupportedLocalModel, string> = {
-  [SupportedLocalModel['tinyllama-1.1b']]: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1'
+  [SupportedLocalModel['tinyllama-1.1b']]: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
+  [SupportedLocalModel['llama-2-7b']]: 'Llama-2-7b-chat-hf-q4f16_1'
 };
 
 const chat = new webllm.ChatModule();
@@ -55,6 +63,7 @@ let _modelLoadingComplete: Promise<void> | null = null;
 
 chat.setInitProgressCallback((report: webllm.InitProgressReport) => {
   // Update the main thread about the progress
+  console.log(report.text);
   const message: TextGenLocalWorkerMessage = {
     command: 'progressLoadModel',
     payload: {
@@ -199,8 +208,13 @@ export interface GPUDeviceDetectOutput {
 export async function detectGPUDevice(): Promise<
   GPUDeviceDetectOutput | undefined
 > {
-  if (typeof navigator !== 'undefined' && navigator.gpu !== undefined) {
-    const adapter = await navigator.gpu.requestAdapter({
+  if (
+    typeof navigator !== 'undefined' &&
+    (navigator as Navigator & { gpu?: any }).gpu !== undefined
+  ) {
+    const adapter = await (
+      navigator as Navigator & { gpu?: any }
+    ).gpu?.requestAdapter({
       powerPreference: 'high-performance'
     });
     if (adapter == null) {

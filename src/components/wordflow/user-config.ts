@@ -3,7 +3,8 @@ import { get, set, del, clear } from 'idb-keyval';
 const PREFIX = 'user-config';
 
 export enum SupportedLocalModel {
-  'tinyllama-1.1b' = 'TinyLlama (1.1B)'
+  'tinyllama-1.1b' = 'TinyLlama (1.1B)',
+  'llama-2-7b' = 'Llama 2 (7B)'
 }
 
 export enum SupportedRemoteModel {
@@ -21,7 +22,8 @@ export const supportedModelReverseLookup: Record<
   [SupportedRemoteModel['gpt-3.5']]: 'gpt-3.5',
   [SupportedRemoteModel['gpt-4']]: 'gpt-4',
   [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
-  [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b'
+  [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b',
+  [SupportedLocalModel['llama-2-7b']]: 'llama-2-7b'
 };
 
 export enum ModelFamily {
@@ -38,7 +40,8 @@ export const modelFamilyMap: Record<
   [SupportedRemoteModel['gpt-3.5-free']]: ModelFamily.openAI,
   [SupportedRemoteModel['gpt-4']]: ModelFamily.openAI,
   [SupportedRemoteModel['gemini-pro']]: ModelFamily.google,
-  [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local
+  [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local,
+  [SupportedLocalModel['llama-2-7b']]: ModelFamily.local
 };
 
 export interface UserConfig {

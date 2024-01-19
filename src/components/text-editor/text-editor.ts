@@ -959,7 +959,7 @@ export class WordflowTextEditor extends LitElement {
     let runRequest: Promise<TextGenMessage>;
 
     switch (this.userConfig.preferredLLM) {
-      case SupportedRemoteModel['gpt-3.5']:
+      case SupportedRemoteModel['gpt-3.5']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -969,7 +969,9 @@ export class WordflowTextEditor extends LitElement {
           USE_CACHE
         );
         break;
-      case SupportedRemoteModel['gpt-4']:
+      }
+
+      case SupportedRemoteModel['gpt-4']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -979,7 +981,9 @@ export class WordflowTextEditor extends LitElement {
           USE_CACHE
         );
         break;
-      case SupportedRemoteModel['gemini-pro']:
+      }
+
+      case SupportedRemoteModel['gemini-pro']: {
         runRequest = textGenGemini(
           this.userConfig.llmAPIKeys[ModelFamily.google],
           'text-gen',
@@ -988,7 +992,10 @@ export class WordflowTextEditor extends LitElement {
           USE_CACHE
         );
         break;
-      case SupportedLocalModel['tinyllama-1.1b']:
+      }
+
+      case SupportedLocalModel['llama-2-7b']:
+      case SupportedLocalModel['tinyllama-1.1b']: {
         runRequest = new Promise<TextGenMessage>(resolve => {
           this.textGenLocalWorkerResolve = resolve;
         });
@@ -1003,7 +1010,9 @@ export class WordflowTextEditor extends LitElement {
         };
         this.textGenLocalWorker.postMessage(message);
         break;
-      default:
+      }
+
+      case SupportedRemoteModel['gpt-3.5-free']: {
         runRequest = textGenWordflow(
           'text-gen',
           promptData.prompt,
@@ -1013,6 +1022,21 @@ export class WordflowTextEditor extends LitElement {
           'gpt-3.5-free',
           USE_CACHE
         );
+        break;
+      }
+
+      default: {
+        console.error('Unknown case ', this.userConfig.preferredLLM);
+        runRequest = textGenWordflow(
+          'text-gen',
+          promptData.prompt,
+          inputText,
+          promptData.temperature,
+          promptData.userID,
+          'gpt-3.5-free',
+          USE_CACHE
+        );
+      }
     }
     return runRequest;
   }

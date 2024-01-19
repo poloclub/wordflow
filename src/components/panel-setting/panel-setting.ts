@@ -54,6 +54,11 @@ const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
   [ModelFamily.local]: html``
 };
 
+const localModelSizeMap: Record<SupportedLocalModel, string> = {
+  [SupportedLocalModel['tinyllama-1.1b']]: '630 MB',
+  [SupportedLocalModel['llama-2-7b']]: '3.6 GB'
+};
+
 const LOCAL_MODEL_MESSAGES = {
   default: html`Run LLMs privately in your browser with
     <a href=" https://webllm.mlc.ai/" target="_blank">Web LLM</a>`,
@@ -682,7 +687,9 @@ export class WordflowPanelSetting extends LitElement {
                     : this.selectedLocalModelInCache
                     ? 'Activate'
                     : 'Install'}
-                  (630 MB)
+                  (${localModelSizeMap[
+                    this.selectedModel as SupportedLocalModel
+                  ]})
                 </button>
 
                 <nightjar-progress-bar
