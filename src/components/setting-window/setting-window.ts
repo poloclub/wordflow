@@ -83,7 +83,7 @@ export class WordflowSettingWindow extends LitElement {
   textGenLocalWorker!: Worker;
 
   @state()
-  activeMenuItemIndex = 2;
+  activeMenuItemIndex = 0;
 
   @state()
   toastMessage = '';

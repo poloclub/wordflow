@@ -20,6 +20,7 @@ import {
 import { textGenGpt } from '../../llms/gpt';
 import { textGenGemini } from '../../llms/gemini';
 import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
+import { hasLocalModelInCache } from '../../llms/web-llm';
 
 import '../toast/toast';
 import '../progress-bar/progress-bar';
@@ -53,6 +54,12 @@ const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
   [ModelFamily.local]: html``
 };
 
+const LOCAL_MODEL_MESSAGES = {
+  default: html`Run LLMs privately in your browser with
+    <a href=" https://webllm.mlc.ai/" target="_blank">Web LLM</a>`,
+  downloading: html`You can use other models during installation process</a>`
+};
+
 /**
  * Panel setting element.
  *
@@ -79,6 +86,9 @@ export class WordflowPanelSetting extends LitElement {
   }
 
   @state()
+  selectedLocalModelInCache = false;
+
+  @state()
   apiInputValue = '';
 
   @state()
@@ -95,14 +105,14 @@ export class WordflowPanelSetting extends LitElement {
 
   @query('nightjar-progress-bar')
   progressBarComponent: NightjarProgressBar | undefined | null;
+  showLocalModelProgressBar = false;
+
+  @state()
+  localModelMessage = LOCAL_MODEL_MESSAGES.default;
 
   @query('#popper-tooltip-setting')
   popperElement: HTMLElement | undefined;
   tooltipConfig: TooltipConfig | null = null;
-
-  // Currently local model weights are not stored persistently, so the configuration
-  // information is stored here instead of user-config
-  installedLocalModel = new Set<SupportedLocalModel>();
 
   //==========================================================================||
   //                             Lifecycle Methods                            ||
@@ -126,6 +136,32 @@ export class WordflowPanelSetting extends LitElement {
           '.model-mode-select'
         ) as HTMLSelectElement;
         selectElement.value = supportedModelReverseLookup[this.selectedModel];
+
+        this._updateSelectedLocalModelInCache().then(() => {
+          // Case 1: If the user has set preferred model to a local model in the
+          // previous session and the model is in cache => activate it
+          if (
+            this.selectedModelFamily === ModelFamily.local &&
+            this.selectedLocalModelInCache
+          ) {
+            // Request the worker to start loading the model
+            const message: TextGenLocalWorkerMessage = {
+              command: 'startLoadModel',
+              payload: {
+                temperature: 0.2,
+                model: this.selectedModel as SupportedLocalModel
+              }
+            };
+            this.textGenLocalWorker.postMessage(message);
+          } else {
+            // Case 2: If the user has set preferred model to a local model in the
+            // previous session but the model is not longer in cache => revert to gpt 3.5 (free)
+            this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
+            selectElement.value =
+              supportedModelReverseLookup[this.selectedModel];
+            this.userConfigManager.setPreferredLLM(this.selectedModel);
+          }
+        });
       }
     }
   }
@@ -147,6 +183,8 @@ export class WordflowPanelSetting extends LitElement {
         this.textGenLocalWorkerMessageHandler(e);
       }
     );
+
+    this._updateSelectedLocalModelInCache();
   }
 
   //==========================================================================||
@@ -219,6 +257,20 @@ export class WordflowPanelSetting extends LitElement {
       }
 
       case 'finishLoadModel': {
+        // Show the default message
+        this.localModelMessage = LOCAL_MODEL_MESSAGES.default;
+        this.showLocalModelProgressBar = false;
+
+        // Case 1: The user is using other models when the model finishes loading.
+        // Do nothing, wait for the users to switch to this model again.
+        if (e.data.payload.model !== this.selectedModel) {
+          // Pass
+        } else {
+          // Case 2: The user is actively waiting for this model to finish loading.
+          // Switch preferred model this model
+          this.userConfigManager.setPreferredLLM(this.selectedModel);
+        }
+
         break;
       }
 
@@ -233,9 +285,9 @@ export class WordflowPanelSetting extends LitElement {
     }
   }
 
-  installButtonClicked(e: MouseEvent) {
+  localModelButtonClicked(e: MouseEvent) {
     e.preventDefault();
-    // Request the worker to start text gen
+    // Request the worker to start loading the model
     const message: TextGenLocalWorkerMessage = {
       command: 'startLoadModel',
       payload: {
@@ -244,6 +296,10 @@ export class WordflowPanelSetting extends LitElement {
       }
     };
     this.textGenLocalWorker.postMessage(message);
+
+    // Show the downloading message
+    this.localModelMessage = LOCAL_MODEL_MESSAGES.downloading;
+    this.showLocalModelProgressBar = true;
   }
 
   addButtonClicked(e: MouseEvent) {
@@ -342,7 +398,11 @@ export class WordflowPanelSetting extends LitElement {
       this.selectedModel =
         SupportedLocalModel[select.value as keyof typeof SupportedLocalModel];
       this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
-      this.userConfigManager.setPreferredLLM(this.selectedModel);
+
+      // Check if this model is in cache
+      this._updateSelectedLocalModelInCache();
+
+      // Only set preferred LLM to this model after activation
     } else {
       console.error('Unknown model selected');
     }
@@ -397,6 +457,15 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   //                             Private Helpers                              ||
   //==========================================================================||
+  async _updateSelectedLocalModelInCache() {
+    if (this.selectedModelFamily !== ModelFamily.local) {
+      this.selectedLocalModelInCache = false;
+    } else {
+      this.selectedLocalModelInCache = await hasLocalModelInCache(
+        this.selectedModel as SupportedLocalModel
+      );
+    }
+  }
 
   //==========================================================================||
   //                           Templates and Styles                           ||
@@ -557,23 +626,42 @@ export class WordflowPanelSetting extends LitElement {
                     >${unsafeHTML(infoIcon)}</span
                   >
                 </div>
-                <span class="name-info"
-                  >${apiKeyDescriptionMap[this.selectedModelFamily]}</span
-                >
+                <span class="name-info">${this.localModelMessage}</span>
               </div>
 
               <div class="download-info-container">
                 <button
                   class="add-button"
-                  ?has-set=${this.installedLocalModel.has(
-                    this.selectedModel as SupportedLocalModel
-                  )}
-                  @click=${(e: MouseEvent) => this.installButtonClicked(e)}
+                  @mouseenter=${(e: MouseEvent) => {
+                    const element = e.currentTarget as HTMLElement;
+                    tooltipMouseEnter(
+                      e,
+                      'Installing local LLMs for the first time can take several minutes. Once installed, activating them would be much faster.',
+                      'top',
+                      this.tooltipConfig,
+                      200,
+                      element,
+                      10
+                    );
+                  }}
+                  @mouseleave=${() => {
+                    this.infoIconMouseLeft();
+                  }}
+                  ?has-set=${this.userConfig.preferredLLM ===
+                  this.selectedModel}
+                  @click=${(e: MouseEvent) => this.localModelButtonClicked(e)}
                 >
-                  Install (630 MB)
+                  ${this.userConfig.preferredLLM === this.selectedModel
+                    ? 'Activated'
+                    : this.selectedLocalModelInCache
+                    ? 'Activate'
+                    : 'Install'}
+                  (630 MB)
                 </button>
 
-                <nightjar-progress-bar></nightjar-progress-bar>
+                <nightjar-progress-bar
+                  ?is-shown=${this.showLocalModelProgressBar}
+                ></nightjar-progress-bar>
               </div>
             </section>
           </div>

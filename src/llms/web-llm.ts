@@ -49,7 +49,7 @@ const chat = new webllm.ChatModule();
 
 // To reset temperature, WebLLM requires to reload the model. Therefore, we just
 // fix the temperature for now.
-let temperature = 0.2;
+let _temperature = 0.2;
 
 chat.setInitProgressCallback((report: webllm.InitProgressReport) => {
   // Update the main thread about the progress
@@ -99,6 +99,7 @@ const startLoadModel = async (
   model: SupportedLocalModel,
   temperature: number
 ) => {
+  _temperature = temperature;
   const curModel = modelMap[model];
   const chatOption: webllm.ChatOptions = {
     temperature: temperature
@@ -162,4 +163,14 @@ const startTextGen = async (prompt: string, temperature: number) => {
     };
     postMessage(message);
   }
+};
+
+//==========================================================================||
+//                          Module Methods                                  ||
+//==========================================================================||
+
+export const hasLocalModelInCache = async (model: SupportedLocalModel) => {
+  const curModel = modelMap[model];
+  const inCache = await webllm.hasModelInCache(curModel, appConfig);
+  return inCache;
 };

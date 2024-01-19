@@ -239,6 +239,11 @@ button {
       flex: 1 1 auto;
       border-radius: 5px;
       overflow: hidden;
+      display: none;
+
+      &[is-shown] {
+        display: flex;
+      }
     }
   }
 }
