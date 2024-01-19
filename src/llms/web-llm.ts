@@ -51,6 +51,8 @@ const chat = new webllm.ChatModule();
 // fix the temperature for now.
 let _temperature = 0.2;
 
+let _modelLoadingComplete: Promise<void> | null = null;
+
 chat.setInitProgressCallback((report: webllm.InitProgressReport) => {
   // Update the main thread about the progress
   const message: TextGenLocalWorkerMessage = {
@@ -104,7 +106,8 @@ const startLoadModel = async (
   const chatOption: webllm.ChatOptions = {
     temperature: temperature
   };
-  await chat.reload(curModel, chatOption, appConfig);
+  _modelLoadingComplete = chat.reload(curModel, chatOption, appConfig);
+  await _modelLoadingComplete;
 
   try {
     // Send back the data to the main thread
@@ -137,6 +140,10 @@ const startLoadModel = async (
  */
 const startTextGen = async (prompt: string, temperature: number) => {
   try {
+    if (_modelLoadingComplete) {
+      await _modelLoadingComplete;
+    }
+
     const response = await chat.generate(prompt);
 
     // Send back the data to the main thread
