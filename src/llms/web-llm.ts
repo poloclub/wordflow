@@ -44,7 +44,7 @@ const appConfig: webllm.AppConfig = {
       local_id: 'Llama-2-7b-chat-hf-q4f16_1',
       model_lib_url:
         'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Llama-2-7b-chat-hf/Llama-2-7b-chat-hf-q4f16_1-ctx1k-webgpu.wasm'
-    }
+    },
     // {
     //   model_url: 'https://huggingface.co/mlc-ai/gpt2-q0f16-MLC/resolve/main/',
     //   local_id: 'gpt2-q0f16',
@@ -58,22 +58,22 @@ const appConfig: webllm.AppConfig = {
     //   model_lib_url:
     //     'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Mistral-7B-Instruct-v0.2/Mistral-7B-Instruct-v0.2-q4f16_1-sw4k_cs1k-webgpu.wasm'
     // }
-    // {
-    //   model_url:
-    //     'https://huggingface.co/mlc-ai/phi-2-q4f16_1-MLC/resolve/main/',
-    //   local_id: 'phi-2-q4f16_1',
-    //   model_lib_url:
-    //     'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/phi-2/phi-2-q0f16-ctx2k-webgpu.wasm'
-    // }
+    {
+      model_url:
+        'https://huggingface.co/mlc-ai/phi-2-q4f16_1-MLC/resolve/main/',
+      local_id: 'phi-2-q4f16_1',
+      model_lib_url:
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/phi-2/phi-2-q0f16-ctx2k-webgpu.wasm'
+    }
   ]
 };
 
 const modelMap: Record<SupportedLocalModel, string> = {
   [SupportedLocalModel['tinyllama-1.1b']]: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
-  [SupportedLocalModel['llama-2-7b']]: 'Llama-2-7b-chat-hf-q4f16_1'
+  [SupportedLocalModel['llama-2-7b']]: 'Llama-2-7b-chat-hf-q4f16_1',
   // [SupportedLocalModel['gpt-2']]: 'gpt2-q0f16'
   // [SupportedLocalModel['mistral-7b-v0.2']]: 'Mistral-7B-Instruct-v0.2-q3f16_1'
-  // [SupportedLocalModel['phi-2']]: 'phi-2-q4f16_1'
+  [SupportedLocalModel['phi-2']]: 'phi-2-q4f16_1'
 };
 
 const chat = new webllm.ChatModule();
@@ -217,12 +217,11 @@ export const hasLocalModelInCache = async (model: SupportedLocalModel) => {
 // Below helper functions are from TVM
 // https:github.com/mlc-ai/relax/blob/71e8089ff3d26877f4fd139e52c30cba24f23315/web/src/webgpu.ts#L36
 
-// Overwrite the types for below fields to string as TS doesn't support them yet and
-// we won't use them
+// Types are from @webgpu/types
 export interface GPUDeviceDetectOutput {
-  adapter: string;
-  adapterInfo: string;
-  device: string;
+  adapter: GPUAdapter;
+  adapterInfo: GPUAdapterInfo;
+  device: GPUDevice;
 }
 
 /**
@@ -231,13 +230,8 @@ export interface GPUDeviceDetectOutput {
 export async function detectGPUDevice(): Promise<
   GPUDeviceDetectOutput | undefined
 > {
-  if (
-    typeof navigator !== 'undefined' &&
-    (navigator as Navigator & { gpu?: any }).gpu !== undefined
-  ) {
-    const adapter = await (
-      navigator as Navigator & { gpu?: any }
-    ).gpu?.requestAdapter({
+  if (typeof navigator !== 'undefined' && navigator.gpu !== undefined) {
+    const adapter = await navigator.gpu.requestAdapter({
       powerPreference: 'high-performance'
     });
     if (adapter == null) {
@@ -251,11 +245,11 @@ export async function detectGPUDevice(): Promise<
     const requiredMaxBufferSize = 1 << 30;
     if (requiredMaxBufferSize > adapter.limits.maxBufferSize) {
       throw Error(
-        `Cannot initialize runtime because of requested maxBufferSize ` +
+        'Cannot initialize runtime because of requested maxBufferSize ' +
           `exceeds limit. requested=${computeMB(requiredMaxBufferSize)}, ` +
           `limit=${computeMB(adapter.limits.maxBufferSize)}. ` +
-          `This error may be caused by an older version of the browser (e.g. Chrome 112). ` +
-          `You can try to upgrade your browser to Chrome 113 or later.`
+          'This error may be caused by an older version of the browser (e.g. Chrome 112). ' +
+          'You can try to upgrade your browser to Chrome 113 or later.'
       );
     }
 
@@ -267,7 +261,7 @@ export async function detectGPUDevice(): Promise<
       // If 1GB is too large, try 128MB (default size for Android)
       const backupRequiredMaxStorageBufferBindingSize = 1 << 27; // 128MB
       console.log(
-        `Requested maxStorageBufferBindingSize exceeds limit. \n` +
+        'Requested maxStorageBufferBindingSize exceeds limit. \n' +
           `requested=${computeMB(requiredMaxStorageBufferBindingSize)}, \n` +
           `limit=${computeMB(adapter.limits.maxStorageBufferBindingSize)}. \n` +
           `WARNING: Falling back to ${computeMB(
@@ -282,7 +276,7 @@ export async function detectGPUDevice(): Promise<
       ) {
         // Fail if 128MB is still too big
         throw Error(
-          `Cannot initialize runtime because of requested maxStorageBufferBindingSize ` +
+          'Cannot initialize runtime because of requested maxStorageBufferBindingSize ' +
             `exceeds limit. requested=${computeMB(
               backupRequiredMaxStorageBufferBindingSize
             )}, ` +
@@ -297,13 +291,13 @@ export async function detectGPUDevice(): Promise<
       adapter.limits.maxComputeWorkgroupStorageSize
     ) {
       throw Error(
-        `Cannot initialize runtime because of requested maxComputeWorkgroupStorageSize ` +
+        'Cannot initialize runtime because of requested maxComputeWorkgroupStorageSize ' +
           `exceeds limit. requested=${requiredMaxComputeWorkgroupStorageSize}, ` +
           `limit=${adapter.limits.maxComputeWorkgroupStorageSize}. `
       );
     }
 
-    const requiredFeatures: string[] = [];
+    const requiredFeatures: GPUFeatureName[] = [];
     // Always require f16 if available
     if (adapter.features.has('shader-f16')) {
       requiredFeatures.push('shader-f16');

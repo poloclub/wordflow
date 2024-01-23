@@ -6,6 +6,7 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
+    "types": ["@webgpu/types"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",

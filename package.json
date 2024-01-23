@@ -35,6 +35,7 @@
     "@types/emoji-regex": "^9.2.0",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@webgpu/types": "^0.1.40",
     "@xiaohk/utils": "^0.0.6",
     "d3-array": "^3.2.4",
     "d3-format": "^3.1.0",
