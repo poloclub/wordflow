@@ -27,9 +27,9 @@ export const supportedModelReverseLookup: Record<
   [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
   [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b',
   [SupportedLocalModel['llama-2-7b']]: 'llama-2-7b',
+  [SupportedLocalModel['phi-2']]: 'phi-2'
   // [SupportedLocalModel['gpt-2']]: 'gpt-2'
   // [SupportedLocalModel['mistral-7b-v0.2']]: 'mistral-7b-v0.2'
-  [SupportedLocalModel['phi-2']]: 'phi-2'
 };
 
 export enum ModelFamily {

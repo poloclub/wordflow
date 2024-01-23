@@ -1,6 +1,7 @@
 import * as webllm from '@mlc-ai/web-llm';
 import { SupportedLocalModel } from '../components/wordflow/user-config';
 import type { TextGenWorkerMessage } from '../types/common-types';
+import type { ConvTemplateConfig } from '@mlc-ai/web-llm/lib/config';
 
 export type TextGenLocalWorkerMessage =
   | TextGenWorkerMessage
@@ -29,7 +30,7 @@ export type TextGenLocalWorkerMessage =
 //==========================================================================||
 //                          Worker Initialization                           ||
 //==========================================================================||
-const appConfig: webllm.AppConfig = {
+const APP_CONFIGS: webllm.AppConfig = {
   model_list: [
     {
       model_url:
@@ -45,35 +46,74 @@ const appConfig: webllm.AppConfig = {
       model_lib_url:
         'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Llama-2-7b-chat-hf/Llama-2-7b-chat-hf-q4f16_1-ctx1k-webgpu.wasm'
     },
-    // {
-    //   model_url: 'https://huggingface.co/mlc-ai/gpt2-q0f16-MLC/resolve/main/',
-    //   local_id: 'gpt2-q0f16',
-    //   model_lib_url:
-    //     'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/gpt2/gpt2-q0f16-ctx1k-webgpu.wasm'
-    // }
-    // {
-    //   model_url:
-    //     'https://huggingface.co/mlc-ai/Mistral-7B-Instruct-v0.2-q3f16_1-MLC/resolve/main/',
-    //   local_id: 'Mistral-7B-Instruct-v0.2-q3f16_1',
-    //   model_lib_url:
-    //     'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Mistral-7B-Instruct-v0.2/Mistral-7B-Instruct-v0.2-q4f16_1-sw4k_cs1k-webgpu.wasm'
-    // }
+    {
+      model_url: 'https://huggingface.co/mlc-ai/gpt2-q0f16-MLC/resolve/main/',
+      local_id: 'gpt2-q0f16',
+      model_lib_url:
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/gpt2/gpt2-q0f16-ctx1k-webgpu.wasm'
+    },
+    {
+      model_url:
+        'https://huggingface.co/mlc-ai/Mistral-7B-Instruct-v0.2-q3f16_1-MLC/resolve/main/',
+      local_id: 'Mistral-7B-Instruct-v0.2-q3f16_1',
+      model_lib_url:
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Mistral-7B-Instruct-v0.2/Mistral-7B-Instruct-v0.2-q4f16_1-sw4k_cs1k-webgpu.wasm'
+    },
     {
       model_url:
         'https://huggingface.co/mlc-ai/phi-2-q4f16_1-MLC/resolve/main/',
-      local_id: 'phi-2-q4f16_1',
+      local_id: 'Phi2-q4f16_1',
       model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/phi-2/phi-2-q0f16-ctx2k-webgpu.wasm'
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/phi-2/phi-2-q4f16_1-ctx2k-webgpu.wasm',
+      vram_required_MB: 3053.97,
+      low_resource_required: false,
+      required_features: ['shader-f16']
     }
   ]
+};
+
+const CONV_TEMPLATES: Record<
+  SupportedLocalModel,
+  Partial<ConvTemplateConfig>
+> = {
+  [SupportedLocalModel['tinyllama-1.1b']]: {
+    system: '<|im_start|><|im_end|> ',
+    roles: ['<|im_start|>user', '<|im_start|>assistant'],
+    offset: 0,
+    seps: ['', ''],
+    separator_style: 'Two',
+    stop_str: '<|im_end|>',
+    add_bos: false,
+    stop_tokens: [2]
+  },
+  [SupportedLocalModel['llama-2-7b']]: {
+    system: '[INST] <<SYS>><</SYS>>\n\n ',
+    roles: ['[INST]', '[/INST]'],
+    offset: 0,
+    seps: [' ', ' '],
+    separator_style: 'Two',
+    stop_str: '[INST]',
+    add_bos: true,
+    stop_tokens: [2]
+  },
+  [SupportedLocalModel['phi-2']]: {
+    system: '',
+    roles: ['Instruct', 'Output'],
+    offset: 0,
+    seps: ['\n'],
+    separator_style: 'Two',
+    stop_str: '<|endoftext|>',
+    add_bos: false,
+    stop_tokens: [50256]
+  }
 };
 
 const modelMap: Record<SupportedLocalModel, string> = {
   [SupportedLocalModel['tinyllama-1.1b']]: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
   [SupportedLocalModel['llama-2-7b']]: 'Llama-2-7b-chat-hf-q4f16_1',
+  [SupportedLocalModel['phi-2']]: 'Phi2-q4f16_1'
   // [SupportedLocalModel['gpt-2']]: 'gpt2-q0f16'
   // [SupportedLocalModel['mistral-7b-v0.2']]: 'Mistral-7B-Instruct-v0.2-q3f16_1'
-  [SupportedLocalModel['phi-2']]: 'phi-2-q4f16_1'
 };
 
 const chat = new webllm.ChatModule();
@@ -136,9 +176,11 @@ const startLoadModel = async (
   _temperature = temperature;
   const curModel = modelMap[model];
   const chatOption: webllm.ChatOptions = {
-    temperature: temperature
+    temperature: temperature,
+    conv_config: CONV_TEMPLATES[model],
+    conv_template: 'custom'
   };
-  _modelLoadingComplete = chat.reload(curModel, chatOption, appConfig);
+  _modelLoadingComplete = chat.reload(curModel, chatOption, APP_CONFIGS);
   await _modelLoadingComplete;
 
   try {
@@ -178,6 +220,9 @@ const startTextGen = async (prompt: string, temperature: number) => {
 
     const response = await chat.generate(prompt);
 
+    // Reset the chat cache to avoid memorizing previous messages
+    await chat.resetChat();
+
     // Send back the data to the main thread
     const message: TextGenLocalWorkerMessage = {
       command: 'finishTextGen',
@@ -210,7 +255,7 @@ const startTextGen = async (prompt: string, temperature: number) => {
 
 export const hasLocalModelInCache = async (model: SupportedLocalModel) => {
   const curModel = modelMap[model];
-  const inCache = await webllm.hasModelInCache(curModel, appConfig);
+  const inCache = await webllm.hasModelInCache(curModel, APP_CONFIGS);
   return inCache;
 };
 
