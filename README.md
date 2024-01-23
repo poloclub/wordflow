@@ -11,7 +11,7 @@ Social and customizable AI writing assistant tool ✍️
 
 <table>
   <tr>
-    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/0aca0110-b35c-42e1-a5ba-a1c1f049c952'></a></td>
+    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/eead2c0c-4db2-4b57-a8d4-f52c7dfad9a8'></a></td>
   </tr>
   <tr></tr>
   <tr align="center">
@@ -24,7 +24,7 @@ Social and customizable AI writing assistant tool ✍️
 
 ## What is Wordflow?
 
-Wordflow is a social and customizable AI writing assistant tool! With Wordflow, you can easily write and run AI prompts with different large language models (e.g., GPT 4 and Gemini Pro). You can also discover and share your favorite prompts with the community.
+Wordflow is a social and customizable AI writing assistant tool! With Wordflow, you can easily write and run AI prompts with different large language models, including both external models (e.g., GPT 4 and Gemini Pro) and local models (e.g., Llama 2 and Phi 2). You can also discover and share your favorite prompts with the community.
 
 <table>
   <tr>
@@ -34,7 +34,12 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
   <tr></tr>
   <tr>
     <td>✅</td>
-    <td>Support multiple AI models (e.g., GPT 4 and Gemini Pro)</td>
+    <td>Support different external LLMs (e.g., GPT 4 and Gemini Pro)</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>✅</td>
+    <td>Support multiple on-device LLMs (e.g., Llama 2 and Phi 2)</td>
   </tr>
   <tr></tr>
   <tr>
@@ -49,6 +54,10 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
   <tr></tr>
   <tr></tr>
 </table>
+
+## Features
+
+<img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/0aca0110-b35c-42e1-a5ba-a1c1f049c952'>
 
 ### Demo Video
 
@@ -79,7 +88,7 @@ Install the dependencies:
 npm install
 ```
 
-Then run Loan Explainer:
+Then run Wordflow:
 
 ```
 npm run dev
