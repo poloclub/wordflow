@@ -153,26 +153,25 @@ export class WordflowPanelSetting extends LitElement {
         this._updateSelectedLocalModelInCache().then(() => {
           // Case 1: If the user has set preferred model to a local model in the
           // previous session and the model is in cache => activate it
-          if (
-            this.selectedModelFamily === ModelFamily.local &&
-            this.selectedLocalModelInCache
-          ) {
-            // Request the worker to start loading the model
-            const message: TextGenLocalWorkerMessage = {
-              command: 'startLoadModel',
-              payload: {
-                temperature: 0.2,
-                model: this.selectedModel as SupportedLocalModel
-              }
-            };
-            this.textGenLocalWorker.postMessage(message);
-          } else {
-            // Case 2: If the user has set preferred model to a local model in the
-            // previous session but the model is not longer in cache => revert to gpt 3.5 (free)
-            this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
-            selectElement.value =
-              supportedModelReverseLookup[this.selectedModel];
-            this.userConfigManager.setPreferredLLM(this.selectedModel);
+          if (this.selectedModelFamily === ModelFamily.local) {
+            if (this.selectedLocalModelInCache) {
+              // Request the worker to start loading the model
+              const message: TextGenLocalWorkerMessage = {
+                command: 'startLoadModel',
+                payload: {
+                  temperature: 0.2,
+                  model: this.selectedModel as SupportedLocalModel
+                }
+              };
+              this.textGenLocalWorker.postMessage(message);
+            } else {
+              // Case 2: If the user has set preferred model to a local model in the
+              // previous session but the model is not longer in cache => revert to gpt 3.5 (free)
+              this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
+              selectElement.value =
+                supportedModelReverseLookup[this.selectedModel];
+              this.userConfigManager.setPreferredLLM(this.selectedModel);
+            }
           }
         });
       }
@@ -688,8 +687,8 @@ export class WordflowPanelSetting extends LitElement {
                   ${this.userConfig.preferredLLM === this.selectedModel
                     ? 'Activated'
                     : this.selectedLocalModelInCache
-                    ? 'Activate'
-                    : 'Install'}
+                      ? 'Activate'
+                      : 'Install'}
                   (${localModelSizeMap[
                     this.selectedModel as SupportedLocalModel
                   ]})
