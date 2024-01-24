@@ -354,13 +354,21 @@ export class WordflowTextEditor extends LitElement {
           // Case 3: add new => show new
           // Add empty string as the old text
           if (i >= 1 && differences[i - 1][0] === 0) {
-            diffText += `<mark
+            if (diff[1] === ' ') {
+              // Temporary fix: add the new space as old text, because <mark> with
+              // space content is not be rendered by tiptap.
+              diffText += ' ';
+              replaceMap.set(diff[1], '');
+              lastDeletedText = '';
+            } else {
+              diffText += `<mark
               id="edit-highlight-${this.curEditID++}"
               data-color="${ADDED_COLOR}"
               data-old-text="${lastDeletedText}"
             >${diff[1]}</mark>`;
-            replaceMap.set(diff[1], '');
-            lastDeletedText = '';
+              replaceMap.set(diff[1], '');
+              lastDeletedText = '';
+            }
           }
 
           // Case 4: no old, add new => show new
