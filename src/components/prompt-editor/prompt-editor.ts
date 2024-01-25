@@ -59,11 +59,10 @@ export interface SharePromptMessage {
 const ALL_MODELS: LLMModel[] = [
   { label: 'GPT 3.5', name: 'gpt-3.5' },
   { label: 'GPT 4', name: 'gpt-4' },
-  { label: 'PALM 2', name: 'palm-2' },
   { label: 'Gemini Pro', name: 'gemini-pro' },
-  { label: 'Claude 1', name: 'claude-1' },
-  { label: 'Claude 2', name: 'claude-2' },
-  { label: 'Llama 2', name: 'llama-2' }
+  { label: 'Llama 2', name: 'llama-2' },
+  { label: 'Phi 2', name: 'phi-2' },
+  { label: 'TinyLlama', name: 'tinyllama' }
 ];
 
 const INJECTION_MODE_MAP = {
