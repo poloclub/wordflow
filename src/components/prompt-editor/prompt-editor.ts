@@ -751,7 +751,9 @@ export class WordflowPromptEditor extends LitElement {
           <div class="header">
             <div class="title-bar">
               <span class="name"
-                >${this.isNewPrompt ? 'New Prompt' : 'Edit Prompt'}</span
+                >${this.isNewPrompt
+                  ? 'New Private Prompt'
+                  : 'Edit Prompt'}</span
               >
               <span class="svg-icon" @click=${() => this.closeButtonClicked()}
                 >${unsafeHTML(crossIcon)}</span
