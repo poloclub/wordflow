@@ -11,7 +11,7 @@ Social and customizable AI writing assistant tool ✍️
 
 <table>
   <tr>
-    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://github.com/poloclub/wordflow/assets/15007159/eead2c0c-4db2-4b57-a8d4-f52c7dfad9a8'></a></td>
+    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://i.imgur.com/QaWYWni.png'></a></td>
   </tr>
   <tr></tr>
   <tr align="center">
@@ -63,7 +63,7 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
 
 <details>
   <summary>Click to see the demo video!</summary>
-  <video src="https://github.com/poloclub/wordflow/assets/15007159/f586f435-bb26-457d-a477-3d390e7b60df"></video>
+  <video src="https://github.com/poloclub/wordflow/assets/15007159/078e2c6b-39cd-467e-b598-60f093a7ea01"></video>
 </details>
 
 ## Get Started
