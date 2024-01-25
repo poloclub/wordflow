@@ -590,11 +590,12 @@ export class WordflowPanelLocal extends LitElement {
     }
 
     // Compose the prompt count label
-    let promptCountLabel = html`${this.promptManager.localPromptCount} Prompts`;
+    let promptCountLabel = html`${this.promptManager.localPromptCount} Private
+    Prompts`;
 
     if (this.showSearchBarCancelButton) {
       promptCountLabel = html`${this.promptManager.localPromptBroadcastCount} /
-      ${this.promptManager.localPromptCount} Prompts`;
+      ${this.promptManager.localPromptCount} Private Prompts`;
     }
 
     return html`

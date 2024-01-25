@@ -346,7 +346,7 @@ export class WordflowPanelCommunity extends LitElement {
                 .promptIsSubset
                 ? '+'
                 : ''}
-              Prompts</span
+              Public Prompts</span
             >
             <span class="filter" ?is-hidden=${this.curSelectedTag === ''}
               >tagged
