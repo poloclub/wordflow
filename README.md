@@ -72,6 +72,8 @@ To use Wordflow, visit: <https://poloclub.github.io/wordflow/>.
 
 If you use macOS, we highly recommend you [creating a Web App using Safari](https://support.apple.com/en-us/104996). Open [Wordflow](https://poloclub.github.io/wordflow/) in Safari, and then from the menu bar, choose `File` > `Add to Dock`.
 
+Note that currently [Safari doesn't support WebGPU](https://caniuse.com/webgpu). If you want to use local LLMs, you can use Chrome to save Wordflow as a [Chrome app](https://support.google.com/chrome_webstore/answer/3060053?hl=en). In Chrome, at the top right, click `More` > `More Tools` > `Create shortcut`.
+
 <img height="100px" src="https://i.imgur.com/hkGw5zx.png">
 
 ## Developing Wordflow
