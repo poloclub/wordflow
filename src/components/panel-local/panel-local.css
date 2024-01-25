@@ -63,6 +63,7 @@ button {
     font-size: var(--font-d1);
     padding: var(--padding-v) var(--padding-h);
     border-bottom: 1px solid var(--gray-300);
+    cursor: default;
 
     & input {
       font-size: var(--font-d1);

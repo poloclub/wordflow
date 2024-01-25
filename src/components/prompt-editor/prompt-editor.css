@@ -65,7 +65,7 @@ button {
     0 0 20px hsla(0, 0%, 0%, 0.15);
 
   animation: scale-up 100ms;
-  width: 460px;
+  width: 475px;
   height: 440px;
   position: relative;
 }

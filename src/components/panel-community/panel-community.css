@@ -42,6 +42,7 @@
   border-bottom: 1px solid var(--gray-300);
   gap: 12px;
   box-sizing: border-box;
+  cursor: default;
 
   .header-top {
     width: 100%;
