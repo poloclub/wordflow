@@ -246,9 +246,8 @@ wordflow-sidebar-menu {
 }
 
 .floating-menu-box {
-  z-index: 2;
-  /* position: sticky;
-  top: 125px; */
+  z-index: 3;
+  position: relative;
 
   grid-row: 1 / 2;
   grid-column: 2 / 3;
@@ -260,7 +259,9 @@ wordflow-sidebar-menu {
   height: max-content;
   margin-left: 100%;
 
-  transform: translate(-50%, -50%);
+  /* Need to use translate3d for a safari sticky bug */
+  /* https://stackoverflow.com/questions/50224855/not-respecting-z-index-on-safari-with-position-sticky */
+  transform: translate3d(-50%, -50%, 0);
 
   opacity: 1;
   transition:

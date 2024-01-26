@@ -210,7 +210,6 @@ export class WordflowPanelLocal extends LitElement {
     const target = e.target as WordflowPromptCard;
     target.classList.add('dragging');
     document.body.style.setProperty('cursor', 'grabbing');
-    document.body.style.setProperty('overflow', 'hidden');
 
     this.hoveringPromptCardIndex = null;
 
@@ -270,7 +269,6 @@ export class WordflowPanelLocal extends LitElement {
     const target = e.target as WordflowPromptCard;
     target.classList.remove('dragging');
     document.body.style.removeProperty('cursor');
-    document.body.style.removeProperty('overflow');
 
     // Remove the temporary slot element
     this.draggingImageElement?.remove();
