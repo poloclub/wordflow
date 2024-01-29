@@ -560,7 +560,7 @@ export class WordflowWordflow extends LitElement {
               ><span class="svg-icon">${unsafeHTML(fileIcon)}</span> Paper</a
             >
 
-            <a class="row" href="https://youtu.be/OKjoR3PEsaY" target="_blank"
+            <a class="row" href="https://youtu.be/3dOcVuofGVo" target="_blank"
               ><span class="svg-icon">${unsafeHTML(youtubeIcon)}</span> Video</a
             >
 

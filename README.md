@@ -18,7 +18,7 @@ Social and customizable AI writing assistant tool ✍️
   <tr></tr>
   <tr align="center">
     <td><a href="https://poloclub.github.io/wordflow">🚀 Wordflow Demo</a></td>
-    <td><a href="https://youtu.be/OKjoR3PEsaY">📺 Demo Video</a></td>
+    <td><a href="https://youtu.be/3dOcVuofGVo">📺 Demo Video</a></td>
     <!-- <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td> -->
     <td><a href="https://arxiv.org/abs/2401.14447">📖 Research Paper</a></td>
   </tr>
