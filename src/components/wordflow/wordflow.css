@@ -101,7 +101,7 @@
   font-size: var(--font-d4);
   color: var(--gray-500);
   line-height: 1.2;
-  gap: 1px;
+  gap: 3px;
   width: max-content;
 
   & a {

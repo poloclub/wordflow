@@ -6,19 +6,21 @@
 
 [![Github Actions Status](https://github.com/poloclub/wordflow/workflows/build/badge.svg)](https://github.com/poloclub/wordflow/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/License-MIT-blue)](https://github.com/poloclub/wordflow/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/wordflow?color=orange)](https://www.npmjs.com/package/wordflow)
+[![arxiv badge](https://img.shields.io/badge/arXiv-2401.14447-red)](https://arxiv.org/abs/2401.14447)
 
 Social and customizable AI writing assistant tool ✍️
 
 <table>
   <tr>
-    <td colspan="2"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://i.imgur.com/QaWYWni.png'></a></td>
+    <td colspan="3"><a href="https://poloclub.github.io/wordflow"><img width="100%" src='https://i.imgur.com/QaWYWni.png'></a></td>
   </tr>
   <tr></tr>
   <tr align="center">
-    <td><a href="https://poloclub.github.io/wordflow">🚀 Wordflow: Run, Discover, and Share AI Prompts!</a></td>
+    <td><a href="https://poloclub.github.io/wordflow">🚀 Wordflow Demo</a></td>
     <td><a href="https://youtu.be/OKjoR3PEsaY">📺 Demo Video</a></td>
     <!-- <td><a href="https://youtu.be/l1mr9z1TuAk">👨🏻‍🏫 Conference Talk</a></td> -->
-    <!-- <td><a href="https://arxiv.org/abs/2305.03039">📖 Research Paper</a></td> -->
+    <td><a href="https://arxiv.org/abs/2401.14447">📖 Research Paper</a></td>
   </tr>
 </table>
 
