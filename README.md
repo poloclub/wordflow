@@ -6,7 +6,7 @@
 
 [![Github Actions Status](https://github.com/poloclub/wordflow/workflows/build/badge.svg)](https://github.com/poloclub/wordflow/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/License-MIT-blue)](https://github.com/poloclub/wordflow/blob/main/LICENSE)
-[![npm](https://img.shields.io/npm/v/wordflow?color=orange)](https://www.npmjs.com/package/wordflow)
+[![npm](https://img.shields.io/npm/v/wordflow?color=yellow)](https://www.npmjs.com/package/wordflow)
 [![arxiv badge](https://img.shields.io/badge/arXiv-2401.14447-red)](https://arxiv.org/abs/2401.14447)
 
 Social and customizable AI writing assistant tool ✍️
@@ -103,6 +103,23 @@ Navigate to localhost:3000. You should see Wordflow running in your browser :)
 ## Credits
 
 Wordflow is created by <a href='https://zijie.wang/' target='_blank'>Jay Wang</a>, <a href='https://www.linkedin.com/in/achakrav6' target='_blank'>Aishwarya Chakravarthy</a>, <a href='https://davidmunechika.com/' target='_blank'>David Munechika</a>, and <a href='' target='_blank'>Polo Chau</a>.
+
+## Citation
+
+To learn more about Wordflow and social prompt engineering, check out our [research paper](https://arxiv.org/abs/2306.09328).
+
+```bibtex
+@article{wangWordflowSocialPrompt2024,
+  title = {Wordflow: {{Social Prompt Engineering}} for {{Large Language Models}}},
+  shorttitle = {Wordflow},
+  author = {Wang, Zijie J. and Chakravarthy, Aishwarya and Munechika, David and Chau, Duen Horng},
+  year = {2024},
+  url = {http://arxiv.org/abs/2401.14447},
+  urldate = {2024-01-29},
+  archiveprefix = {arxiv},
+  journal = {arXiv 2401.14447}
+}
+```
 
 ## License
 
