@@ -106,7 +106,7 @@ Wordflow is created by <a href='https://zijie.wang/' target='_blank'>Jay Wang</a
 
 ## Citation
 
-To learn more about Wordflow and social prompt engineering, check out our [research paper](https://arxiv.org/abs/2306.09328).
+To learn more about Wordflow and social prompt engineering, check out our [research paper](https://arxiv.org/abs/2401.14447).
 
 ```bibtex
 @article{wangWordflowSocialPrompt2024,
