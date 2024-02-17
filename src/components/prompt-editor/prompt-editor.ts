@@ -738,7 +738,7 @@ export class WordflowPromptEditor extends LitElement {
     return html`
       <div
         class="prompt-editor"
-        @click=${(e: MouseEvent) => this.promptEditorBackgroundClicked(e)}
+        @mousedown=${(e: MouseEvent) => this.promptEditorBackgroundClicked(e)}
       >
         <div class="prompt-window">
           <div class="toast-container">
