@@ -57,7 +57,8 @@ const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
 const localModelSizeMap: Record<SupportedLocalModel, string> = {
   [SupportedLocalModel['tinyllama-1.1b']]: '630 MB',
   [SupportedLocalModel['llama-2-7b']]: '3.6 GB',
-  [SupportedLocalModel['phi-2']]: '1.5 GB'
+  [SupportedLocalModel['phi-2']]: '1.5 GB',
+  [SupportedLocalModel['gemma-2b']]: '1.3 GB'
   // [SupportedLocalModel['gpt-2']]: '311 MB'
   // [SupportedLocalModel['mistral-7b-v0.2']]: '3.5 GB'
 };

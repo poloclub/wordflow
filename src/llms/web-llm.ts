@@ -68,6 +68,17 @@ const APP_CONFIGS: webllm.AppConfig = {
       vram_required_MB: 3053.97,
       low_resource_required: false,
       required_features: ['shader-f16']
+    },
+    {
+      model_url:
+        'https://huggingface.co/mlc-ai/gemma-2b-it-q4f16_1-MLC/resolve/main/',
+      local_id: 'gemma-2b-it-q4f16_1',
+      model_lib_url:
+        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/gemma-2b-it/gemma-2b-it-q4f16_1-ctx4k_cs1k-webgpu.wasm',
+      vram_required_MB: 1476.52,
+      low_resource_required: false,
+      buffer_size_required_bytes: 262144000,
+      required_features: ['shader-f16']
     }
   ]
 };
@@ -105,15 +116,24 @@ const CONV_TEMPLATES: Record<
     stop_str: '<|endoftext|>',
     add_bos: false,
     stop_tokens: [50256]
+  },
+  [SupportedLocalModel['gemma-2b']]: {
+    system: '',
+    roles: ['<start_of_turn>user', '<start_of_turn>model'],
+    offset: 0,
+    seps: ['<end_of_turn>\n', '<end_of_turn>\n'],
+    separator_style: 'Two',
+    stop_str: '<end_of_turn>',
+    add_bos: true,
+    stop_tokens: [1, 107]
   }
 };
 
 const modelMap: Record<SupportedLocalModel, string> = {
   [SupportedLocalModel['tinyllama-1.1b']]: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
   [SupportedLocalModel['llama-2-7b']]: 'Llama-2-7b-chat-hf-q4f16_1',
-  [SupportedLocalModel['phi-2']]: 'Phi2-q4f16_1'
-  // [SupportedLocalModel['gpt-2']]: 'gpt2-q0f16'
-  // [SupportedLocalModel['mistral-7b-v0.2']]: 'Mistral-7B-Instruct-v0.2-q3f16_1'
+  [SupportedLocalModel['phi-2']]: 'Phi2-q4f16_1',
+  [SupportedLocalModel['gemma-2b']]: 'gemma-2b-it-q4f16_1'
 };
 
 const chat = new webllm.ChatModule();

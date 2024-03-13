@@ -3,11 +3,10 @@ import { get, set, del, clear } from 'idb-keyval';
 const PREFIX = 'user-config';
 
 export enum SupportedLocalModel {
+  'gemma-2b' = 'Gemma (2B)',
   'llama-2-7b' = 'Llama 2 (7B)',
-  // 'mistral-7b-v0.2' = 'Mistral (7B)',
   'phi-2' = 'Phi 2 (2.7B)',
   'tinyllama-1.1b' = 'TinyLlama (1.1B)'
-  // 'gpt-2' = 'GPT 2 (124M)'
 }
 
 export enum SupportedRemoteModel {
@@ -27,7 +26,8 @@ export const supportedModelReverseLookup: Record<
   [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
   [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b',
   [SupportedLocalModel['llama-2-7b']]: 'llama-2-7b',
-  [SupportedLocalModel['phi-2']]: 'phi-2'
+  [SupportedLocalModel['phi-2']]: 'phi-2',
+  [SupportedLocalModel['gemma-2b']]: 'gemma-2b'
   // [SupportedLocalModel['gpt-2']]: 'gpt-2'
   // [SupportedLocalModel['mistral-7b-v0.2']]: 'mistral-7b-v0.2'
 };
@@ -48,9 +48,9 @@ export const modelFamilyMap: Record<
   [SupportedRemoteModel['gemini-pro']]: ModelFamily.google,
   [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local,
   [SupportedLocalModel['llama-2-7b']]: ModelFamily.local,
-  // [SupportedLocalModel['gpt-2']]: ModelFamily.local
-  // [SupportedLocalModel['mistral-7b-v0.2']]: ModelFamily.local
+  [SupportedLocalModel['gemma-2b']]: ModelFamily.local,
   [SupportedLocalModel['phi-2']]: ModelFamily.local
+  // [SupportedLocalModel['mistral-7b-v0.2']]: ModelFamily.local
 };
 
 export interface UserConfig {
