@@ -43,6 +43,7 @@ export const textGenWordflow = async (
       payload: {
         requestID: '',
         apiKey: '',
+        baseURL: '',
         result: cachedValue,
         prompt: prompt + inputText,
         detail: detail
@@ -98,6 +99,7 @@ export const textGenWordflow = async (
       payload: {
         requestID: '',
         apiKey: '',
+        baseURL: '',
         result: successData.payload.result,
         prompt: successData.payload.fullPrompt,
         detail: detail

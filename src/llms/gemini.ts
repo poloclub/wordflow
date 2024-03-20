@@ -72,6 +72,7 @@ export const textGenGemini = async (
       payload: {
         requestID,
         apiKey,
+        baseURL: '',
         result: cachedValue,
         prompt: prompt,
         detail: detail
@@ -115,6 +116,7 @@ export const textGenGemini = async (
       payload: {
         requestID,
         apiKey,
+        baseURL: '',
         result,
         prompt: prompt,
         detail: detail
