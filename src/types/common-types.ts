@@ -66,6 +66,7 @@ export type TextGenWorkerMessage =
       payload: {
         requestID: string;
         apiKey: string;
+        baseURL: string;
         result: string;
         prompt: string;
         detail: string;

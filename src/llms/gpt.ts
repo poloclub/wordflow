@@ -10,6 +10,7 @@ export type TextGenMessage =
       payload: {
         requestID: string;
         apiKey: string;
+        baseURL: string;
         result: string;
         prompt: string;
         detail: string;
@@ -27,6 +28,7 @@ export type TextGenMessage =
 /**
  * Use GPT API to generate text based on a given prompt
  * @param apiKey GPT API key
+ * @param baseURL Base URL for the GPT API
  * @param requestID Worker request ID
  * @param prompt Prompt to give to the GPT model
  * @param temperature Model temperature
@@ -36,6 +38,7 @@ export type TextGenMessage =
  */
 export const textGenGpt = async (
   apiKey: string,
+  baseURL: string,
   requestID: string,
   prompt: string,
   temperature: number,
@@ -68,6 +71,7 @@ export const textGenGpt = async (
       payload: {
         requestID,
         apiKey,
+        baseURL,
         result: cachedValue,
         prompt: prompt,
         detail: detail
@@ -76,7 +80,7 @@ export const textGenGpt = async (
     return message;
   }
 
-  const url = 'https://api.openai.com/v1/chat/completions';
+  // const url = 'https://api.openai.com/v1/chat/completions';
 
   const requestOptions: RequestInit = {
     method: 'POST',
@@ -89,6 +93,7 @@ export const textGenGpt = async (
   };
 
   try {
+    const url = baseURL + '/chat/completions';
     const response = await fetch(url, requestOptions);
     const data = (await response.json()) as ChatCompletion;
     if (response.status !== 200) {
@@ -105,6 +110,7 @@ export const textGenGpt = async (
       payload: {
         requestID,
         apiKey,
+        baseURL,
         result: data.choices[0].message.content,
         prompt: prompt,
         detail: detail

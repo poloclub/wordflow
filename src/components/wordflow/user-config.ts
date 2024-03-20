@@ -55,6 +55,7 @@ export const modelFamilyMap: Record<
 
 export interface UserConfig {
   llmAPIKeys: Record<ModelFamily, string>;
+  baseURL: Record<ModelFamily, string>;
   preferredLLM: SupportedRemoteModel | SupportedLocalModel;
 }
 
@@ -63,6 +64,7 @@ export class UserConfigManager {
   updateUserConfig: (userConfig: UserConfig) => void;
 
   #llmAPIKeys: Record<ModelFamily, string>;
+  #baseURL: Record<ModelFamily, string>;
   #preferredLLM: SupportedRemoteModel | SupportedLocalModel;
 
   constructor(updateUserConfig: (userConfig: UserConfig) => void) {
@@ -71,6 +73,11 @@ export class UserConfigManager {
     this.#llmAPIKeys = {
       [ModelFamily.openAI]: '',
       [ModelFamily.google]: '',
+      [ModelFamily.local]: ''
+    };
+    this.#baseURL = {
+      [ModelFamily.openAI]: 'https://api.openai.com/v1',
+      [ModelFamily.google]: 'https://gemini-prod.googleapis.com/v1',
       [ModelFamily.local]: ''
     };
     this.#preferredLLM = SupportedRemoteModel['gpt-3.5-free'];
@@ -83,6 +90,12 @@ export class UserConfigManager {
 
   setAPIKey(modelFamily: ModelFamily, key: string) {
     this.#llmAPIKeys[modelFamily] = key;
+    this._syncStorage();
+    this._broadcastUserConfig();
+  }
+
+  setBaseURL(modelFamily: ModelFamily, url: string) {
+    this.#baseURL[modelFamily] = url;
     this._syncStorage();
     this._broadcastUserConfig();
   }
@@ -121,6 +134,7 @@ export class UserConfigManager {
   _constructConfig(): UserConfig {
     const config: UserConfig = {
       llmAPIKeys: this.#llmAPIKeys,
+      baseURL: this.#baseURL,
       preferredLLM: this.#preferredLLM
     };
     return config;
