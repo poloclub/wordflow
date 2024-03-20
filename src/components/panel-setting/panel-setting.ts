@@ -106,6 +106,9 @@ export class WordflowPanelSetting extends LitElement {
   apiInputValue = '';
 
   @state()
+  baseURLInputValue = '';
+
+  @state()
   showModelLoader = false;
 
   @state()
@@ -214,6 +217,13 @@ export class WordflowPanelSetting extends LitElement {
       this.curDeviceSupportsLocalModel = false;
       this.localModelMessage = LOCAL_MODEL_MESSAGES.incompatible;
     }
+
+    // Initialize the Base URL input
+    const inputElement = this.shadowRoot?.querySelector('#base-url-input') as HTMLInputElement;
+    if (inputElement) {
+      const event = new Event('input', { bubbles: true, composed: true });
+      inputElement.dispatchEvent(event);
+    }
   }
 
   //==========================================================================||
@@ -225,6 +235,7 @@ export class WordflowPanelSetting extends LitElement {
   textGenMessageHandler = (
     model: SupportedRemoteModel,
     apiKey: string,
+    baseURL: string,
     message: TextGenMessage
   ) => {
     switch (message.command) {
@@ -236,6 +247,10 @@ export class WordflowPanelSetting extends LitElement {
 
           // Add the api key to the storage
           this.userConfigManager.setAPIKey(modelFamily, apiKey);
+
+          // Add the base URL to the storage
+          console.log('baseURL'+baseURL);
+          this.userConfigManager.setBaseURL(modelFamily, baseURL);
 
           // Also use set this model as preferred model
           if (this.selectedModel === model) {
@@ -339,13 +354,22 @@ export class WordflowPanelSetting extends LitElement {
     e.preventDefault();
 
     if (
+      (// Check if the API key is the same as the one in the storage
       this.userConfig.llmAPIKeys[this.selectedModelFamily] ===
         this.apiInputValue ||
-      this.apiInputValue === ''
+        this.apiInputValue === ''
+      ) &&
+      (// Check if the base URL is the same as the one in the storage
+        this.baseURLInputValue === this.userConfig.baseURL[this.selectedModelFamily]
+        || this.baseURLInputValue === '')
     ) {
       return;
     }
 
+    // Check if the user has set the API key for the preferred model
+    const do_not_update_key = this.baseURLInputValue !== this.userConfig.baseURL[this.selectedModelFamily] &&
+      this.userConfig.llmAPIKeys[this.selectedModelFamily] === this.apiInputValue;
+    
     if (this.shadowRoot === null) {
       throw Error('shadowRoot is null');
     }
@@ -354,7 +378,7 @@ export class WordflowPanelSetting extends LitElement {
     const temperature = 0.8;
 
     // Parse the api key
-    const apiKey = this.apiInputValue;
+    const apiKey = do_not_update_key ? this.userConfig.llmAPIKeys[this.selectedModelFamily] : this.apiInputValue;
     this.showModelLoader = true;
 
     switch (this.selectedModelFamily) {
@@ -365,6 +389,7 @@ export class WordflowPanelSetting extends LitElement {
             this.textGenMessageHandler(
               this.selectedModel as SupportedRemoteModel,
               apiKey,
+              this.baseURLInputValue,
               value
             );
           }
@@ -375,6 +400,7 @@ export class WordflowPanelSetting extends LitElement {
       case ModelFamily.openAI: {
         textGenGpt(
           apiKey,
+          this.baseURLInputValue,
           requestID,
           prompt,
           temperature,
@@ -385,6 +411,7 @@ export class WordflowPanelSetting extends LitElement {
           this.textGenMessageHandler(
             this.selectedModel as SupportedRemoteModel,
             apiKey,
+            this.baseURLInputValue,
             value
           );
         });
@@ -609,10 +636,23 @@ export class WordflowPanelSetting extends LitElement {
                     value="${this.userConfig.llmAPIKeys[
                       this.selectedModelFamily
                     ]}"
-                    placeholder=""
+                    placeholder="sk-xxxx"
                     @input=${(e: InputEvent) => {
                       const element = e.currentTarget as HTMLInputElement;
                       this.apiInputValue = element.value;
+                    }}
+                  />
+                  <input
+                    type="text"
+                    class="content-text api-input"
+                    id="base-url-input"
+                    value="${this.userConfig.baseURL[
+                      this.selectedModelFamily
+                    ]}"
+                    placeholder="(Optional) base url, default https://api.openai.com/v1"
+                    @input=${(e: InputEvent) => {
+                      const element = e.currentTarget as HTMLInputElement;
+                      this.baseURLInputValue = element.value;
                     }}
                   />
                   <div class="right-loader">
@@ -628,9 +668,10 @@ export class WordflowPanelSetting extends LitElement {
                 </div>
                 <button
                   class="add-button"
-                  ?has-set=${this.userConfig.llmAPIKeys[
+                  ?has-set=${(this.userConfig.llmAPIKeys[
                     this.selectedModelFamily
-                  ] === this.apiInputValue || this.apiInputValue === ''}
+    ] === this.apiInputValue || this.apiInputValue === '') &&
+    this.baseURLInputValue === this.userConfig.baseURL[this.selectedModelFamily]}
                   @click=${(e: MouseEvent) => this.addButtonClicked(e)}
                 >
                   ${this.userConfig.llmAPIKeys[this.selectedModelFamily] === ''

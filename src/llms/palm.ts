@@ -75,7 +75,8 @@ export const textGenPalm = async (
         apiKey,
         result: cachedValue,
         prompt: prompt,
-        detail: detail
+        detail: detail,
+        baseURL: ''
       }
     };
     return message;
@@ -113,7 +114,8 @@ export const textGenPalm = async (
         apiKey,
         result: data.candidates[0].output,
         prompt: prompt,
-        detail: detail
+        detail: detail,
+        baseURL: ''
       }
     };
 

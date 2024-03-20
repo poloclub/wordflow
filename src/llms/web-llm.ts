@@ -88,44 +88,44 @@ const CONV_TEMPLATES: Record<
   Partial<ConvTemplateConfig>
 > = {
   [SupportedLocalModel['tinyllama-1.1b']]: {
-    system: '<|im_start|><|im_end|> ',
-    roles: ['<|im_start|>user', '<|im_start|>assistant'],
+    system_template: '<|im_start|><|im_end|> ',
+    roles: {user: '<|im_start|>user', assistant:'<|im_start|>assistant'},
     offset: 0,
     seps: ['', ''],
-    separator_style: 'Two',
-    stop_str: '<|im_end|>',
-    add_bos: false,
-    stop_tokens: [2]
+    // separator_style: 'Two',
+    stop_str: ['<|im_end|>'],
+    // add_bos: false,
+    stop_token_ids: [2]
   },
   [SupportedLocalModel['llama-2-7b']]: {
-    system: '[INST] <<SYS>><</SYS>>\n\n ',
-    roles: ['[INST]', '[/INST]'],
+    system_template: '[INST] <<SYS>><</SYS>>\n\n ',
+    roles: {user: '[INST]', assistant: '[/INST]'},
     offset: 0,
     seps: [' ', ' '],
-    separator_style: 'Two',
-    stop_str: '[INST]',
-    add_bos: true,
-    stop_tokens: [2]
+    // separator_style: 'Two',
+    stop_str: ['[INST]'],
+    // add_bos: true,
+    stop_token_ids: [2]
   },
   [SupportedLocalModel['phi-2']]: {
-    system: '',
-    roles: ['Instruct', 'Output'],
+    system_template: '',
+    roles: { user: 'Instruct', assistant: 'Output' },
     offset: 0,
     seps: ['\n'],
-    separator_style: 'Two',
-    stop_str: '<|endoftext|>',
-    add_bos: false,
-    stop_tokens: [50256]
+    // separator_style: 'Two',
+    stop_str: ['<|endoftext|>'],
+    // add_bos: false,
+    stop_token_ids: [50256]
   },
   [SupportedLocalModel['gemma-2b']]: {
-    system: '',
-    roles: ['<start_of_turn>user', '<start_of_turn>model'],
+    system_template: '',
+    roles: { user: '<start_of_turn>user', assistant: '<start_of_turn>model' },
     offset: 0,
     seps: ['<end_of_turn>\n', '<end_of_turn>\n'],
-    separator_style: 'Two',
-    stop_str: '<end_of_turn>',
-    add_bos: true,
-    stop_tokens: [1, 107]
+    // separator_style: 'Two',
+    stop_str: ['<end_of_turn>'],
+    // add_bos: true,
+    stop_token_ids: [1, 107]
   }
 };
 
@@ -249,6 +249,7 @@ const startTextGen = async (prompt: string, temperature: number) => {
       payload: {
         requestID: 'web-llm',
         apiKey: '',
+        baseURL: '',
         result: response,
         prompt: prompt,
         detail: ''

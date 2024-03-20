@@ -970,6 +970,7 @@ export class WordflowTextEditor extends LitElement {
       case SupportedRemoteModel['gpt-3.5']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
+          this.userConfig.baseURL[ModelFamily.openAI],
           'text-gen',
           curPrompt,
           promptData.temperature,
@@ -982,12 +983,14 @@ export class WordflowTextEditor extends LitElement {
       case SupportedRemoteModel['gpt-4']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
+          this.userConfig.baseURL[ModelFamily.openAI],
           'text-gen',
           curPrompt,
           promptData.temperature,
           'gpt-4-1106-preview',
           USE_CACHE
         );
+        console.log('Running GPT-4' + this.userConfig.baseURL);
         break;
       }
 

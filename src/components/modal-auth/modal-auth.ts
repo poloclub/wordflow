@@ -14,6 +14,7 @@ type Model = 'palm' | 'gpt';
 export interface ModelAuthMessage {
   model: Model;
   apiKey: string;
+  baseURL: string;
 }
 
 /**
@@ -25,6 +26,9 @@ export class WordflowModalAuth extends LitElement {
   // ===== Properties ======
   @property({ type: String })
   apiKey = '';
+
+  @property({ type: String })
+  baseURL = '';
 
   @query('.modal-auth')
   modalElement!: HTMLElement | null;
@@ -63,6 +67,10 @@ export class WordflowModalAuth extends LitElement {
         const apiKey = USE_CACHE
           ? localStorage.getItem(`${model}APIKey`)
           : null;
+        
+        const baseURL = USE_CACHE
+          ? localStorage.getItem(`${model}baseURL`)
+          : null;
 
         if (apiKey === null) {
           this.modelSetMap[model] = false;
@@ -71,7 +79,8 @@ export class WordflowModalAuth extends LitElement {
           const event = new CustomEvent<ModelAuthMessage>('api-key-added', {
             detail: {
               model,
-              apiKey
+              apiKey,
+              baseURL: baseURL || 'https://api.openai.com/v1'
             }
           });
           this.dispatchEvent(event);
@@ -120,17 +129,20 @@ export class WordflowModalAuth extends LitElement {
   authVerificationSucceeded = (
     model: Model,
     messageElement: HTMLElement,
-    apiKey: string
+    apiKey: string,
+    baseURL: string
   ) => {
     // Add the api key to the local storage
     if (USE_CACHE) {
       localStorage.setItem(`${model}APIKey`, apiKey);
+      localStorage.setItem(`${model}baseURL`, baseURL);
     }
 
     const event = new CustomEvent<ModelAuthMessage>('api-key-added', {
       detail: {
         model,
-        apiKey
+        apiKey,
+        baseURL
       }
     });
     this.dispatchEvent(event);
@@ -150,6 +162,9 @@ export class WordflowModalAuth extends LitElement {
     const apiInputElement = this.renderRoot.querySelector<HTMLInputElement>(
       `#api-input-${model}`
     );
+    const baseURLInputElement = this.renderRoot.querySelector<HTMLInputElement>(
+      `#base-url-input-${model}`
+    );
 
     if (messageElement === null || apiInputElement === null) {
       throw Error("Can't locate the input elements");
@@ -159,6 +174,8 @@ export class WordflowModalAuth extends LitElement {
     if (apiKey === undefined || apiKey === '') {
       return;
     }
+
+    const baseURL = baseURLInputElement?.value || 'https://api.openai.com/v1';
 
     // Start to verify the given key
     messageElement.classList.remove('error');
@@ -185,6 +202,7 @@ export class WordflowModalAuth extends LitElement {
       case 'gpt': {
         textGenGpt(
           apiKey,
+          baseURL,
           requestID,
           prompt,
           temperature,
@@ -221,7 +239,8 @@ export class WordflowModalAuth extends LitElement {
           this.authVerificationSucceeded(
             model,
             messageElement,
-            message.payload.apiKey
+            message.payload.apiKey,
+            message.payload.baseURL
           );
         }
         break;
@@ -294,6 +313,7 @@ export class WordflowModalAuth extends LitElement {
               </span>
               <div class="input-form">
                 <input id="api-input-gpt" placeholder="API Key" />
+                <input id="base-url-input-gpt" placeholder="base URL" />
                 <button
                   class="primary"
                   @click="${() => this.submitButtonClicked('gpt')}"
