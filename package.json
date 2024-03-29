@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@floating-ui/dom": "^1.6.3",
-    "@mlc-ai/web-llm": "^0.2.26",
+    "@mlc-ai/web-llm": "^0.2.29",
     "@tiptap/core": "^2.2.4",
     "@tiptap/extension-bubble-menu": "^2.2.4",
     "@tiptap/extension-document": "^2.2.4",
@@ -34,7 +34,7 @@
     "@types/diff-match-patch": "^1.0.36",
     "@types/emoji-regex": "^9.2.0",
     "@types/uuid": "^9.0.8",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@webgpu/types": "^0.1.40",
     "@xiaohk/utils": "^0.0.6",
     "d3-array": "^3.2.4",
@@ -53,10 +53,10 @@
     "idb-keyval": "^6.2.1",
     "prettier": "^3.2.5",
     "tippy.js": "^6.3.7",
-    "typescript": "^5.4.2",
+    "typescript": "^5.4.3",
     "uuid": "^9.0.1",
-    "vite": "^5.1.6",
-    "vite-plugin-dts": "^3.7.3",
+    "vite": "^5.2.6",
+    "vite-plugin-dts": "^3.8.1",
     "vite-plugin-web-components-hmr": "^0.1.3"
   }
 }

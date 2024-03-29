@@ -83,49 +83,67 @@ const APP_CONFIGS: webllm.AppConfig = {
   ]
 };
 
+enum Role {
+  user = 'user',
+  assistant = 'assistant'
+}
+
 const CONV_TEMPLATES: Record<
   SupportedLocalModel,
   Partial<ConvTemplateConfig>
 > = {
   [SupportedLocalModel['tinyllama-1.1b']]: {
-    system: '<|im_start|><|im_end|> ',
-    roles: ['<|im_start|>user', '<|im_start|>assistant'],
+    system_template: '<|im_start|><|im_end|> ',
+    roles: {
+      [Role.user]: '<|im_start|>user',
+      [Role.assistant]: '<|im_start|>assistant'
+    },
     offset: 0,
     seps: ['', ''],
-    separator_style: 'Two',
-    stop_str: '<|im_end|>',
-    add_bos: false,
-    stop_tokens: [2]
+    stop_str: ['<|im_end|>'],
+    stop_token_ids: [2]
   },
   [SupportedLocalModel['llama-2-7b']]: {
-    system: '[INST] <<SYS>><</SYS>>\n\n ',
-    roles: ['[INST]', '[/INST]'],
+    system_template: '[INST] <<SYS>><</SYS>>\n\n ',
+    roles: {
+      [Role.user]: '[INST]',
+      [Role.assistant]: '[/INST]'
+    },
     offset: 0,
     seps: [' ', ' '],
-    separator_style: 'Two',
-    stop_str: '[INST]',
-    add_bos: true,
-    stop_tokens: [2]
+    role_content_sep: ' ',
+    role_empty_sep: ' ',
+    stop_str: ['[INST]'],
+    system_prefix_token_ids: [1],
+    stop_token_ids: [2],
+    add_role_after_system_message: false
   },
   [SupportedLocalModel['phi-2']]: {
-    system: '',
-    roles: ['Instruct', 'Output'],
+    system_template: '',
+    system_message: '',
+    roles: {
+      [Role.user]: 'Instruct',
+      [Role.assistant]: 'Output'
+    },
     offset: 0,
     seps: ['\n'],
-    separator_style: 'Two',
-    stop_str: '<|endoftext|>',
-    add_bos: false,
-    stop_tokens: [50256]
+    stop_str: ['<|endoftext|>'],
+    stop_token_ids: [50256]
   },
   [SupportedLocalModel['gemma-2b']]: {
-    system: '',
-    roles: ['<start_of_turn>user', '<start_of_turn>model'],
+    system_template: '',
+    system_message: '',
+    roles: {
+      [Role.user]: '<start_of_turn>user',
+      [Role.assistant]: '<start_of_turn>model'
+    },
     offset: 0,
     seps: ['<end_of_turn>\n', '<end_of_turn>\n'],
-    separator_style: 'Two',
-    stop_str: '<end_of_turn>',
-    add_bos: true,
-    stop_tokens: [1, 107]
+    role_content_sep: '\n',
+    role_empty_sep: '\n',
+    stop_str: ['<end_of_turn>'],
+    system_prefix_token_ids: [2],
+    stop_token_ids: [1, 107]
   }
 };
 
