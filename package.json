@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@floating-ui/dom": "^1.6.3",
-    "@mlc-ai/web-llm": "0.2.29",
+    "@mlc-ai/web-llm": "^0.2.32",
     "@tiptap/core": "^2.2.6",
     "@tiptap/extension-bubble-menu": "^2.2.6",
     "@tiptap/extension-document": "^2.2.6",

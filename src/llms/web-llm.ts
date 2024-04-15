@@ -30,59 +30,6 @@ export type TextGenLocalWorkerMessage =
 //==========================================================================||
 //                          Worker Initialization                           ||
 //==========================================================================||
-const APP_CONFIGS: webllm.AppConfig = {
-  model_list: [
-    {
-      model_url:
-        'https://huggingface.co/mlc-ai/TinyLlama-1.1B-Chat-v0.4-q4f16_1-MLC/resolve/main/',
-      local_id: 'TinyLlama-1.1B-Chat-v0.4-q4f16_1',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/TinyLlama-1.1B-Chat-v0.4/TinyLlama-1.1B-Chat-v0.4-q4f16_1-ctx1k-webgpu.wasm'
-    },
-    {
-      model_url:
-        'https://huggingface.co/mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC/resolve/main/',
-      local_id: 'Llama-2-7b-chat-hf-q4f16_1',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Llama-2-7b-chat-hf/Llama-2-7b-chat-hf-q4f16_1-ctx1k-webgpu.wasm'
-    },
-    {
-      model_url: 'https://huggingface.co/mlc-ai/gpt2-q0f16-MLC/resolve/main/',
-      local_id: 'gpt2-q0f16',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/gpt2/gpt2-q0f16-ctx1k-webgpu.wasm'
-    },
-    {
-      model_url:
-        'https://huggingface.co/mlc-ai/Mistral-7B-Instruct-v0.2-q3f16_1-MLC/resolve/main/',
-      local_id: 'Mistral-7B-Instruct-v0.2-q3f16_1',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/Mistral-7B-Instruct-v0.2/Mistral-7B-Instruct-v0.2-q4f16_1-sw4k_cs1k-webgpu.wasm'
-    },
-    {
-      model_url:
-        'https://huggingface.co/mlc-ai/phi-2-q4f16_1-MLC/resolve/main/',
-      local_id: 'Phi2-q4f16_1',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/phi-2/phi-2-q4f16_1-ctx2k-webgpu.wasm',
-      vram_required_MB: 3053.97,
-      low_resource_required: false,
-      required_features: ['shader-f16']
-    },
-    {
-      model_url:
-        'https://huggingface.co/mlc-ai/gemma-2b-it-q4f16_1-MLC/resolve/main/',
-      local_id: 'gemma-2b-it-q4f16_1',
-      model_lib_url:
-        'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/gemma-2b-it/gemma-2b-it-q4f16_1-ctx4k_cs1k-webgpu.wasm',
-      vram_required_MB: 1476.52,
-      low_resource_required: false,
-      buffer_size_required_bytes: 262144000,
-      required_features: ['shader-f16']
-    }
-  ]
-};
-
 enum Role {
   user = 'user',
   assistant = 'assistant'
@@ -154,15 +101,7 @@ const modelMap: Record<SupportedLocalModel, string> = {
   [SupportedLocalModel['gemma-2b']]: 'gemma-2b-it-q4f16_1'
 };
 
-const chat = new webllm.ChatModule();
-
-// To reset temperature, WebLLM requires to reload the model. Therefore, we just
-// fix the temperature for now.
-let _temperature = 0.2;
-
-let _modelLoadingComplete: Promise<void> | null = null;
-
-chat.setInitProgressCallback((report: webllm.InitProgressReport) => {
+const initProgressCallback = (report: webllm.InitProgressReport) => {
   // Update the main thread about the progress
   console.log(report.text);
   const message: TextGenLocalWorkerMessage = {
@@ -173,7 +112,9 @@ chat.setInitProgressCallback((report: webllm.InitProgressReport) => {
     }
   };
   postMessage(message);
-});
+};
+
+let engine: Promise<webllm.EngineInterface> | null = null;
 
 //==========================================================================||
 //                          Worker Event Handlers                           ||
@@ -211,15 +152,25 @@ const startLoadModel = async (
   model: SupportedLocalModel,
   temperature: number
 ) => {
-  _temperature = temperature;
   const curModel = modelMap[model];
-  const chatOption: webllm.ChatOptions = {
-    temperature: temperature,
-    conv_config: CONV_TEMPLATES[model],
-    conv_template: 'custom'
-  };
-  _modelLoadingComplete = chat.reload(curModel, chatOption, APP_CONFIGS);
-  await _modelLoadingComplete;
+
+  // Only use custom conv template for Llama to override the pre-included system
+  // prompt from WebLLM
+  let chatOption: webllm.ChatOptions | undefined = undefined;
+
+  if (model === SupportedLocalModel['llama-2-7b']) {
+    chatOption = {
+      conv_config: CONV_TEMPLATES[model],
+      conv_template: 'custom'
+    };
+  }
+
+  engine = webllm.CreateEngine(curModel, {
+    initProgressCallback: initProgressCallback,
+    chatOpts: chatOption
+  });
+
+  await engine;
 
   try {
     // Send back the data to the main thread
@@ -252,14 +203,18 @@ const startLoadModel = async (
  */
 const startTextGen = async (prompt: string, temperature: number) => {
   try {
-    if (_modelLoadingComplete) {
-      await _modelLoadingComplete;
-    }
-
-    const response = await chat.generate(prompt);
+    const curEngine = await engine!;
+    const response = await curEngine.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      n: 1,
+      max_gen_len: 2048,
+      // Override temperature to 0 because local models are very unstable
+      temperature: 0
+      // logprobs: false
+    });
 
     // Reset the chat cache to avoid memorizing previous messages
-    await chat.resetChat();
+    await curEngine.resetChat();
 
     // Send back the data to the main thread
     const message: TextGenLocalWorkerMessage = {
@@ -267,7 +222,7 @@ const startTextGen = async (prompt: string, temperature: number) => {
       payload: {
         requestID: 'web-llm',
         apiKey: '',
-        result: response,
+        result: response.choices[0].message.content || '',
         prompt: prompt,
         detail: ''
       }
@@ -293,7 +248,7 @@ const startTextGen = async (prompt: string, temperature: number) => {
 
 export const hasLocalModelInCache = async (model: SupportedLocalModel) => {
   const curModel = modelMap[model];
-  const inCache = await webllm.hasModelInCache(curModel, APP_CONFIGS);
+  const inCache = await webllm.hasModelInCache(curModel);
   return inCache;
 };
 
