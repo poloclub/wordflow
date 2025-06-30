@@ -1,55 +1,55 @@
-import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import DiffMatchPatch from 'diff-match-patch';
+import { css, html, LitElement, PropertyValues, unsafeCSS } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { diff_wordMode_ } from './text-diff';
 import { config } from '../../config/config';
-import {
-  UserConfig,
-  SupportedRemoteModel,
-  SupportedLocalModel,
-  supportedModelReverseLookup,
-  ModelFamily
-} from '../wordflow/user-config';
+import { textGenGemini } from '../../llms/gemini';
 import { textGenGpt } from '../../llms/gpt';
 import { textGenWordflow } from '../../llms/wordflow';
-import { textGenGemini } from '../../llms/gemini';
-import { WELCOME_TEXT } from './welcome-text';
 import '../modal-auth/modal-auth';
-import DiffMatchPatch from 'diff-match-patch';
+import {
+  ModelFamily,
+  SupportedLocalModel,
+  supportedModelReverseLookup,
+  SupportedRemoteModel,
+  UserConfig
+} from '../wordflow/user-config';
+import { diff_wordMode_ } from './text-diff';
+import { WELCOME_TEXT } from './welcome-text';
 
 // Editor
 import { Editor, JSONContent } from '@tiptap/core';
-import Text from '@tiptap/extension-text';
 import Paragraph from '@tiptap/extension-paragraph';
-import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { EditHighlight } from './edit-highlight';
-import { LoadingHighlight } from './loading-highlight';
-import { Collapse } from './collapse-node';
-import { SidebarMenu } from './sidebar-menu-plugin';
-import { TextSelection } from '@tiptap/pm/state';
-import { EventHandler } from './event-handler';
+import Text from '@tiptap/extension-text';
 import { closeHistory } from '@tiptap/pm/history';
+import { TextSelection } from '@tiptap/pm/state';
+import StarterKit from '@tiptap/starter-kit';
+import { Collapse } from './collapse-node';
+import { EditHighlight } from './edit-highlight';
+import { EventHandler } from './event-handler';
+import { LoadingHighlight } from './loading-highlight';
+import { SidebarMenu } from './sidebar-menu-plugin';
 
 // Types
-import type { SimpleEventMessage, PromptModel } from '../../types/common-types';
-import type { EditHighlightAttributes } from './edit-highlight';
-import type { CollapseAttributes } from './collapse-node';
-import type { PopperOptions } from './sidebar-menu-plugin';
-import type { TextGenMessage } from '../../llms/gpt';
-import type { PromptDataLocal } from '../../types/wordflow';
 import type { ResolvedPos } from '@tiptap/pm/model';
 import type { EditorView } from '@tiptap/pm/view';
-import type {
-  UpdateSidebarMenuProps,
-  ToastMessage
-} from '../wordflow/wordflow';
-import type { PromptManager } from '../wordflow/prompt-manager';
+import type { TextGenMessage } from '../../llms/gpt';
 import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
+import type { PromptModel, SimpleEventMessage } from '../../types/common-types';
+import type { PromptDataLocal } from '../../types/wordflow';
+import type { PromptManager } from '../wordflow/prompt-manager';
+import type {
+  ToastMessage,
+  UpdateSidebarMenuProps
+} from '../wordflow/wordflow';
+import type { CollapseAttributes } from './collapse-node';
+import type { EditHighlightAttributes } from './edit-highlight';
+import type { PopperOptions } from './sidebar-menu-plugin';
 
 // CSS
-import componentCSS from './text-editor.css?inline';
 import { style } from '../../../node_modules/@tiptap/core/src/style';
+import componentCSS from './text-editor.css?inline';
 
 const ADDED_COLOR = config.customColors.addedColor;
 const REPLACED_COLOR = config.customColors.replacedColor;
@@ -791,7 +791,7 @@ export class WordflowTextEditor extends LitElement {
             // prompt prefix
             if (
               this.userConfig.preferredLLM !==
-              SupportedRemoteModel['gpt-3.5-free']
+              SupportedRemoteModel['gpt-4.1-mini-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -883,7 +883,7 @@ export class WordflowTextEditor extends LitElement {
             // prompt prefix
             if (
               this.userConfig.preferredLLM !==
-              SupportedRemoteModel['gpt-3.5-free']
+              SupportedRemoteModel['gpt-4.1-mini-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -967,7 +967,7 @@ export class WordflowTextEditor extends LitElement {
     let runRequest: Promise<TextGenMessage>;
 
     switch (this.userConfig.preferredLLM) {
-      case SupportedRemoteModel['gpt-3.5']: {
+      case SupportedRemoteModel['gpt-4.1-mini']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -979,7 +979,7 @@ export class WordflowTextEditor extends LitElement {
         break;
       }
 
-      case SupportedRemoteModel['gpt-4']: {
+      case SupportedRemoteModel['gpt-4.1']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
@@ -1023,14 +1023,14 @@ export class WordflowTextEditor extends LitElement {
         break;
       }
 
-      case SupportedRemoteModel['gpt-3.5-free']: {
+      case SupportedRemoteModel['gpt-4.1-mini-free']: {
         runRequest = textGenWordflow(
           'text-gen',
           promptData.prompt,
           inputText,
           promptData.temperature,
           promptData.userID,
-          'gpt-3.5-free',
+          'gpt-4.1-mini-free',
           USE_CACHE
         );
         break;
@@ -1044,7 +1044,7 @@ export class WordflowTextEditor extends LitElement {
           inputText,
           promptData.temperature,
           promptData.userID,
-          'gpt-3.5-free',
+          'gpt-4.1-mini-free',
           USE_CACHE
         );
       }

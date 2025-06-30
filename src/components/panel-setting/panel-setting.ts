@@ -1,45 +1,48 @@
+import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
 import {
-  LitElement,
   css,
-  unsafeCSS,
   html,
+  LitElement,
   PropertyValues,
-  TemplateResult
+  TemplateResult,
+  unsafeCSS
 } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { textGenGemini } from '../../llms/gemini';
+import { textGenGpt } from '../../llms/gpt';
+import { detectGPUDevice, hasLocalModelInCache } from '../../llms/web-llm';
 import {
-  UserConfigManager,
-  UserConfig,
-  SupportedRemoteModel,
+  ModelFamily,
+  modelFamilyMap,
   SupportedLocalModel,
   supportedModelReverseLookup,
-  ModelFamily,
-  modelFamilyMap
+  SupportedRemoteModel,
+  UserConfig,
+  UserConfigManager
 } from '../wordflow/user-config';
-import { textGenGpt } from '../../llms/gpt';
-import { textGenGemini } from '../../llms/gemini';
-import { tooltipMouseEnter, tooltipMouseLeave } from '@xiaohk/utils';
-import { hasLocalModelInCache, detectGPUDevice } from '../../llms/web-llm';
 
-import '../toast/toast';
 import '../progress-bar/progress-bar';
+import '../toast/toast';
 
 import type { TooltipConfig } from '@xiaohk/utils';
 import type { TextGenMessage } from '../../llms/gpt';
-import type { NightjarToast } from '../toast/toast';
-import type { NightjarProgressBar } from '../progress-bar/progress-bar';
 import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
+import type { NightjarProgressBar } from '../progress-bar/progress-bar';
+import type { NightjarToast } from '../toast/toast';
 
 // Assets
 import infoIcon from '../../images/icon-info.svg?raw';
 import componentCSS from './panel-setting.css?inline';
 
 const apiKeyMap: Record<SupportedRemoteModel, string> = {
-  [SupportedRemoteModel['gpt-3.5']]: 'Open AI',
-  [SupportedRemoteModel['gpt-3.5-free']]: 'Open AI',
-  [SupportedRemoteModel['gpt-4']]: 'Open AI',
+  [SupportedRemoteModel['gpt-4.1-mini-free']]: 'Open AI',
+  [SupportedRemoteModel['gpt-4.1-mini']]: 'Open AI',
+  [SupportedRemoteModel['gpt-4.1']]: 'Open AI',
   [SupportedRemoteModel['gemini-pro']]: 'Gemini'
+  // [SupportedRemoteModel['gpt-3.5']]: 'Open AI',
+  // [SupportedRemoteModel['gpt-3.5-free']]: 'Open AI',
+  // [SupportedRemoteModel['gpt-4']]: 'Open AI',
 };
 
 const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
@@ -133,7 +136,7 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
+    this.selectedModel = SupportedRemoteModel['gpt-4.1-mini-free'];
   }
 
   /**
@@ -168,7 +171,7 @@ export class WordflowPanelSetting extends LitElement {
             } else {
               // Case 2: If the user has set preferred model to a local model in the
               // previous session but the model is not longer in cache => revert to gpt 3.5 (free)
-              this.selectedModel = SupportedRemoteModel['gpt-3.5-free'];
+              this.selectedModel = SupportedRemoteModel['gpt-4.1-mini-free'];
               selectElement.value =
                 supportedModelReverseLookup[this.selectedModel];
               this.userConfigManager.setPreferredLLM(this.selectedModel);
@@ -415,7 +418,7 @@ export class WordflowPanelSetting extends LitElement {
         SupportedRemoteModel[select.value as keyof typeof SupportedRemoteModel];
       this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
 
-      if (this.selectedModel === SupportedRemoteModel['gpt-3.5-free']) {
+      if (this.selectedModel === SupportedRemoteModel['gpt-4.1-mini-free']) {
         this.userConfigManager.setPreferredLLM(this.selectedModel);
       } else {
         // Save the preferred LLM if its API is set
@@ -574,7 +577,7 @@ export class WordflowPanelSetting extends LitElement {
             <section
               class="content-block content-block-api"
               ?no-show=${this.selectedModel ===
-                SupportedRemoteModel['gpt-3.5-free'] ||
+                SupportedRemoteModel['gpt-4.1-mini-free'] ||
               this.selectedModelFamily === ModelFamily.local}
             >
               <div class="name-row">

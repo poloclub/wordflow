@@ -1,8 +1,8 @@
-import { LitElement, css, unsafeCSS, html, PropertyValues } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
-import { textGenPalm } from '../../llms/palm';
-import { textGenGpt } from '../../llms/gpt';
+import { css, html, LitElement, PropertyValues, unsafeCSS } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import type { TextGenMessage } from '../../llms/gpt';
+import { textGenGpt } from '../../llms/gpt';
+import { textGenPalm } from '../../llms/palm';
 
 import componentCSS from './modal-auth.css?inline';
 
@@ -188,7 +188,7 @@ export class WordflowModalAuth extends LitElement {
           requestID,
           prompt,
           temperature,
-          'gpt-3.5-turbo',
+          'gpt-4.1-mini',
           false
         ).then(value => {
           console.log(value);
@@ -286,7 +286,7 @@ export class WordflowModalAuth extends LitElement {
 
             <div class="row">
               <span class="info-text">
-                <strong>GPT 3.5</strong> (<a
+                <strong>GPT 4.1</strong> (<a
                   href="https://platform.openai.com/docs/guides/gpt"
                   target="_blank"
                   >reference</a

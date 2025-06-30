@@ -1,7 +1,7 @@
 import * as webllm from '@mlc-ai/web-llm';
+import type { ConvTemplateConfig } from '@mlc-ai/web-llm/lib/config';
 import { SupportedLocalModel } from '../components/wordflow/user-config';
 import type { TextGenWorkerMessage } from '../types/common-types';
-import type { ConvTemplateConfig } from '@mlc-ai/web-llm/lib/config';
 
 export type TextGenLocalWorkerMessage =
   | TextGenWorkerMessage
@@ -341,6 +341,7 @@ export async function detectGPUDevice(): Promise<
       requiredFeatures.push('shader-f16');
     }
 
+    // @ts-ignore
     const adapterInfo = await adapter.requestAdapterInfo();
     const device = await adapter.requestDevice({
       requiredLimits: {
@@ -352,6 +353,7 @@ export async function detectGPUDevice(): Promise<
     });
     return {
       adapter: adapter,
+      // @ts-ignore
       adapterInfo: adapterInfo,
       device: device
     };

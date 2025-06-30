@@ -1,4 +1,4 @@
-import { get, set, del, clear } from 'idb-keyval';
+import { clear, del, get, set } from 'idb-keyval';
 
 const PREFIX = 'user-config';
 
@@ -10,9 +10,12 @@ export enum SupportedLocalModel {
 }
 
 export enum SupportedRemoteModel {
-  'gpt-3.5-free' = 'GPT 3.5 (free)',
-  'gpt-3.5' = 'GPT 3.5',
-  'gpt-4' = 'GPT 4',
+  // 'gpt-3.5-free' = 'GPT 3.5 (free)',
+  // 'gpt-3.5' = 'GPT 3.5',
+  // 'gpt-4' = 'GPT 4',
+  'gpt-4.1-mini-free' = 'GPT 4.1 Mini (free)',
+  'gpt-4.1-mini' = 'GPT 4.1 Mini',
+  'gpt-4.1' = 'GPT 4.1',
   'gemini-pro' = 'Gemini Pro'
 }
 
@@ -20,14 +23,17 @@ export const supportedModelReverseLookup: Record<
   SupportedRemoteModel | SupportedLocalModel,
   keyof typeof SupportedRemoteModel | keyof typeof SupportedLocalModel
 > = {
-  [SupportedRemoteModel['gpt-3.5-free']]: 'gpt-3.5-free',
-  [SupportedRemoteModel['gpt-3.5']]: 'gpt-3.5',
-  [SupportedRemoteModel['gpt-4']]: 'gpt-4',
+  [SupportedRemoteModel['gpt-4.1-mini-free']]: 'gpt-4.1-mini-free',
+  [SupportedRemoteModel['gpt-4.1-mini']]: 'gpt-4.1-mini',
+  [SupportedRemoteModel['gpt-4.1']]: 'gpt-4.1',
   [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
   [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b',
   [SupportedLocalModel['llama-2-7b']]: 'llama-2-7b',
   [SupportedLocalModel['phi-2']]: 'phi-2',
   [SupportedLocalModel['gemma-2b']]: 'gemma-2b'
+  // [SupportedRemoteModel['gpt-3.5-free']]: 'gpt-3.5-free',
+  // [SupportedRemoteModel['gpt-3.5']]: 'gpt-3.5',
+  // [SupportedRemoteModel['gpt-4']]: 'gpt-4',
   // [SupportedLocalModel['gpt-2']]: 'gpt-2'
   // [SupportedLocalModel['mistral-7b-v0.2']]: 'mistral-7b-v0.2'
 };
@@ -42,14 +48,17 @@ export const modelFamilyMap: Record<
   SupportedRemoteModel | SupportedLocalModel,
   ModelFamily
 > = {
-  [SupportedRemoteModel['gpt-3.5']]: ModelFamily.openAI,
-  [SupportedRemoteModel['gpt-3.5-free']]: ModelFamily.openAI,
-  [SupportedRemoteModel['gpt-4']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-4.1-mini']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-4.1-mini-free']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-4.1']]: ModelFamily.openAI,
   [SupportedRemoteModel['gemini-pro']]: ModelFamily.google,
   [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local,
   [SupportedLocalModel['llama-2-7b']]: ModelFamily.local,
   [SupportedLocalModel['gemma-2b']]: ModelFamily.local,
   [SupportedLocalModel['phi-2']]: ModelFamily.local
+  // [SupportedRemoteModel['gpt-3.5']]: ModelFamily.openAI,
+  // [SupportedRemoteModel['gpt-3.5-free']]: ModelFamily.openAI,
+  // [SupportedRemoteModel['gpt-4']]: ModelFamily.openAI,
   // [SupportedLocalModel['mistral-7b-v0.2']]: ModelFamily.local
 };
 
@@ -73,7 +82,7 @@ export class UserConfigManager {
       [ModelFamily.google]: '',
       [ModelFamily.local]: ''
     };
-    this.#preferredLLM = SupportedRemoteModel['gpt-3.5-free'];
+    this.#preferredLLM = SupportedRemoteModel['gpt-4.1-mini-free'];
     this._broadcastUserConfig();
 
     this.restoreFinished = this._restoreFromStorage();

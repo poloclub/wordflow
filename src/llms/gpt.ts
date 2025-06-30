@@ -1,6 +1,6 @@
 import type {
-  ChatCompletionRequest,
   ChatCompletion,
+  ChatCompletionRequest,
   ChatMessage
 } from '../types/gpt-types';
 
@@ -39,7 +39,7 @@ export const textGenGpt = async (
   requestID: string,
   prompt: string,
   temperature: number,
-  model: 'gpt-3.5-turbo' | 'gpt-4-1106-preview',
+  model: 'gpt-3.5-turbo' | 'gpt-4-1106-preview' | 'gpt-4.1-mini' | 'gpt-4.1',
   useCache: boolean = false,
   stopSequences: string[] = [],
   detail: string = ''

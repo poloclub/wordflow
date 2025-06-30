@@ -15,7 +15,7 @@ const customColors = {
 const urls = {
   wordflowEndpoint:
     'https://62uqq9jku8.execute-api.us-east-1.amazonaws.com/prod/records'
-  // 'https://p6gnc71v0w.execute-api.localhost.localstack.cloud:4566/prod/records'
+  // 'https://hma6pxgvnp.execute-api.localhost.localstack.cloud:4566/prod/records'
 };
 
 const colors = {
