@@ -34,7 +34,7 @@ import { SidebarMenu } from './sidebar-menu-plugin';
 // Types
 import type { ResolvedPos } from '@tiptap/pm/model';
 import type { EditorView } from '@tiptap/pm/view';
-import type { TextGenMessage } from '../../llms/gpt';
+import type { GptModel, TextGenMessage } from '../../llms/gpt';
 import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
 import type { PromptModel, SimpleEventMessage } from '../../types/common-types';
 import type { PromptDataLocal } from '../../types/wordflow';
@@ -787,11 +787,9 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            // If the users uses their own API key, record the run with only the
-            // prompt prefix
             if (
               this.userConfig.preferredLLM !==
-              SupportedRemoteModel['gpt-4.1-mini-free']
+              SupportedRemoteModel['gpt-5-nano-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -879,11 +877,9 @@ export class WordflowTextEditor extends LitElement {
               console.info(message.payload.result);
             }
 
-            // If the users uses their own API key, record the run with only the
-            // prompt prefix
             if (
               this.userConfig.preferredLLM !==
-              SupportedRemoteModel['gpt-4.1-mini-free']
+              SupportedRemoteModel['gpt-5-nano-free']
             ) {
               textGenWordflow(
                 'text-gen',
@@ -967,25 +963,33 @@ export class WordflowTextEditor extends LitElement {
     let runRequest: Promise<TextGenMessage>;
 
     switch (this.userConfig.preferredLLM) {
-      case SupportedRemoteModel['gpt-4.1-mini']: {
-        runRequest = textGenGpt(
-          this.userConfig.llmAPIKeys[ModelFamily.openAI],
+      case SupportedRemoteModel['gpt-5-nano-free']: {
+        runRequest = textGenWordflow(
           'text-gen',
-          curPrompt,
+          promptData.prompt,
+          inputText,
           promptData.temperature,
-          'gpt-3.5-turbo',
+          promptData.userID,
+          'gpt-5-nano-free',
           USE_CACHE
         );
         break;
       }
 
+      case SupportedRemoteModel['gpt-5.4']:
+      case SupportedRemoteModel['gpt-5.4-pro']:
+      case SupportedRemoteModel['gpt-5.4-mini']:
+      case SupportedRemoteModel['gpt-5.4-nano']:
+      case SupportedRemoteModel['gpt-5-mini']:
+      case SupportedRemoteModel['gpt-5-nano']:
+      case SupportedRemoteModel['gpt-5']:
       case SupportedRemoteModel['gpt-4.1']: {
         runRequest = textGenGpt(
           this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
           curPrompt,
           promptData.temperature,
-          'gpt-4-1106-preview',
+          supportedModelReverseLookup[this.userConfig.preferredLLM] as GptModel,
           USE_CACHE
         );
         break;
@@ -1023,28 +1027,14 @@ export class WordflowTextEditor extends LitElement {
         break;
       }
 
-      case SupportedRemoteModel['gpt-4.1-mini-free']: {
-        runRequest = textGenWordflow(
-          'text-gen',
-          promptData.prompt,
-          inputText,
-          promptData.temperature,
-          promptData.userID,
-          'gpt-4.1-mini-free',
-          USE_CACHE
-        );
-        break;
-      }
-
       default: {
         console.error('Unknown case ', this.userConfig.preferredLLM);
-        runRequest = textGenWordflow(
+        runRequest = textGenGpt(
+          this.userConfig.llmAPIKeys[ModelFamily.openAI],
           'text-gen',
-          promptData.prompt,
-          inputText,
+          curPrompt,
           promptData.temperature,
-          promptData.userID,
-          'gpt-4.1-mini-free',
+          'gpt-5.4-mini',
           USE_CACHE
         );
       }

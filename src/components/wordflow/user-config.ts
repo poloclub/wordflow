@@ -10,11 +10,14 @@ export enum SupportedLocalModel {
 }
 
 export enum SupportedRemoteModel {
-  // 'gpt-3.5-free' = 'GPT 3.5 (free)',
-  // 'gpt-3.5' = 'GPT 3.5',
-  // 'gpt-4' = 'GPT 4',
-  'gpt-4.1-mini-free' = 'GPT 4.1 Mini (free)',
-  'gpt-4.1-mini' = 'GPT 4.1 Mini',
+  'gpt-5.4' = 'GPT 5.4',
+  'gpt-5.4-pro' = 'GPT 5.4 Pro',
+  'gpt-5.4-mini' = 'GPT 5.4 Mini',
+  'gpt-5.4-nano' = 'GPT 5.4 Nano',
+  'gpt-5-mini' = 'GPT 5 Mini',
+  'gpt-5-nano' = 'GPT 5 Nano',
+  'gpt-5-nano-free' = 'GPT 5 Nano (free)',
+  'gpt-5' = 'GPT 5',
   'gpt-4.1' = 'GPT 4.1',
   'gemini-pro' = 'Gemini Pro'
 }
@@ -23,19 +26,20 @@ export const supportedModelReverseLookup: Record<
   SupportedRemoteModel | SupportedLocalModel,
   keyof typeof SupportedRemoteModel | keyof typeof SupportedLocalModel
 > = {
-  [SupportedRemoteModel['gpt-4.1-mini-free']]: 'gpt-4.1-mini-free',
-  [SupportedRemoteModel['gpt-4.1-mini']]: 'gpt-4.1-mini',
+  [SupportedRemoteModel['gpt-5.4']]: 'gpt-5.4',
+  [SupportedRemoteModel['gpt-5.4-pro']]: 'gpt-5.4-pro',
+  [SupportedRemoteModel['gpt-5.4-mini']]: 'gpt-5.4-mini',
+  [SupportedRemoteModel['gpt-5.4-nano']]: 'gpt-5.4-nano',
+  [SupportedRemoteModel['gpt-5-mini']]: 'gpt-5-mini',
+  [SupportedRemoteModel['gpt-5-nano']]: 'gpt-5-nano',
+  [SupportedRemoteModel['gpt-5-nano-free']]: 'gpt-5-nano-free',
+  [SupportedRemoteModel['gpt-5']]: 'gpt-5',
   [SupportedRemoteModel['gpt-4.1']]: 'gpt-4.1',
   [SupportedRemoteModel['gemini-pro']]: 'gemini-pro',
   [SupportedLocalModel['tinyllama-1.1b']]: 'tinyllama-1.1b',
   [SupportedLocalModel['llama-2-7b']]: 'llama-2-7b',
   [SupportedLocalModel['phi-2']]: 'phi-2',
   [SupportedLocalModel['gemma-2b']]: 'gemma-2b'
-  // [SupportedRemoteModel['gpt-3.5-free']]: 'gpt-3.5-free',
-  // [SupportedRemoteModel['gpt-3.5']]: 'gpt-3.5',
-  // [SupportedRemoteModel['gpt-4']]: 'gpt-4',
-  // [SupportedLocalModel['gpt-2']]: 'gpt-2'
-  // [SupportedLocalModel['mistral-7b-v0.2']]: 'mistral-7b-v0.2'
 };
 
 export enum ModelFamily {
@@ -48,18 +52,20 @@ export const modelFamilyMap: Record<
   SupportedRemoteModel | SupportedLocalModel,
   ModelFamily
 > = {
-  [SupportedRemoteModel['gpt-4.1-mini']]: ModelFamily.openAI,
-  [SupportedRemoteModel['gpt-4.1-mini-free']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5.4']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5.4-pro']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5.4-mini']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5.4-nano']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5-mini']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5-nano']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5-nano-free']]: ModelFamily.openAI,
+  [SupportedRemoteModel['gpt-5']]: ModelFamily.openAI,
   [SupportedRemoteModel['gpt-4.1']]: ModelFamily.openAI,
   [SupportedRemoteModel['gemini-pro']]: ModelFamily.google,
   [SupportedLocalModel['tinyllama-1.1b']]: ModelFamily.local,
   [SupportedLocalModel['llama-2-7b']]: ModelFamily.local,
   [SupportedLocalModel['gemma-2b']]: ModelFamily.local,
   [SupportedLocalModel['phi-2']]: ModelFamily.local
-  // [SupportedRemoteModel['gpt-3.5']]: ModelFamily.openAI,
-  // [SupportedRemoteModel['gpt-3.5-free']]: ModelFamily.openAI,
-  // [SupportedRemoteModel['gpt-4']]: ModelFamily.openAI,
-  // [SupportedLocalModel['mistral-7b-v0.2']]: ModelFamily.local
 };
 
 export interface UserConfig {
@@ -82,7 +88,7 @@ export class UserConfigManager {
       [ModelFamily.google]: '',
       [ModelFamily.local]: ''
     };
-    this.#preferredLLM = SupportedRemoteModel['gpt-4.1-mini-free'];
+    this.#preferredLLM = SupportedRemoteModel['gpt-5-nano-free'];
     this._broadcastUserConfig();
 
     this.restoreFinished = this._restoreFromStorage();
@@ -109,8 +115,14 @@ export class UserConfigManager {
     // Restore the local prompts
     const config = (await get(PREFIX)) as UserConfig | undefined;
     if (config) {
-      this.#llmAPIKeys = config.llmAPIKeys;
-      this.#preferredLLM = config.preferredLLM;
+      this.#llmAPIKeys = {
+        ...this.#llmAPIKeys,
+        ...config.llmAPIKeys
+      };
+      this.#preferredLLM =
+        supportedModelReverseLookup[config.preferredLLM] !== undefined
+          ? config.preferredLLM
+          : SupportedRemoteModel['gpt-5-nano-free'];
     }
     this._broadcastUserConfig();
   }

@@ -26,7 +26,7 @@ Social and customizable AI writing assistant tool ✍️
 
 ## What is Wordflow?
 
-Wordflow is a social and customizable AI writing assistant tool! With Wordflow, you can easily write and run AI prompts with different large language models, including both external models (e.g., GPT 4 and Gemini Pro) and local models (e.g., Llama 2 and Phi 2). You can also discover and share your favorite prompts with the community.
+Wordflow is a social and customizable AI writing assistant tool! With Wordflow, you can easily write and run AI prompts with different large language models, including both external models (e.g., GPT 5.4 and Gemini Pro) and local models (e.g., Llama 2 and Phi 2). You can also discover and share your favorite prompts with the community.
 
 <table>
   <tr>
@@ -36,7 +36,7 @@ Wordflow is a social and customizable AI writing assistant tool! With Wordflow, 
   <tr></tr>
   <tr>
     <td>✅</td>
-    <td>Support different external LLMs (e.g., GPT 4 and Gemini Pro)</td>
+    <td>Support different external LLMs (e.g., GPT 5.4 and Gemini Pro)</td>
   </tr>
   <tr></tr>
   <tr>

@@ -11,6 +11,29 @@ export interface ChatCompletion {
   };
 }
 
+export interface ResponsesCompletion {
+  id: string;
+  object: string;
+  created_at?: number;
+  model: string;
+  output_text?: string;
+  output?: ResponsesOutputItem[];
+  choices?: ChatCompletionChoice[];
+  error?: {
+    message: string;
+  };
+}
+
+export interface ResponsesOutputItem {
+  type: string;
+  content?: ResponsesContentItem[];
+}
+
+export interface ResponsesContentItem {
+  type: string;
+  text?: string;
+}
+
 export interface ChatCompletionChoice {
   index: number;
   message: {
@@ -35,6 +58,11 @@ export interface ChatCompletionRequest {
   frequency_penalty?: number | null;
   logit_bias?: { [key: string]: number };
   user?: string;
+}
+
+export interface ResponsesCompletionRequest {
+  model: string;
+  input: string;
 }
 
 export interface ChatMessage {

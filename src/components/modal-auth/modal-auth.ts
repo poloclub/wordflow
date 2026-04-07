@@ -188,7 +188,7 @@ export class WordflowModalAuth extends LitElement {
           requestID,
           prompt,
           temperature,
-          'gpt-4.1-mini',
+          'gpt-5.4-mini',
           false
         ).then(value => {
           console.log(value);
@@ -286,7 +286,7 @@ export class WordflowModalAuth extends LitElement {
 
             <div class="row">
               <span class="info-text">
-                <strong>GPT 4.1</strong> (<a
+                <strong>GPT 5.4 Mini</strong> (<a
                   href="https://platform.openai.com/docs/guides/gpt"
                   target="_blank"
                   >reference</a

@@ -26,7 +26,7 @@ import '../progress-bar/progress-bar';
 import '../toast/toast';
 
 import type { TooltipConfig } from '@xiaohk/utils';
-import type { TextGenMessage } from '../../llms/gpt';
+import type { GptModel, TextGenMessage } from '../../llms/gpt';
 import type { TextGenLocalWorkerMessage } from '../../llms/web-llm';
 import type { NightjarProgressBar } from '../progress-bar/progress-bar';
 import type { NightjarToast } from '../toast/toast';
@@ -36,19 +36,22 @@ import infoIcon from '../../images/icon-info.svg?raw';
 import componentCSS from './panel-setting.css?inline';
 
 const apiKeyMap: Record<SupportedRemoteModel, string> = {
-  [SupportedRemoteModel['gpt-4.1-mini-free']]: 'Open AI',
-  [SupportedRemoteModel['gpt-4.1-mini']]: 'Open AI',
-  [SupportedRemoteModel['gpt-4.1']]: 'Open AI',
+  [SupportedRemoteModel['gpt-5.4']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5.4-pro']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5.4-mini']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5.4-nano']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5-mini']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5-nano']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5-nano-free']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-5']]: 'OpenAI',
+  [SupportedRemoteModel['gpt-4.1']]: 'OpenAI',
   [SupportedRemoteModel['gemini-pro']]: 'Gemini'
-  // [SupportedRemoteModel['gpt-3.5']]: 'Open AI',
-  // [SupportedRemoteModel['gpt-3.5-free']]: 'Open AI',
-  // [SupportedRemoteModel['gpt-4']]: 'Open AI',
 };
 
 const apiKeyDescriptionMap: Record<ModelFamily, TemplateResult> = {
   [ModelFamily.openAI]: html`Get the key at
     <a href="https://platform.openai.com/api-keys" target="_blank"
-      >Open AI API</a
+      >OpenAI API</a
     >`,
   [ModelFamily.google]: html`Get the key at
     <a href="https://makersuite.google.com/" target="_blank"
@@ -136,7 +139,7 @@ export class WordflowPanelSetting extends LitElement {
   //==========================================================================||
   constructor() {
     super();
-    this.selectedModel = SupportedRemoteModel['gpt-4.1-mini-free'];
+    this.selectedModel = SupportedRemoteModel['gpt-5-nano-free'];
   }
 
   /**
@@ -169,9 +172,9 @@ export class WordflowPanelSetting extends LitElement {
               };
               this.textGenLocalWorker.postMessage(message);
             } else {
-              // Case 2: If the user has set preferred model to a local model in the
-              // previous session but the model is not longer in cache => revert to gpt 3.5 (free)
-              this.selectedModel = SupportedRemoteModel['gpt-4.1-mini-free'];
+              // Case 2: If the previously selected local model is no longer
+              // in cache, fall back to the default remote GPT model.
+              this.selectedModel = SupportedRemoteModel['gpt-5-nano-free'];
               selectElement.value =
                 supportedModelReverseLookup[this.selectedModel];
               this.userConfigManager.setPreferredLLM(this.selectedModel);
@@ -381,7 +384,7 @@ export class WordflowPanelSetting extends LitElement {
           requestID,
           prompt,
           temperature,
-          'gpt-3.5-turbo',
+          supportedModelReverseLookup[this.selectedModel] as GptModel,
           false
         ).then(value => {
           this.showModelLoader = false;
@@ -418,13 +421,11 @@ export class WordflowPanelSetting extends LitElement {
         SupportedRemoteModel[select.value as keyof typeof SupportedRemoteModel];
       this.apiInputValue = this.userConfig.llmAPIKeys[this.selectedModelFamily];
 
-      if (this.selectedModel === SupportedRemoteModel['gpt-4.1-mini-free']) {
+      if (this.selectedModel === SupportedRemoteModel['gpt-5-nano-free']) {
         this.userConfigManager.setPreferredLLM(this.selectedModel);
-      } else {
-        // Save the preferred LLM if its API is set
-        if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
-          this.userConfigManager.setPreferredLLM(this.selectedModel);
-        }
+      } else if (this.userConfig.llmAPIKeys[this.selectedModelFamily] !== '') {
+        // Save the preferred LLM if its API is set.
+        this.userConfigManager.setPreferredLLM(this.selectedModel);
       }
     } else if (
       SupportedLocalModel[select.value as keyof typeof SupportedLocalModel] !==
@@ -577,7 +578,7 @@ export class WordflowPanelSetting extends LitElement {
             <section
               class="content-block content-block-api"
               ?no-show=${this.selectedModel ===
-                SupportedRemoteModel['gpt-4.1-mini-free'] ||
+                SupportedRemoteModel['gpt-5-nano-free'] ||
               this.selectedModelFamily === ModelFamily.local}
             >
               <div class="name-row">

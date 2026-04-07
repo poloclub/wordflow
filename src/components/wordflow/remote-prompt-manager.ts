@@ -33,12 +33,13 @@ for (const p of fakePrompts) {
   p.outputParsingReplacement = '';
   p.userID = userID;
   p.recommendedModels = [
-    'gpt-3.5',
-    'palm-2',
-    'gpt-4',
+    'gpt-5.4',
+    'gpt-5.4-mini',
+    'gpt-5-nano-free',
+    'gpt-4.1',
     'gemini-pro',
     'llama-2',
-    'gemini-ultra'
+    'phi-2'
   ];
 }
 
